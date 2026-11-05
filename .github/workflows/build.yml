@@ -56,7 +56,7 @@ jobs:
       - name: Sign and package
         run: |
           app=build/Build/Products/Release/MoonlightESP32.app
-          lipo -verify_arch arm64 "$app/Contents/MacOS/MoonlightESP32"
+          lipo "$app/Contents/MacOS/MoonlightESP32" -verify_arch arm64
           python3 scripts/sign_app_bundle.py "$app" \
             --entitlements Moonlight.entitlements \
             --extension-entitlements FileProviderExtension/FileProvider.entitlements
