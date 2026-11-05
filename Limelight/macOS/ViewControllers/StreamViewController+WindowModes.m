@@ -643,6 +643,8 @@
 }
 
 - (void)closeWindowFromMainQueueWithMessage:(NSString *)message {
+    // Failed launches may keep the error window open instead of deallocating.
+    [self.hidSupport.esp32Input stop];
     [self.hidSupport releaseAllModifierKeys];
     
     dispatch_async(dispatch_get_main_queue(), ^{

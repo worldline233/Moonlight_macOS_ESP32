@@ -822,6 +822,9 @@ highFreqMotor:(unsigned short)highFreqMotor {
 
     self.hidSupport.shouldSendInputEvents = NO;
     self.controllerSupport.shouldSendInputEvents = NO;
+    // Firmware grants control to one socket. End it with the stream, even if
+    // AppKit or input callbacks retain this controller after the window closes.
+    [self.hidSupport.esp32Input stop];
     self.hidSupport.inputContext = NULL;
     self.controllerSupport.inputContext = NULL;
 
@@ -1303,6 +1306,8 @@ highFreqMotor:(unsigned short)highFreqMotor {
 #pragma mark - Streaming Operations
 
 - (void)prepareForStreaming {
+    // Retry/reconnect can reuse the controller while the old HID object lives.
+    [self.hidSupport.esp32Input stop];
     const uint64_t startupBeginMs = LiGetMillis();
     self.startupSummaryLogged = NO;
     [self stopStreamHealthDiagnostics];
@@ -2237,6 +2242,7 @@ highFreqMotor:(unsigned short)highFreqMotor {
 }
 
 - (void)connectionTerminated:(int)errorCode {
+    [self.hidSupport.esp32Input stop];
     Log(LOG_I, @"Connection terminated: %ld (0x%08x)", (long)errorCode, (unsigned int)errorCode);
     [self publishSunshineDisplayRuntimeState:@"idle"];
     LiSetThreadConnectionContext(NULL);

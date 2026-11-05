@@ -5,7 +5,7 @@
 
 static void settle(void) { usleep(150000); }
 static void waitReady(ESP32InputBridge *bridge) {
-    for (int i = 0; i < 150 && !bridge.ready; ++i) usleep(20000);
+    for (int i = 0; i < 250 && !bridge.ready; ++i) usleep(20000);
     assert(bridge.ready);
 }
 int main(int argc, const char **argv) {
@@ -21,7 +21,24 @@ int main(int argc, const char **argv) {
         settings[@"excluded_keys"] = @"KeyQ";
         assert([ESP32InputBridge saveSettings:settings forHost:host]);
         ESP32InputBridge *bridge = [[ESP32InputBridge alloc] initWithHostUUID:host];
-        if (strcmp(argv[2], "bad") == 0) {
+        if (strcmp(argv[2], "lifecycle") == 0) {
+            // Keep every old bridge alive, as AppKit/input callbacks can do.
+            // The firmware-like server admits only one control connection.
+            NSMutableArray<ESP32InputBridge *> *retained = [NSMutableArray array];
+            for (int cycle = 0; cycle < 3; ++cycle) {
+                waitReady(bridge);
+                assert([bridge handleMacKeyCode:0 pressed:YES]);
+                assert([bridge handleMouseButton:1 pressed:YES]);
+                settle();
+                [retained addObject:bridge];
+                [bridge stop];
+                [bridge stop]; // Teardown callbacks can overlap.
+                assert(!bridge.ready);
+                if (cycle != 2) bridge = [[ESP32InputBridge alloc] initWithHostUUID:host];
+            }
+            usleep(500000);
+            for (ESP32InputBridge *old in retained) assert(!old.ready);
+        } else if (strcmp(argv[2], "bad") == 0) {
             sleep(1);
             assert(!bridge.ready && bridge.keyboardExclusive);
             assert([bridge handleMacKeyCode:0 pressed:YES]);

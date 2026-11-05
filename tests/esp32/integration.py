@@ -5,6 +5,7 @@ No hardware or third-party Python packages. Verifies wire ordering, handshake,
 full keyboard/button reports, exclusions, pause, reconnect, and final release.
 """
 from __future__ import annotations
+import argparse
 import base64
 import hashlib
 import json
@@ -41,14 +42,22 @@ class Server(socketserver.ThreadingTCPServer):
         self.connections = []
         self.errors = []
         self.lock = threading.Lock()
+        self.owner = None
+        self.rejected = 0
         super().__init__(('127.0.0.1', 0), Handler)
 
 class Handler(socketserver.StreamRequestHandler):
     def handle(self):
+        try:
+            self.handle_control()
+        finally:
+            with self.server.lock:
+                if self.server.owner is self:
+                    self.server.owner = None
+
+    def handle_control(self):
         self.request.settimeout(10)
         records = []
-        with self.server.lock:
-            self.server.connections.append(records)
         try:
             request = self.rfile.readline().decode().strip()
             assert request == 'GET /ws?key=123456 HTTP/1.1'
@@ -59,6 +68,18 @@ class Handler(socketserver.StreamRequestHandler):
                     break
                 key, value = line.split(':', 1)
                 headers[key.lower()] = value.strip()
+            # Match firmware websocket_pre_handshake: one active controller.
+            with self.server.lock:
+                rejected = self.server.owner is not None
+                if rejected:
+                    self.server.rejected += 1
+                else:
+                    self.server.owner = self
+                    self.server.connections.append(records)
+            if rejected:
+                self.wfile.write(b'HTTP/1.1 409 Conflict\r\nContent-Length: 0\r\nConnection: close\r\n\r\n')
+                self.wfile.flush()
+                return
             accept = base64.b64encode(hashlib.sha1((headers['sec-websocket-key'] + '258EAFA5-E914-47DA-95CA-C5AB0DC85B11').encode()).digest()).decode()
             self.wfile.write(('HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: ' + accept + '\r\n\r\n').encode())
             self.wfile.flush()
@@ -98,18 +119,29 @@ class Handler(socketserver.StreamRequestHandler):
             with self.server.lock:
                 self.server.errors.append(repr(error))
 
-def check(binary, bad):
+def check(binary, bad=False, lifecycle=False):
     server = Server(bad)
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()
     try:
-        subprocess.run([str(binary), str(server.server_address[1]), 'bad' if bad else 'good'], check=True, timeout=15)
+        mode = 'lifecycle' if lifecycle else ('bad' if bad else 'good')
+        subprocess.run([str(binary), str(server.server_address[1]), mode], check=True, timeout=20)
     finally:
         server.shutdown()
         server.server_close()
         thread.join(2)
     assert not server.errors, server.errors
     connections = [records for records in server.connections if records]
+    if lifecycle:
+        assert len(connections) == 3, (len(connections), server.rejected)
+        for connection in connections:
+            assert connection[0]['type'] == 'hello'
+            assert connection[1]['type'] == 'release_all'
+            assert any(m.get('keys') == ['KeyA'] for m in connection)
+            assert any(m.get('buttons') == ['left'] for m in connection)
+            assert connection[-1]['type'] == 'release_all', connection
+        print('Retained old sessions: 3 stream starts/stops passed against exclusive-control server')
+        return
     if bad:
         assert connections and all(m['type'] not in ('state', 'mouse_state') for c in connections for m in c)
         return
@@ -130,7 +162,29 @@ def check(binary, bad):
     assert any(m.get('keys') == ['KeyC'] for m in second)
     assert second[-1]['type'] == 'release_all'
 
+def check_lifecycle_wiring():
+    from button_ordering import method
+    source = (ROOT/'Limelight/macOS/ViewControllers/StreamViewController.m').read_text()
+    # Ignore the generation proxy's similarly named delegate methods.
+    source = source.split('@implementation StreamViewController\n', 1)[1]
+    close = (ROOT/'Limelight/macOS/ViewControllers/StreamViewController+WindowModes.m').read_text()
+    stop = '[self.hidSupport.esp32Input stop];'
+    for signature in ('- (void)beginStopStreamIfNeededWithReason:(NSString *)reason completion:',
+                      '- (void)connectionTerminated:(int)errorCode'):
+        assert stop in method(source, signature), signature
+    prepare = method(source, '- (void)prepareForStreaming')
+    assert prepare.index(stop) < prepare.index('self.hidSupport = [[HIDSupport alloc]')
+    failure = method(close, '- (void)closeWindowFromMainQueueWithMessage:')
+    assert failure.index(stop) < failure.index('dispatch_async(')
+    print('ESP32 stream lifecycle wiring: passed (close, termination, retry and failed launch)')
+
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--check', action='store_true', help='Check stream lifecycle wiring without macOS')
+    args = parser.parse_args()
+    check_lifecycle_wiring()
+    if args.check:
+        return
     if platform.system() != 'Darwin':
         raise SystemExit('This test requires macOS Foundation / NSURLSession.')
     with tempfile.TemporaryDirectory(prefix='esp32-native-') as directory:
@@ -145,6 +199,7 @@ def main():
             else:
                 check(binary, False)
                 check(binary, True)
+                check(binary, lifecycle=True)
     print('ESP32 native configuration and loopback WebSocket tests: passed')
 
 if __name__ == '__main__':
