@@ -18,7 +18,7 @@ def check():
 FIXTURE = r'''
 #import <AppKit/AppKit.h>
 #import <QuartzCore/QuartzCore.h>
-#include <cassert>
+#include <assert.h>
 @interface Bridge : NSObject
 @property BOOL enabled;
 - (NSDictionary *)monitorSnapshot;
