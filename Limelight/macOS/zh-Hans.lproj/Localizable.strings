@@ -2097,11 +2097,3 @@
 
 /* Independent ESP32 status bar */
 "ESP32 Show Status Bar" = "显示独立 ESP32 状态条";
-"ESP32 bar connected" = "已连接";
-"ESP32 bar paused" = "已暂停";
-"ESP32 bar offline" = "未连接";
-"ESP32 bar USB" = "USB";
-"ESP32 bar blocked" = "已阻止";
-"ESP32 bar keyboard" = "键盘";
-"ESP32 bar buttons" = "按钮";
-"ESP32 bar uncaptured" = "未捕获";

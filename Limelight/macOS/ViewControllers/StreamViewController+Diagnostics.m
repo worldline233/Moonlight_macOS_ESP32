@@ -1827,15 +1827,15 @@ static NSString *MLDynamicHdrFallbackDisplayName(int fallback) {
     NSDictionary *snapshot = [self.hidSupport.esp32Input monitorSnapshot];
     BOOL ready = [snapshot[@"ready"] boolValue];
     BOOL paused = [snapshot[@"paused"] boolValue];
-    NSString *state = MLString(ready ? (paused ? @"ESP32 bar paused" : @"ESP32 bar connected") : @"ESP32 bar offline", nil);
+    NSString *state = (ready ? (paused ? @"Paused" : @"Connected") : @"Disconnected");
     NSString *keyboard = ![snapshot[@"keyboard"] boolValue] ? @"Moonlight" :
-        MLString(ready && !paused ? @"ESP32 bar USB" : @"ESP32 bar blocked", nil);
+        (ready && !paused ? @"USB" : @"Blocked");
     NSString *mouse = ![snapshot[@"mouse"] boolValue] ? @"Moonlight" :
-        (paused ? MLString(@"ESP32 bar blocked", nil) : (ready ? @"USB" : @"Moonlight"));
+        (paused ? @"Blocked" : (ready ? @"USB" : @"Moonlight"));
     NSString *text = [NSString stringWithFormat:@"● ESP32 %@  |  %@ %@ · %@ %@%@",
-        state, MLString(@"ESP32 bar keyboard", nil), keyboard,
-        MLString(@"ESP32 bar buttons", nil), mouse,
-        self.hidSupport.shouldSendInputEvents ? @"" : [@" · " stringByAppendingString:MLString(@"ESP32 bar uncaptured", nil)]];
+        state, @"Keyboard", keyboard,
+        @"Buttons", mouse,
+        self.hidSupport.shouldSendInputEvents ? @"" : [@" · " stringByAppendingString:@"Not captured"]];
     NSMutableAttributedString *styled = [[NSMutableAttributedString alloc] initWithString:text attributes:@{
         NSFontAttributeName: self.esp32StatusLabel.font, NSForegroundColorAttributeName:NSColor.whiteColor }];
     [styled addAttribute:NSForegroundColorAttributeName value:(ready ? (paused ? NSColor.systemOrangeColor : NSColor.systemGreenColor) : NSColor.systemRedColor) range:NSMakeRange(0, 1)];
