@@ -45,6 +45,7 @@ jobs:
           bash scripts/build_dav1d.sh
       - name: Build Apple Silicon app
         run: |
+          printf 'BUILD_NUMBER = %s\n' "$GITHUB_RUN_NUMBER" > Limelight/Version.xcconfig
           xcodebuild -project Moonlight.xcodeproj \
             -scheme 'Moonlight for macOS' -configuration Release \
             -derivedDataPath build -destination 'platform=macOS,arch=arm64' \

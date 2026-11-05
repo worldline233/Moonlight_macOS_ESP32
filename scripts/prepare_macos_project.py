@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Make the RC7 macOS target's source/resource membership explicit.
 
-The imported project lists its native files as synchronized-folder exceptions,
-but has no synchronized group attached to its app target and only a handful of
-explicit source entries. Materialize that native file list for reproducible
-command-line builds. No input, codec, or renderer implementation is changed.
+The imported project encodes native membership with synchronized folders.
+Use an entirely explicit source/resource graph and ordinary groups, so Xcode
+does not generate duplicate Core Data or resource tasks from mixed membership.
+No input, codec, or renderer implementation is changed.
 """
 from pathlib import Path
 import hashlib
@@ -17,10 +17,35 @@ PROJECT = ROOT/'Moonlight.xcodeproj/project.pbxproj'
 def object_id(label):
     return hashlib.sha1(('moonlight-esp32:' + label).encode()).hexdigest()[:24].upper()
 
+def ordinary_groups(text):
+    """Remove automatic folder membership after sources are materialized."""
+    if 'PBXFileSystemSynchronizedRootGroup' not in text:
+        return text
+    root_id = 'A40F5A3F2D432ABE006DA227'
+    version_ref = object_id('version-config')
+    for section in ('PBXFileSystemSynchronizedBuildFileExceptionSet', 'PBXFileSystemSynchronizedRootGroup'):
+        pattern = rf'/\* Begin {section} section \*/.*?/\* End {section} section \*/\n*'
+        text, count = re.subn(pattern, '', text, flags=re.S)
+        assert count == 1, section
+    group = f'\t\t{root_id} /* Limelight */ = {{isa = PBXGroup; children = ({version_ref} /* Version.xcconfig */, ); path = Limelight; sourceTree = "<group>"; }};'
+    text = text.replace('/* End PBXGroup section */', group + '\n/* End PBXGroup section */')
+    version = f'\t\t{version_ref} /* Version.xcconfig */ = {{isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Limelight/Version.xcconfig"; sourceTree = SOURCE_ROOT; }};'
+    text = text.replace('/* End PBXFileReference section */', version + '\n/* End PBXFileReference section */')
+    text, count = re.subn(
+        rf'baseConfigurationReferenceAnchor = {root_id} /\* Limelight \*/;\s*baseConfigurationReferenceRelativePath = Version.xcconfig;',
+        f'baseConfigurationReference = {version_ref} /* Version.xcconfig */;', text)
+    assert count == 2, 'App version configuration references'
+    return text
+
 def prepare():
     text = PROJECT.read_text()
     if '/* Native macOS explicit membership */' in text:
-        print('Native macOS target membership already materialized.')
+        converted = ordinary_groups(text)
+        if converted != text:
+            PROJECT.write_text(converted, newline='\n')
+            print('Converted synchronized membership to ordinary Xcode groups.')
+        else:
+            print('Native macOS target membership already materialized.')
         return
     match = re.search(r'membershipExceptions = \((.*?)\);', text, re.S)
     assert match
@@ -74,7 +99,7 @@ def prepare():
     text = text.replace('A4B1C1002D9F0A1B00C0FF10 /* InfoPlist.strings in Resources */,', 'A4B1C1002D9F0A1B00C0FF10 /* InfoPlist.strings in Resources */,\n' + '\n'.join(resources))
     text = re.sub(r'^\s*[A-F0-9]{24} /\* \(null\) in Sources \*/[^\n]*\n', '', text, flags=re.M)
     text = text.replace('HEADER_SEARCH_PATHS = (', 'USER_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/Limelight/**";\n\t\t\t\tHEADER_SEARCH_PATHS = (')
-    PROJECT.write_text(text, newline='\n')
+    PROJECT.write_text(ordinary_groups(text), newline='\n')
     print(f'Materialized {len(build_refs)} native source files and {len(resources)} resources.')
 
 if __name__ == '__main__':

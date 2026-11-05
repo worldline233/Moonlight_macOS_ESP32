@@ -47,6 +47,7 @@ def parse(text):
 def main():
     project = parse((ROOT/'Moonlight.xcodeproj/project.pbxproj').read_text())
     objects = project['objects']
+    assert not any(obj.get('isa', '').startswith('PBXFileSystemSynchronized') for obj in objects.values()), 'Explicit target must not also generate automatic synchronized-folder tasks'
     target = objects['4C7E0A791FECBFFD00684411']
     sources, resources = [], []
     for phase_id in target['buildPhases']:

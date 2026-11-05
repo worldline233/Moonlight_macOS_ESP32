@@ -9,8 +9,8 @@
 - GitHub 仓库创建、首次推送与云端构建：[docs/REPOSITORY.md](docs/REPOSITORY.md)。
 - 详细使用、测试和验收：[docs/ESP32.md](docs/ESP32.md)。
 
-当前状态：首版源码接入已完成，WSL 输入状态机、工程引用及设置搜索索引检查已通过。已提供按钮队列生产代码回归、macOS 原生配置和 WebSocket 模拟联机测试；这些测试及完整 Xcode 构建尚未执行，真机 ESP32 联调和鼠标手感仍待验证。不能将源码检查视为构建成功。
+当前状态：输入状态机、按钮队列生产代码回归、macOS 原生配置和 WebSocket 模拟联机测试已在 Mac Action 通过。完整应用构建仍在验证，ESP32 硬件联调和鼠标手感待真机验收。
 
-本项目使用 Xcode 原生工程。GitHub Actions 提供手动触发的 Apple Silicon 构建；尚未配置本项目的 GitHub 发布仓库。开发包停用上游自动更新。
+本项目使用 Xcode 原生工程。GitHub Actions 提供手动触发的 Apple Silicon 构建；项目仓库为 [worldline233/Moonlight_macOS_ESP32](https://github.com/worldline233/Moonlight_macOS_ESP32)。开发包停用上游自动更新。
 
 上游说明保存在 [README.upstream.md](README.upstream.md) 和 [README.en.md](README.en.md)，作者与依赖致谢见 [ACKNOWLEDGEMENTS.md](ACKNOWLEDGEMENTS.md)。GPLv3 授权沿用 [LICENSE.txt](LICENSE.txt)。

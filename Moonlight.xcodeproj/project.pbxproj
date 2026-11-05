@@ -421,174 +421,8 @@
 		11C8B5CD55E959A97889F024 /* LogBuffer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/Utility/LogBuffer.m"; sourceTree = SOURCE_ROOT; };
 		7FCCFCBF519DDD86AF99DA5E /* Logger.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/Utility/Logger.m"; sourceTree = SOURCE_ROOT; };
 		D2AED08C234B331C1FAADCCB /* Utils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/Utility/Utils.m"; sourceTree = SOURCE_ROOT; };
+		990B43F2257C488C4D9D546E /* Version.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Limelight/Version.xcconfig"; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
-
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		A40F5A9A2D432ABE006DA227 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				/Localized/macOS/Main.storyboard,
-				"build-number.sh",
-				Crypto/CryptoManager.m,
-				Crypto/IdManager.m,
-				Crypto/mkcert.c,
-				Database/DataManager.m,
-				Database/TemporaryApp.m,
-				Database/TemporaryHost.m,
-				Database/TemporarySettings.m,
-				DatabaseSingleton.m,
-				Input/Controller.m,
-				Input/ControllerSupport.m,
-				Input/CoreHIDMouseDriver.swift,
-				Input/HapticContext.m,
-				Input/MLDualSenseTouchpad.m,
-				Input/MLPrecisionTouchpad.m,
-				Input/MLSystemGestureBlocker.m,
-				Input/MLSystemShortcutCapture.m,
-				Input/HIDSupport.m,
-				"Input/HIDSupport+Pointer.m",
-				"Input/HIDSupport+Rumble.m",
-				"Input/HIDSupport+Scroll.m",
-				Input/Ticks.m,
-				Stream/MLAV1SoftwareDecoder.m,
-				Stream/MLAudioBitstreamOutput.m,
-				Stream/MLAdaptiveBitrateController.m,
-				Stream/MLIEC61937.c,
-				Limelight.xcdatamodeld,
-				macOS/AppCell.xib,
-				macOS/AppDelegateForAppKit.m,
-				macOS/Assets.xcassets,
-				macOS/Helpers/AlertPresenter.m,
-				macOS/Helpers/AwdlAuthorizationHelper.m,
-				macOS/Helpers/BackgroundColorView.m,
-				macOS/Helpers/ControllerNavigation.m,
-				macOS/Helpers/Functional/F.m,
-				"macOS/Helpers/Functional/NSArray+F.m",
-				"macOS/Helpers/Functional/NSDictionary+F.m",
-				"macOS/Helpers/Functional/NSNumber+F.m",
-				macOS/Helpers/Helpers.m,
-				macOS/Helpers/ImageFader.m,
-				macOS/Helpers/LanguageManager.swift,
-				macOS/Helpers/MASPreferences/MASPreferencesWindow.xib,
-				macOS/Helpers/MASPreferences/MASPreferencesWindowController.m,
-				macOS/Helpers/MicrophoneManager.swift,
-				"macOS/Helpers/NSApplication+Moonlight.m",
-				"macOS/Helpers/NSCollectionView+Moonlight.m",
-				"macOS/Helpers/NSResponder+Moonlight.m",
-				"macOS/Helpers/NSView+Moonlight.m",
-				"macOS/Helpers/NSWindow+Moonlight.m",
-				macOS/Helpers/NumberOnlyFormatter.swift,
-				macOS/Helpers/SparkleUpdateManager.swift,
-				macOS/Helpers/ViewExtensions.swift,
-				macOS/HostCell.xib,
-				"macOS/Supporting Files/main.m",
-				macOS/ViewControllers/AboutView.xib,
-				macOS/ViewControllers/AboutViewController.m,
-				macOS/ViewControllers/AboutWindow.xib,
-				macOS/ViewControllers/AppCell.m,
-				macOS/ViewControllers/AppsViewController.m,
-				macOS/ViewControllers/AppsWorkspaceViewController.m,
-				macOS/ViewControllers/ConnectionDetailsViewController.swift,
-				macOS/ViewControllers/ConnectionEditorViewController.m,
-				macOS/ViewControllers/ContainerViewController.m,
-				macOS/ViewControllers/DebugLogParser.swift,
-				macOS/ViewControllers/GeneralPrefsPaneVC.m,
-				macOS/ViewControllers/GeneralPrefsPaneView.xib,
-				macOS/ViewControllers/HostCell.m,
-				macOS/ViewControllers/HostSidebarView.swift,
-				macOS/ViewControllers/HostSidebarViewModel.swift,
-				macOS/ViewControllers/HostsViewController.m,
-				macOS/ViewControllers/MLEdgeMenuUI.m,
-				macOS/ViewControllers/Settings.swift,
-				macOS/ViewControllers/SettingsAppPane.swift,
-				"macOS/Supporting Files/HeadphoneCorrections.tsv",
-				"macOS/Supporting Files/ThirdPartyLicenses.txt",
-				macOS/ViewControllers/EnhancedAudioEQ.swift,
-				macOS/ViewControllers/EnhancedAudioSpectrum.swift,
-				macOS/ViewControllers/SettingsAudioPane.swift,
-				macOS/ViewControllers/SettingsHostingController.swift,
-				macOS/ViewControllers/SettingsInputPane.swift,
-				macOS/ViewControllers/ControllerTouchpadShortcut.swift,
-				macOS/ViewControllers/ControllerShortcutRuntime.swift,
-				macOS/ViewControllers/ControllerHintOverlay.swift,
-				macOS/ViewControllers/ControllerFocusNavigator.swift,
-				macOS/ViewControllers/ControllerKeyboard.swift,
-				macOS/ViewControllers/SettingsShortcutEditors.swift,
-				macOS/ViewControllers/SettingsLogViewer.swift,
-				macOS/ViewControllers/RemoteUSBForwardingViewModel.swift,
-				macOS/ViewControllers/RemoteFileMappingClient.swift,
-				macOS/ViewControllers/RemoteFileMappingView.swift,
-				macOS/ViewControllers/RemoteFileMappingViewModel.swift,
-				macOS/ViewControllers/SettingsModel.swift,
-				"macOS/ViewControllers/SettingsModel+DerivedValues.swift",
-				"macOS/ViewControllers/SettingsModel+Persistence.swift",
-				"macOS/ViewControllers/SettingsModel+ProfileCopy.swift",
-				"macOS/ViewControllers/SettingsModel+RiskAssessment.swift",
-				macOS/ViewControllers/SettingsObjCBridge.swift,
-				macOS/ViewControllers/SettingsPictureSection.swift,
-				macOS/ViewControllers/SettingsProfileDifferences.swift,
-				macOS/ViewControllers/SettingsProfileFile.swift,
-				macOS/ViewControllers/SettingsProfilesPane.swift,
-				macOS/ViewControllers/SettingsSharedControls.swift,
-				macOS/ViewControllers/SettingsShortcuts.swift,
-				macOS/ViewControllers/SettingsStore.swift,
-				macOS/ViewControllers/SettingsStreamPane.swift,
-				macOS/ViewControllers/SettingsVideoPane.swift,
-				macOS/ViewControllers/SettingsView.swift,
-				macOS/ViewControllers/StreamRiskAssessment.swift,
-				macOS/ViewControllers/StreamDisplay.swift,
-				macOS/ViewControllers/StreamViewController.m,
-				"macOS/ViewControllers/StreamViewController+Diagnostics.m",
-				"macOS/ViewControllers/StreamViewController+FreeWindow.m",
-				"macOS/ViewControllers/StreamViewController+LiveStream.m",
-				"macOS/ViewControllers/StreamViewController+Input.m",
-				"macOS/ViewControllers/StreamViewController+MenuUI.m",
-				"macOS/ViewControllers/StreamViewController+MouseCapture.m",
-				"macOS/ViewControllers/StreamViewController+WindowModes.m",
-				macOS/Views/AppCellView.m,
-				macOS/Views/CollectionView.m,
-				macOS/Views/HostCellView.m,
-				macOS/Views/LinkTextField.m,
-				macOS/Views/NavigatableAlertView.m,
-				macOS/Views/StreamingLockOverlayView.swift,
-				macOS/Views/StreamingStartupOverlay.swift,
-				macOS/Views/ReleaseNotesView.swift,
-				macOS/Views/StreamViewMac.m,
-				Network/AppAssetManager.m,
-				Network/AppAssetResponse.m,
-				Network/AppAssetRetriever.m,
-				Network/AppListResponse.m,
-				Network/ConnectionEndpointStore.m,
-				Network/ConnectionHelper.m,
-				Network/DiscoveryManager.m,
-				Network/DiscoveryWorker.m,
-				Network/HttpManager.m,
-				Network/HttpRequest.m,
-				Network/HttpResponse.m,
-				Network/LatencyProbe.m,
-				Network/MDNSManager.m,
-				Network/PairManager.m,
-				Network/RemoteUSBForwardingSession.m,
-				Network/RemoteUSBReverseTunnel.m,
-				Network/ServerInfoResponse.m,
-				Network/StreamingSessionManager.m,
-				Network/WakeOnLanManager.m,
-				Stream/Connection.m,
-				Stream/RendererLayerContainer.m,
-				Stream/StreamConfiguration.m,
-				Stream/StreamManager.m,
-				Stream/VideoDecoderRenderer.m,
-				Utility/LogBuffer.m,
-				Utility/Logger.m,
-				Utility/Utils.m,
-			);
-			target = 4C7E0A791FECBFFD00684411 /* Moonlight for macOS */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
-/* Begin PBXFileSystemSynchronizedRootGroup section */
-		A40F5A3F2D432ABE006DA227 /* Limelight */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (A40F5A9A2D432ABE006DA227 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = Limelight; sourceTree = "<group>"; };
-/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		4C7E0A771FECBFFD00684411 /* Frameworks */ = {
@@ -822,6 +656,7 @@
 			name = "Native macOS explicit membership";
 			sourceTree = "<group>";
 		};
+		A40F5A3F2D432ABE006DA227 /* Limelight */ = {isa = PBXGroup; children = (990B43F2257C488C4D9D546E /* Version.xcconfig */, ); path = Limelight; sourceTree = "<group>"; };
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -1260,8 +1095,7 @@
 /* Begin XCBuildConfiguration section */
 		4C7E0A8B1FECBFFD00684411 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReferenceAnchor = A40F5A3F2D432ABE006DA227 /* Limelight */;
-			baseConfigurationReferenceRelativePath = Version.xcconfig;
+			baseConfigurationReference = 990B43F2257C488C4D9D546E /* Version.xcconfig */;
 			buildSettings = {
 				APP_SHORTCUTS_ENABLE_FLEXIBLE_MATCHING = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -1328,8 +1162,7 @@
 		};
 		4C7E0A8C1FECBFFD00684411 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReferenceAnchor = A40F5A3F2D432ABE006DA227 /* Limelight */;
-			baseConfigurationReferenceRelativePath = Version.xcconfig;
+			baseConfigurationReference = 990B43F2257C488C4D9D546E /* Version.xcconfig */;
 			buildSettings = {
 				APP_SHORTCUTS_ENABLE_FLEXIBLE_MATCHING = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;

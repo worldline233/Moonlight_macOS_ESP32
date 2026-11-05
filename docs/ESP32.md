@@ -43,7 +43,7 @@ python3 tests/esp32/button_ordering.py
 python3 tests/esp32/integration.py
 ```
 
-安装上游 XCFrameworks 并构建 dav1d 后，用 Xcode 打开 `Moonlight.xcodeproj`，选择 `Moonlight for macOS`。也可在自己的 GitHub 仓库中手动运行 `Build macOS ESP32`，仅构建 arm64，保留产物七天，不自动发布。
+安装上游 XCFrameworks 并构建 dav1d 后，首次本地构建先在 `Limelight/Version.xcconfig` 写入 `BUILD_NUMBER = 1`（该文件被 Git 忽略；CI 自动生成），再用 Xcode 打开 `Moonlight.xcodeproj`，选择 `Moonlight for macOS`。也可在自己的 GitHub 仓库中手动运行 `Build macOS ESP32`，仅构建 arm64，保留产物七天，不自动发布。
 
 ## 真机验收
 

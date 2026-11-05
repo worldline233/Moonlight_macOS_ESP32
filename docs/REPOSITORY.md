@@ -1,6 +1,6 @@
 # 创建 GitHub 仓库与首次推送
 
-本地目录：`E:\project\Moonlight_macOS_ESP32`（WSL：`/mnt/e/project/Moonlight_macOS_ESP32`）。本地已包含上游完整历史及 ESP32 开发提交。现有 `upstream` 指向原作者；尚未配置 `origin`。
+本地目录：`E:\project\Moonlight_macOS_ESP32`（WSL：`/mnt/e/project/Moonlight_macOS_ESP32`）。本地已包含上游完整历史及 ESP32 开发提交。现有 `upstream` 指向原作者，`origin` 为 `https://github.com/worldline233/Moonlight_macOS_ESP32.git`，当前开发分支为 `main`。下方保留首次推送流程，供新环境参考。
 
 ## 1. 创建空仓库
 
