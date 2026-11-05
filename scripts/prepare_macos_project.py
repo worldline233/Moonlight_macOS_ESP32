@@ -37,13 +37,27 @@ def ordinary_groups(text):
     assert count == 2, 'App version configuration references'
     return text
 
+def core_data_sources(text):
+    """Model code generation must compile its classes in the Sources phase."""
+    model = object_id('build:Limelight/Limelight.xcdatamodeld')
+    old = 'Limelight.xcdatamodeld in Resources'
+    if old not in text:
+        return text
+    entry = f'\t\t\t\t{model} /* {old} */,\n'
+    assert text.count(entry) == 1, 'Core Data resource membership'
+    text = text.replace(entry, '')
+    anchor = 'D30000020000000000000002 /* SettingsSearchIndex.generated.swift in Sources */,'
+    assert text.count(anchor) == 1, 'App Sources phase'
+    text = text.replace(anchor, anchor + '\n' + entry.rstrip('\n'))
+    return text.replace(old, 'Limelight.xcdatamodeld in Sources')
+
 def prepare():
     text = PROJECT.read_text()
     if '/* Native macOS explicit membership */' in text:
-        converted = ordinary_groups(text)
+        converted = core_data_sources(ordinary_groups(text))
         if converted != text:
             PROJECT.write_text(converted, newline='\n')
-            print('Converted synchronized membership to ordinary Xcode groups.')
+            print('Updated explicit native Xcode target membership.')
         else:
             print('Native macOS target membership already materialized.')
         return
@@ -85,7 +99,7 @@ def prepare():
             kind = source_types.get(path.suffix) or resource_types.get(path.suffix)
             assert kind, path
             file_refs.append(f'\t\t{ref} /* {label} */ = {{isa = PBXFileReference; lastKnownFileType = {kind}; path = "{path.as_posix()}"; sourceTree = SOURCE_ROOT; }};')
-        phase = 'Sources' if path.suffix in source_types else 'Resources'
+        phase = 'Sources' if path.suffix in source_types or path.suffix == '.xcdatamodeld' else 'Resources'
         objects.append(f'\t\t{build} /* {label} in {phase} */ = {{isa = PBXBuildFile; fileRef = {ref} /* {label} */; }};')
         (build_refs if phase == 'Sources' else resources).append(f'\t\t\t\t{build} /* {label} in {phase} */,')
     group = object_id('native-group')

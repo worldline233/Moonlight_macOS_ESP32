@@ -53,7 +53,7 @@
 		C7BBA1D82C12E01EC833851F /* MLAudioBitstreamOutput.m in Sources */ = {isa = PBXBuildFile; fileRef = 18BC9F8C3E568DB5D8CBD3AC /* MLAudioBitstreamOutput.m */; };
 		011BBD10DF77DD5115173D5D /* MLAdaptiveBitrateController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7637B4717717EB215F0EF85E /* MLAdaptiveBitrateController.m */; };
 		553A625888A7817BA372CE09 /* MLIEC61937.c in Sources */ = {isa = PBXBuildFile; fileRef = 307AD87E7B3EA5E985719900 /* MLIEC61937.c */; };
-		8C8B746565FC8BEC0FF6B988 /* Limelight.xcdatamodeld in Resources */ = {isa = PBXBuildFile; fileRef = 0686105711AE80A4F57BA27F /* Limelight.xcdatamodeld */; };
+		8C8B746565FC8BEC0FF6B988 /* Limelight.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 0686105711AE80A4F57BA27F /* Limelight.xcdatamodeld */; };
 		9167D3D119EC1F2BABB0CB86 /* AppCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 211EF47ACEF7CAE9D2169535 /* AppCell.xib */; };
 		1AA755782FE60A2546587995 /* AppDelegateForAppKit.m in Sources */ = {isa = PBXBuildFile; fileRef = 3835CD7E3ED385DE05F1530B /* AppDelegateForAppKit.m */; };
 		3D27F60E3788C5638AF59735 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5A1C8A2822DDD1F188A313E1 /* Assets.xcassets */; };
@@ -776,7 +776,6 @@
 				A4B1C1002D9F0A1B00C0FF04 /* Localizable.strings in Resources */,
 				A4B1C1002D9F0A1B00C0FF10 /* InfoPlist.strings in Resources */,
 				C42653DA277888865D0DFBAE /* Main.storyboard in Resources */,
-				8C8B746565FC8BEC0FF6B988 /* Limelight.xcdatamodeld in Resources */,
 				9167D3D119EC1F2BABB0CB86 /* AppCell.xib in Resources */,
 				3D27F60E3788C5638AF59735 /* Assets.xcassets in Resources */,
 				E92FB89B495DCC44FE85861C /* MASPreferencesWindow.xib in Resources */,
@@ -876,6 +875,7 @@
 				D20000220000000000000022 /* Ds5HapticsAudioRenderer.m in Sources */,
 				D20000240000000000000024 /* FileProviderCoordinator.swift in Sources */,
 				D30000020000000000000002 /* SettingsSearchIndex.generated.swift in Sources */,
+				8C8B746565FC8BEC0FF6B988 /* Limelight.xcdatamodeld in Sources */,
 				E90BEE57E918FE4A61291C46 /* CryptoManager.m in Sources */,
 				55B8E8C3E9F705E5C3041C45 /* IdManager.m in Sources */,
 				CF4C5A1B768A5FD11508999F /* mkcert.c in Sources */,

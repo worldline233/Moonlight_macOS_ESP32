@@ -71,7 +71,8 @@ def main():
                  'Limelight/macOS/ViewControllers/ESP32SettingsSection.swift'):
         assert path in sources, path
     assert 'Limelight/macOS/Base.lproj/Main.storyboard' in resources
-    assert 'Limelight/Limelight.xcdatamodeld' in resources
+    assert 'Limelight/Limelight.xcdatamodeld' in sources, 'Core Data code generation must compile its classes'
+    assert 'Limelight/Limelight.xcdatamodeld' not in resources
     assert 'Limelight/macOS/Helpers/AwdlPrivilegedHelperMain.m' not in sources
     assert 'Limelight/Input/StreamView.m' not in sources
     for config in objects.values():
