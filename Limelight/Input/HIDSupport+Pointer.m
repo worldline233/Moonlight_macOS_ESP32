@@ -459,9 +459,7 @@ static inline double HIDBlendFreeMouseGain(double currentGain, double rawDelta, 
                     if (!inputCtx) {
                         return;
                     }
-                    if (![self.esp32Input handleMouseButton:BUTTON_LEFT pressed:pressed]) {
-                        LiSendMouseButtonEventCtx(inputCtx, pressed ? BUTTON_ACTION_PRESS : BUTTON_ACTION_RELEASE, BUTTON_LEFT);
-                    }
+                    [self dispatchMouseButton:BUTTON_LEFT pressed:pressed inputContext:inputCtx beforeSend:nil];
                 }
             };
             mouse.mouseInput.middleButton.pressedChangedHandler = ^(GCControllerButtonInput * _Nonnull button, float value, BOOL pressed) {
@@ -470,9 +468,7 @@ static inline double HIDBlendFreeMouseGain(double currentGain, double rawDelta, 
                     if (!inputCtx) {
                         return;
                     }
-                    if (![self.esp32Input handleMouseButton:BUTTON_MIDDLE pressed:pressed]) {
-                        LiSendMouseButtonEventCtx(inputCtx, pressed ? BUTTON_ACTION_PRESS : BUTTON_ACTION_RELEASE, BUTTON_MIDDLE);
-                    }
+                    [self dispatchMouseButton:BUTTON_MIDDLE pressed:pressed inputContext:inputCtx beforeSend:nil];
                 }
             };
             mouse.mouseInput.rightButton.pressedChangedHandler = ^(GCControllerButtonInput * _Nonnull button, float value, BOOL pressed) {
@@ -484,9 +480,7 @@ static inline double HIDBlendFreeMouseGain(double currentGain, double rawDelta, 
                     if (!inputCtx) {
                         return;
                     }
-                    if (![self.esp32Input handleMouseButton:BUTTON_RIGHT pressed:pressed]) {
-                        LiSendMouseButtonEventCtx(inputCtx, pressed ? BUTTON_ACTION_PRESS : BUTTON_ACTION_RELEASE, BUTTON_RIGHT);
-                    }
+                    [self dispatchMouseButton:BUTTON_RIGHT pressed:pressed inputContext:inputCtx beforeSend:nil];
                 }
             };
         
@@ -496,9 +490,7 @@ static inline double HIDBlendFreeMouseGain(double currentGain, double rawDelta, 
                     if (!inputCtx) {
                         return;
                     }
-                    if (![self.esp32Input handleMouseButton:BUTTON_X1 pressed:pressed]) {
-                        LiSendMouseButtonEventCtx(inputCtx, pressed ? BUTTON_ACTION_PRESS : BUTTON_ACTION_RELEASE, BUTTON_X1);
-                    }
+                    [self dispatchMouseButton:BUTTON_X1 pressed:pressed inputContext:inputCtx beforeSend:nil];
                 }
             };
             mouse.mouseInput.auxiliaryButtons[1].pressedChangedHandler = ^(GCControllerButtonInput * _Nonnull button, float value, BOOL pressed) {
@@ -507,9 +499,7 @@ static inline double HIDBlendFreeMouseGain(double currentGain, double rawDelta, 
                     if (!inputCtx) {
                         return;
                     }
-                    if (![self.esp32Input handleMouseButton:BUTTON_X2 pressed:pressed]) {
-                        LiSendMouseButtonEventCtx(inputCtx, pressed ? BUTTON_ACTION_PRESS : BUTTON_ACTION_RELEASE, BUTTON_X2);
-                    }
+                    [self dispatchMouseButton:BUTTON_X2 pressed:pressed inputContext:inputCtx beforeSend:nil];
                 }
             };
         } else {
@@ -701,44 +691,69 @@ static CVReturn displayLinkOutputCallback(CVDisplayLinkRef displayLink,
 }
 
 
+- (void)dispatchMouseButton:(int)button
+                   pressed:(BOOL)pressed
+              inputContext:(PML_INPUT_STREAM_CONTEXT)inputCtx
+                beforeSend:(dispatch_block_t)beforeSend {
+    @synchronized (self.mouseButtonDispatchLock) {
+        if (pressed && (inputCtx == NULL || !self.shouldSendInputEvents || inputCtx != HIDInputContext(self))) return;
+        uint32_t bit = HIDMouseButtonBitForButton(button);
+        if (pressed) self.pressedMouseButtonsMask |= bit;
+        else self.pressedMouseButtonsMask &= ~bit;
+        BOOL consumed = [self.esp32Input handleMouseButton:button pressed:pressed];
+        if (!self.shouldSendInputEvents || inputCtx != HIDInputContext(self) ||
+            !HIDValidateInputContext(inputCtx, "dispatchMouseButton")) return;
+        if (consumed && beforeSend == nil) return;
+
+        uint64_t generation = self.mouseButtonDispatchGeneration;
+        HIDDispatchInput(self, inputCtx, ^{
+            @synchronized (self.mouseButtonDispatchLock) {
+                // Keep coordinate synchronization on the original input queue.
+                // USB clicks retain their existing independent transport.
+                if (beforeSend != nil) beforeSend();
+                if (!consumed && (!pressed || generation == self.mouseButtonDispatchGeneration)) {
+                    LiSendMouseButtonEventCtx(inputCtx,
+                                             pressed ? BUTTON_ACTION_PRESS : BUTTON_ACTION_RELEASE,
+                                             button);
+                }
+            }
+        });
+    }
+}
+
 - (BOOL)hasPressedMouseButtons {
     return self.pressedMouseButtonsMask != 0;
 }
 
 - (void)releaseAllPressedMouseButtons {
-    uint32_t pressedMask = self.pressedMouseButtonsMask;
-    uint8_t native = [self.esp32Input releaseMouseButtons];
-    // Bridge masks are left/right/middle; the upstream mask is left/middle/right.
-    if (self.esp32Input.configured) {
-        pressedMask = (native & 0x19) | ((native & 2) << 1) | ((native & 4) >> 1);
-    }
-    self.pressedMouseButtonsMask = 0;
-    if (pressedMask == 0) {
-        return;
-    }
-
-    PML_INPUT_STREAM_CONTEXT inputCtx = HIDInputContext(self);
-    if (self.shouldSendInputEvents && HIDValidateInputContext(inputCtx, "releaseAllPressedMouseButtons")) {
-        static const int buttons[] = {
-            BUTTON_LEFT,
-            BUTTON_MIDDLE,
-            BUTTON_RIGHT,
-            BUTTON_X1,
-            BUTTON_X2,
-        };
-
-        for (NSUInteger index = 0; index < sizeof(buttons) / sizeof(buttons[0]); index++) {
-            int button = buttons[index];
-            if ((pressedMask & HIDMouseButtonBitForButton(button)) == 0) {
-                continue;
-            }
-
-            LiSendMouseButtonEventCtx(inputCtx, BUTTON_ACTION_RELEASE, button);
-            [self recordMouseButtonDiagnosticsAction:@"release"
-                                              button:button
-                                                mask:self.pressedMouseButtonsMask
-                                           synthetic:YES];
+    @synchronized (self.mouseButtonDispatchLock) {
+        uint32_t pressedMask = self.pressedMouseButtonsMask;
+        uint8_t native = [self.esp32Input releaseMouseButtons];
+        // Bridge masks are left/right/middle; the upstream mask is left/middle/right.
+        if (self.esp32Input.configured) {
+            pressedMask = (native & 0x19) | ((native & 2) << 1) | ((native & 4) >> 1);
         }
+        ++self.mouseButtonDispatchGeneration;
+        self.pressedMouseButtonsMask = 0;
+        if (pressedMask == 0) return;
+
+        PML_INPUT_STREAM_CONTEXT inputCtx = HIDInputContext(self);
+        if (!self.shouldSendInputEvents || !HIDValidateInputContext(inputCtx, "releaseAllPressedMouseButtons")) return;
+        HIDDispatchInput(self, inputCtx, ^{
+            @synchronized (self.mouseButtonDispatchLock) {
+                static const int buttons[] = {
+                    BUTTON_LEFT, BUTTON_MIDDLE, BUTTON_RIGHT, BUTTON_X1, BUTTON_X2,
+                };
+                for (NSUInteger index = 0; index < sizeof(buttons) / sizeof(buttons[0]); index++) {
+                    int button = buttons[index];
+                    if ((pressedMask & HIDMouseButtonBitForButton(button)) == 0) continue;
+                    // Releases must survive cancellation. An earlier normal up
+                    // can already have removed this button from the router.
+                    LiSendMouseButtonEventCtx(inputCtx, BUTTON_ACTION_RELEASE, button);
+                    [self recordMouseButtonDiagnosticsAction:@"release" button:button mask:0 synthetic:YES];
+                }
+            }
+        });
     }
 }
 
@@ -773,10 +788,7 @@ static CVReturn displayLinkOutputCallback(CVDisplayLinkRef displayLink,
                                       button:button
                                         mask:self.pressedMouseButtonsMask
                                    synthetic:NO];
-    if ([self.esp32Input handleMouseButton:button pressed:YES]) return;
-    HIDDispatchInput(self, inputCtx, ^{
-        LiSendMouseButtonEventCtx(inputCtx, BUTTON_ACTION_PRESS, button);
-    });
+    [self dispatchMouseButton:button pressed:YES inputContext:inputCtx beforeSend:nil];
 }
 
 - (void)mouseUp:(NSEvent *)event withButton:(int)button {
@@ -796,15 +808,7 @@ static CVReturn displayLinkOutputCallback(CVDisplayLinkRef displayLink,
         return;
     }
 
-    BOOL consumed = [self.esp32Input handleMouseButton:button pressed:NO];
-    if (self.shouldSendInputEvents && !consumed) {
-        PML_INPUT_STREAM_CONTEXT inputCtx = HIDInputContext(self);
-        if (HIDValidateInputContext(inputCtx, "mouseUp")) {
-            HIDDispatchInput(self, inputCtx, ^{
-                LiSendMouseButtonEventCtx(inputCtx, BUTTON_ACTION_RELEASE, button);
-            });
-        }
-    }
+    [self dispatchMouseButton:button pressed:NO inputContext:HIDInputContext(self) beforeSend:nil];
 
     self.pressedMouseButtonsMask &= ~HIDMouseButtonBitForButton(button);
     [self recordMouseButtonDiagnosticsAction:@"release"
@@ -991,17 +995,11 @@ static CVReturn displayLinkOutputCallback(CVDisplayLinkRef displayLink,
                                           height:referenceHeight];
     }
 
-    BOOL consumed = [self.esp32Input handleMouseButton:button pressed:pressed];
-    HIDDispatchInput(self, inputCtx, ^{
+    [self dispatchMouseButton:button pressed:pressed inputContext:inputCtx beforeSend:^{
         if (shouldSendAbsolute) {
             LiSendMousePositionEventCtx(inputCtx, hostX, hostY, referenceWidth, referenceHeight);
         }
-        if (!consumed) {
-            LiSendMouseButtonEventCtx(inputCtx,
-                                     pressed ? BUTTON_ACTION_PRESS : BUTTON_ACTION_RELEASE,
-                                     button);
-        }
-    });
+    }];
 
     if (!pressed) {
         self.pressedMouseButtonsMask &= ~HIDMouseButtonBitForButton(button);

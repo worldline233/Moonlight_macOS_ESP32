@@ -12,6 +12,8 @@
 #include "ControllerShortcutAdapter.h"
 
 
+static char HIDInputQueueSpecificKey;
+
 NSString *const HIDMouseModeToggledNotification = @"HIDMouseModeToggledNotification";
 NSString *const HIDGamepadQuitNotification = @"HIDGamepadQuitNotification";
 
@@ -469,31 +471,44 @@ static short HIDVirtualKeyForTypedCharacter(UniChar character) {
     return __atomic_load_n(&_shouldSendInputEvents, __ATOMIC_ACQUIRE);
 }
 - (void)setShouldSendInputEvents:(BOOL)enabled {
-    BOOL wasEnabled = __atomic_load_n(&_shouldSendInputEvents, __ATOMIC_ACQUIRE);
-    if (wasEnabled && !enabled) {
-        [self.precisionTouchpad reset];
-        [self releaseAllPressedMouseButtons];
-        [self releaseAllModifierKeys];
-        if (self.controllerDriver == 0) {
-            PML_INPUT_STREAM_CONTEXT input = HIDInputContext(self);
-            if (HIDValidateInputContext(input, "pause-controller-input")) {
-                int player = self.controller.playerIndex;
-                HIDDispatchInput(self, input, ^{
-                    LiSendMultiControllerEventCtx(input, player, 1, 0, 0, 0, 0, 0, 0, 0);
-                });
+    @synchronized (self.mouseButtonDispatchLock) {
+        BOOL wasEnabled = __atomic_load_n(&_shouldSendInputEvents, __ATOMIC_ACQUIRE);
+        if (wasEnabled && !enabled) {
+            [self.precisionTouchpad reset];
+            [self releaseAllPressedMouseButtons];
+            [self releaseAllModifierKeys];
+            if (self.controllerDriver == 0) {
+                PML_INPUT_STREAM_CONTEXT input = HIDInputContext(self);
+                if (HIDValidateInputContext(input, "pause-controller-input")) {
+                    int player = self.controller.playerIndex;
+                    HIDDispatchInput(self, input, ^{
+                        LiSendMultiControllerEventCtx(input, player, 1, 0, 0, 0, 0, 0, 0, 0);
+                    });
+                }
             }
+            [self rumbleLowFreqMotor:0 highFreqMotor:0];
+            ControllerMenuGesture gesture = self.controller.menuGesture;
+            ControllerMenuGestureInterrupt(&gesture, self.gamepadMenuPressed);
+            self.controller.menuGesture = gesture;
         }
-        [self rumbleLowFreqMotor:0 highFreqMotor:0];
-        ControllerMenuGesture gesture = self.controller.menuGesture;
-        ControllerMenuGestureInterrupt(&gesture, self.gamepadMenuPressed);
-        self.controller.menuGesture = gesture;
+        __atomic_store_n(&_shouldSendInputEvents, enabled, __ATOMIC_RELEASE);
+        if (!wasEnabled && enabled && self.controllerDriver == 0) [self sendControllerEvent];
     }
-    __atomic_store_n(&_shouldSendInputEvents, enabled, __ATOMIC_RELEASE);
-    if (!wasEnabled && enabled && self.controllerDriver == 0) [self sendControllerEvent];
 }
 
 - (void)setInputContext:(void *)inputContext {
-    _inputContext = inputContext;
+    BOOL replacingContext = NO;
+    @synchronized (self.mouseButtonDispatchLock) {
+        replacingContext = _inputContext != NULL && _inputContext != inputContext;
+        if (replacingContext) [self releaseAllPressedMouseButtons];
+        _inputContext = inputContext;
+    }
+    // Do not hold the routing lock while draining blocks that acquire it.
+    // Finish the old context's releases before its caller can tear it down.
+    if (replacingContext && self.inputQueue != nil &&
+        dispatch_get_specific(&HIDInputQueueSpecificKey) != (__bridge void *)self) {
+        dispatch_sync(self.inputQueue, ^{});
+    }
     [self syncScrollTraceDiagnosticsPreferenceToInputContext];
 }
 
@@ -848,7 +863,9 @@ static short HIDVirtualKeyForTypedCharacter(UniChar character) {
         self.host = host;
         _esp32Input = [[ESP32InputBridge alloc] initWithHostUUID:host.uuid];
         _esp32LocalShortcutKeys = [NSMutableSet set];
+        self.mouseButtonDispatchLock = [[NSObject alloc] init];
         self.inputQueue = dispatch_queue_create("com.moonlight.input", DISPATCH_QUEUE_SERIAL);
+        dispatch_queue_set_specific(self.inputQueue, &HIDInputQueueSpecificKey, (__bridge void *)self, NULL);
         _pressedKeyPairs = [NSMutableDictionary dictionary];
         _pressedKeyPairsLock = [[NSLock alloc] init];
         _typedVirtualKeyCache = [NSMutableDictionary dictionary];
@@ -1321,12 +1338,14 @@ static unsigned short HIDPositionalKeyCode(unsigned short macKeyCode) {
         !self.esp32Input.enabled) return NO;
     if (event.keyCode != kVK_F9 && event.keyCode != kVK_F10 && event.keyCode != kVK_F11) return NO;
     [_esp32LocalShortcutKeys addObject:key];
-    [self releaseAllPressedMouseButtons];
-    [self releaseAllModifierKeys];
-    if (event.keyCode == kVK_F9) [self.esp32Input togglePaused];
-    else if (event.keyCode == kVK_F10) [self.esp32Input reconnect];
-    else [self.esp32Input releaseAll];
-    NSLog(@"[ESP32] control=%u paused=%d ready=%d", event.keyCode, self.esp32Input.paused, self.esp32Input.ready);
+    @synchronized (self.mouseButtonDispatchLock) {
+        [self releaseAllPressedMouseButtons];
+        [self releaseAllModifierKeys];
+        if (event.keyCode == kVK_F9) [self.esp32Input togglePaused];
+        else if (event.keyCode == kVK_F10) [self.esp32Input reconnect];
+        else [self.esp32Input releaseAll];
+        NSLog(@"[ESP32] control=%u paused=%d ready=%d", event.keyCode, self.esp32Input.paused, self.esp32Input.ready);
+    }
     return YES;
 }
 
@@ -2667,6 +2686,8 @@ void myHIDDeviceRemovalCallback(void * _Nullable        context,
 }
 
 - (void)tearDownHidManagerOnMainThread {
+    self.shouldSendInputEvents = NO;
+    self.inputContext = NULL;
     [self.esp32Input stop];
     [self.gamepadMenuTimer invalidate];
     self.gamepadMenuTimer = nil;

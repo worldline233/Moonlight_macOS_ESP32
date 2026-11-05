@@ -21,7 +21,7 @@ ESP32 原生 USB 插在被控电脑上，Mac 通过 WebSocket 向 ESP32 发送�
 
 鼠标按钮按一次按下到抬起的完整过程固定路由。连接正常时选定按钮通过 ESP32；未选按钮仍走 Moonlight。离线的新点击可走 Moonlight；USB 暂停时选定按钮被阻止。恢复连接不重放旧的按住状态，需松开重按。
 
-失焦、解除捕获和退出会释放输入。通信使用单独的串行队列和有界待发队列；重连、释放、暂停后的旧报告不得重新出现。网络失联时最终释放仍依赖固件约三秒看门狗。
+失焦、解除捕获和退出会释放输入。原生按钮按下、抬起与强制释放共用输入队列；取消时丢弃未发送的旧按下，保留正常抬起及强制释放，重新按下属于新的输入批次。备用鼠标驱动回调与失焦处理使用同一把路由锁。替换或清除输入上下文前会排空已提交的输入任务。通信使用单独的串行队列和有界待发队列；重连、释放、暂停后的旧报告不得重新出现。网络失联时最终释放仍依赖固件约三秒看门狗。
 
 控制密钥保存在此应用的本机偏好设置中，不加入项目；日志只记录连接状态，不记录设备 URL 或密钥。开发包停用上游自动更新，避免 ESP32 包被原增强版更新覆盖。
 
@@ -32,12 +32,14 @@ WSL / Linux / macOS：
 ```sh
 bash tests/esp32/run.sh
 python3 tests/esp32/check_project.py
+python3 tests/esp32/button_ordering.py --check
 python3 scripts/generate_settings_search_index.py --check
 ```
 
 macOS：使用真实 Foundation 编译并执行配置、独占及本地模拟 ESP32 的 WebSocket 握手、发送、暂停、重连测试：
 
 ```sh
+python3 tests/esp32/button_ordering.py
 python3 tests/esp32/integration.py
 ```
 
@@ -53,3 +55,5 @@ python3 tests/esp32/integration.py
 - 切换到未配置的另一台串流主机，确认不会连接或控制之前的 ESP32。
 
 首版仍需执行 macOS 原生构建及 WebSocket 测试，并完成以上硬件真机验收。状态机测试不证明端到端延迟，也不替代固件联调。
+
+本次只修复原生按钮释放顺序。Free Mouse 下移动与 ESP32 按钮仍分通道，尚未解决跨通道点击与坐标的严格同步；现有 USB 按钮功能保留。

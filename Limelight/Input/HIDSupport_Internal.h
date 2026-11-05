@@ -91,6 +91,10 @@
 @property (atomic) BOOL coreHIDFreeMouseAbsoluteSyncScheduled;
 @property (atomic) uint64_t coreHIDFreeMouseAbsoluteSyncToken;
 @property (nonatomic) dispatch_queue_t inputQueue;
+// Routing, cancellation, and queue submission are one transaction. GCMouse
+// callbacks may arrive on a different thread from AppKit focus changes.
+@property (nonatomic, strong) NSObject *mouseButtonDispatchLock;
+@property (nonatomic) uint64_t mouseButtonDispatchGeneration;
 @property (nonatomic, strong) MLPrecisionTouchpad *precisionTouchpad;
 @property (atomic) uint64_t suppressRelativeMouseUntilMs;
 @property (nonatomic, strong) NSObject *freeMouseVirtualCursorLock;
@@ -221,6 +225,10 @@
 @end
 
 @interface HIDSupport (PointerInternal)
+- (void)dispatchMouseButton:(int)button
+                   pressed:(BOOL)pressed
+              inputContext:(PML_INPUT_STREAM_CONTEXT)inputCtx
+                beforeSend:(dispatch_block_t)beforeSend;
 - (void)registerMouseCallbacks:(GCMouse *)mouse API_AVAILABLE(macos(11.0));
 - (void)unregisterMouseCallbacks:(GCMouse *)mouse API_AVAILABLE(macos(11.0));
 - (BOOL)initializeDisplayLink;

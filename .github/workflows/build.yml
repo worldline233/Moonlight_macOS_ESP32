@@ -28,7 +28,10 @@ jobs:
         run: |
           bash tests/esp32/run.sh
           python3 tests/esp32/check_project.py
+          python3 tests/esp32/button_ordering.py --check
           python3 scripts/generate_settings_search_index.py --check
+      - name: Native button queue regression
+        run: python3 tests/esp32/button_ordering.py
       - name: Native ESP32 bridge and WebSocket tests
         run: python3 tests/esp32/integration.py
       - name: Download upstream XCFrameworks
