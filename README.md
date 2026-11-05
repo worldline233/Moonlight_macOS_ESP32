@@ -10,7 +10,7 @@
 - GitHub 仓库创建、首次推送与云端构建：[docs/REPOSITORY.md](docs/REPOSITORY.md)。
 - 详细使用、测试和验收：[docs/ESP32.md](docs/ESP32.md)。
 
-当前状态：[Mac ARM64 云端构建已通过](https://github.com/worldline233/Moonlight_macOS_ESP32/actions/runs/42002796605)（源码 `e7b2fab`）。输入状态机、按钮队列生产代码回归、macOS 原生配置、WebSocket 模拟联机及连续退出重连测试，以及完整应用编译、开发签名校验和打包上传均通过。可在该次运行的 Artifacts 下载 `MoonlightESP32-macOS-arm64`，保留七天。ESP32 硬件联调和鼠标手感待真机验收。
+当前状态：[Mac ARM64 云端构建已通过](https://github.com/worldline233/Moonlight_macOS_ESP32/actions/runs/42012464637)（源码 `baf381a`）。输入状态机、按钮队列生产代码回归、macOS 原生配置、WebSocket 模拟联机及连续退出重连测试，以及完整应用编译、开发签名校验和打包上传均通过。可在该次运行的 Artifacts 下载 `MoonlightESP32-macOS-arm64`，保留七天。ESP32 硬件联调和鼠标手感待真机验收。
 
 本项目使用 Xcode 原生工程。GitHub Actions 提供手动触发的 Apple Silicon 构建；项目仓库为 [worldline233/Moonlight_macOS_ESP32](https://github.com/worldline233/Moonlight_macOS_ESP32)。开发包停用上游自动更新。
 
