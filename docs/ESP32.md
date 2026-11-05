@@ -54,6 +54,6 @@ python3 tests/esp32/integration.py
 - 拔网或停止 ESP32，再恢复；键盘不得走 Sunshine，旧按键不得自动重放，松开重按后恢复。
 - 切换到未配置的另一台串流主机，确认不会连接或控制之前的 ESP32。
 
-首版仍需执行 macOS 原生构建及 WebSocket 测试，并完成以上硬件真机验收。状态机测试不证明端到端延迟，也不替代固件联调。
+2026-11-05，[源码 `26b3cb2` 的 Mac ARM64 Action](https://github.com/worldline233/Moonlight_macOS_ESP32/actions/runs/41989970492) 已通过原生按钮队列回归、配置和 WebSocket 模拟联机测试、完整应用编译、开发签名校验及打包上传。以上硬件真机验收仍待完成；云端测试不证明端到端延迟，也不替代固件联调。
 
 本次只修复原生按钮释放顺序。Free Mouse 下移动与 ESP32 按钮仍分通道，尚未解决跨通道点击与坐标的严格同步；现有 USB 按钮功能保留。
