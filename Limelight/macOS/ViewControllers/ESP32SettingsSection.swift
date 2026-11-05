@@ -6,15 +6,15 @@ import SwiftUI
 struct ESP32SettingsSection: View {
   @EnvironmentObject private var settingsModel: SettingsModel
   @ObservedObject private var language = LanguageManager.shared
-  @State private var enabled = false
-  @State private var keyboard = true
-  @State private var mouse = true
-  @State private var buttons = 31
-  @State private var address = ""
-  @State private var port = "80"
-  @State private var accessKey = ""
-  @State private var excluded = ""
-  @State private var message = ""
+  @SwiftUI.State private var enabled = false
+  @SwiftUI.State private var keyboard = true
+  @SwiftUI.State private var mouse = true
+  @SwiftUI.State private var buttons = 31
+  @SwiftUI.State private var address = ""
+  @SwiftUI.State private var port = "80"
+  @SwiftUI.State private var accessKey = ""
+  @SwiftUI.State private var excluded = ""
+  @SwiftUI.State private var message = ""
 
   private var hostID: String { settingsModel.selectedHost?.id ?? SettingsModel.globalHostId }
   private var hasHost: Bool { hostID != SettingsModel.globalHostId && !hostID.isEmpty }
