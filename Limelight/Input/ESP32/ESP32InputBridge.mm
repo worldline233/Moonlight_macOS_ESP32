@@ -62,7 +62,6 @@ static NSURL *ESP32Endpoint(NSDictionary *settings) {
     uint64_t _epoch, _nextEpoch, _keyboardGeneration, _mouseGeneration;
     NSUInteger _pendingReports;
     NSString *_statusText;
-    double _rttMs;
     Esp32KeyboardRouter _keyboard;
     Esp32MouseRouter _mouse;
 
@@ -126,7 +125,6 @@ static NSURL *ESP32Endpoint(NSDictionary *settings) {
             }
         }
         _excluded = excluded.copy;
-        _rttMs = -1;
         _statusText = @"ESP32 disabled";
         _queue = dispatch_queue_create("org.worldline233.moonlight.esp32", DISPATCH_QUEUE_SERIAL);
         _outbox = [NSMutableArray array];
@@ -159,8 +157,7 @@ static NSURL *ESP32Endpoint(NSDictionary *settings) {
 - (NSDictionary *)monitorSnapshot {
     @synchronized (self) {
         return @{ @"ready": @(!_stopped && _epoch != 0), @"paused": @(_paused),
-                  @"keyboard": @(_exclusive), @"mouse": @(_selected != 0),
-                  @"rttMs": @(!_stopped && _epoch != 0 ? _rttMs : -1), @"status": _statusText ?: @"" };
+                  @"keyboard": @(_exclusive), @"mouse": @(_selected != 0) };
     }
 }
 
@@ -175,7 +172,7 @@ static NSURL *ESP32Endpoint(NSDictionary *settings) {
 }
 
 - (void)openOnQueue {
-    @synchronized (self) { if (_stopped) return; _epoch = 0; _rttMs = -1; }
+    @synchronized (self) { if (_stopped) return; _epoch = 0; }
     _sequence = 0;
     _sending = NO;
     [_outbox removeAllObjects];
@@ -238,24 +235,20 @@ static NSURL *ESP32Endpoint(NSDictionary *settings) {
     if (++_pingTicks % 5 == 0) {
         NSURLSessionWebSocketTask *task = _task;
         __weak ESP32InputBridge *weakSelf = self;
-        NSTimeInterval pingStarted = NSProcessInfo.processInfo.systemUptime;
         [task sendPingWithPongReceiveHandler:^(NSError *error) {
             ESP32InputBridge *bridge = weakSelf;
             if (!bridge) return;
             dispatch_async(bridge->_queue, ^{
                 if (bridge->_task != task) return;
                 if (error) [bridge failOnQueue:@"ESP32 disconnected"];
-                else {
-                    bridge->_lastPong = NSProcessInfo.processInfo.systemUptime;
-                    @synchronized (bridge) { bridge->_rttMs = (bridge->_lastPong - pingStarted) * 1000.0; }
-                }
+                else bridge->_lastPong = NSProcessInfo.processInfo.systemUptime;
             });
         }];
     }
 }
 
 - (void)failOnQueue:(NSString *)status {
-    @synchronized (self) { _epoch = 0; _rttMs = -1; ++_keyboardGeneration; ++_mouseGeneration; }
+    @synchronized (self) { _epoch = 0; ++_keyboardGeneration; ++_mouseGeneration; }
     NSURLSessionWebSocketTask *old = _task;
     _task = nil;
     [old cancelWithCloseCode:NSURLSessionWebSocketCloseCodeGoingAway reason:nil];
@@ -414,7 +407,6 @@ static NSURL *ESP32Endpoint(NSDictionary *settings) {
     @synchronized (self) {
         if (_stopped) return;
         _stopped = YES;
-        _rttMs = -1;
         _epoch = 0;
         ++_keyboardGeneration; ++_mouseGeneration;
     }

@@ -1828,14 +1828,12 @@ static NSString *MLDynamicHdrFallbackDisplayName(int fallback) {
     BOOL ready = [snapshot[@"ready"] boolValue];
     BOOL paused = [snapshot[@"paused"] boolValue];
     NSString *state = MLString(ready ? (paused ? @"ESP32 bar paused" : @"ESP32 bar connected") : @"ESP32 bar offline", nil);
-    double rtt = [snapshot[@"rttMs"] doubleValue];
-    NSString *latency = ready && rtt >= 0 ? [NSString stringWithFormat:@"%.0f ms", rtt] : @"— ms";
     NSString *keyboard = ![snapshot[@"keyboard"] boolValue] ? @"Moonlight" :
         MLString(ready && !paused ? @"ESP32 bar USB" : @"ESP32 bar blocked", nil);
     NSString *mouse = ![snapshot[@"mouse"] boolValue] ? @"Moonlight" :
         (paused ? MLString(@"ESP32 bar blocked", nil) : (ready ? @"USB" : @"Moonlight"));
-    NSString *text = [NSString stringWithFormat:@"● ESP32 %@ · %@  |  %@ %@ · %@ %@%@",
-        state, latency, MLString(@"ESP32 bar keyboard", nil), keyboard,
+    NSString *text = [NSString stringWithFormat:@"● ESP32 %@  |  %@ %@ · %@ %@%@",
+        state, MLString(@"ESP32 bar keyboard", nil), keyboard,
         MLString(@"ESP32 bar buttons", nil), mouse,
         self.hidSupport.shouldSendInputEvents ? @"" : [@" · " stringByAppendingString:MLString(@"ESP32 bar uncaptured", nil)]];
     NSMutableAttributedString *styled = [[NSMutableAttributedString alloc] initWithString:text attributes:@{
