@@ -6,6 +6,13 @@
 #import "StreamViewController_Internal.h"
 #include "DynamicHdr.h"
 
+// This HUD must never consume clicks intended for the streamed desktop.
+@interface MLESP32StatusView : NSView
+@end
+@implementation MLESP32StatusView
+- (NSView *)hitTest:(NSPoint)point { return nil; }
+@end
+
 // Host-selected dynamic HDR format (X-SS-Dynamic-HDR) as overlay text.
 static NSString *MLDynamicHdrFormatDisplayName(int format) {
     switch (format) {
@@ -1776,6 +1783,75 @@ static NSString *MLDynamicHdrFallbackDisplayName(int fallback) {
             [strongSelf prepareForStreaming];
         });
     });
+}
+
+- (void)removeESP32StatusBar {
+    [self.esp32StatusTimer invalidate];
+    self.esp32StatusTimer = nil;
+    [self.esp32StatusContainer removeFromSuperview];
+    self.esp32StatusContainer = nil;
+    self.esp32StatusLabel = nil;
+}
+
+- (void)setupESP32StatusBar {
+    [self removeESP32StatusBar];
+    if (!self.hidSupport.esp32Input.enabled) return;
+    NSView *bar = [[MLESP32StatusView alloc] initWithFrame:NSZeroRect];
+    bar.wantsLayer = YES;
+    bar.layer.backgroundColor = [NSColor colorWithWhite:0.06 alpha:0.78].CGColor;
+    bar.layer.cornerRadius = 6;
+    NSTextField *label = [NSTextField labelWithString:@""];
+    label.font = [NSFont monospacedDigitSystemFontOfSize:11 weight:NSFontWeightMedium];
+    label.textColor = NSColor.whiteColor;
+    label.lineBreakMode = NSLineBreakByTruncatingTail;
+    label.maximumNumberOfLines = 1;
+    [bar addSubview:label];
+    self.esp32StatusContainer = bar;
+    self.esp32StatusLabel = label;
+    [self.view addSubview:bar positioned:NSWindowAbove relativeTo:nil];
+    __weak typeof(self) weakSelf = self;
+    self.esp32StatusTimer = [NSTimer timerWithTimeInterval:0.5 repeats:YES block:^(NSTimer *timer) {
+        [weakSelf updateESP32StatusBar];
+    }];
+    self.esp32StatusTimer.tolerance = 0.1;
+    [[NSRunLoop mainRunLoop] addTimer:self.esp32StatusTimer forMode:NSRunLoopCommonModes];
+    [self updateESP32StatusBar];
+}
+
+- (void)updateESP32StatusBar {
+    NSView *bar = self.esp32StatusContainer;
+    if (!bar) return;
+    NSNumber *visible = [NSUserDefaults.standardUserDefaults objectForKey:@"esp32.showStatusBar"];
+    bar.hidden = visible != nil && !visible.boolValue;
+    if (bar.hidden) return;
+    NSDictionary *snapshot = [self.hidSupport.esp32Input monitorSnapshot];
+    BOOL ready = [snapshot[@"ready"] boolValue];
+    BOOL paused = [snapshot[@"paused"] boolValue];
+    NSString *state = MLString(ready ? (paused ? @"ESP32 bar paused" : @"ESP32 bar connected") : @"ESP32 bar offline", nil);
+    double rtt = [snapshot[@"rttMs"] doubleValue];
+    NSString *latency = ready && rtt >= 0 ? [NSString stringWithFormat:@"%.0f ms", rtt] : @"— ms";
+    NSString *keyboard = ![snapshot[@"keyboard"] boolValue] ? @"Moonlight" :
+        MLString(ready && !paused ? @"ESP32 bar USB" : @"ESP32 bar blocked", nil);
+    NSString *mouse = ![snapshot[@"mouse"] boolValue] ? @"Moonlight" :
+        (paused ? MLString(@"ESP32 bar blocked", nil) : (ready ? @"USB" : @"Moonlight"));
+    NSString *text = [NSString stringWithFormat:@"● ESP32 %@ · %@  |  %@ %@ · %@ %@%@",
+        state, latency, MLString(@"ESP32 bar keyboard", nil), keyboard,
+        MLString(@"ESP32 bar buttons", nil), mouse,
+        self.hidSupport.shouldSendInputEvents ? @"" : [@" · " stringByAppendingString:MLString(@"ESP32 bar uncaptured", nil)]];
+    NSMutableAttributedString *styled = [[NSMutableAttributedString alloc] initWithString:text attributes:@{
+        NSFontAttributeName: self.esp32StatusLabel.font, NSForegroundColorAttributeName:NSColor.whiteColor }];
+    [styled addAttribute:NSForegroundColorAttributeName value:(ready ? (paused ? NSColor.systemOrangeColor : NSColor.systemGreenColor) : NSColor.systemRedColor) range:NSMakeRange(0, 1)];
+    self.esp32StatusLabel.attributedStringValue = styled;
+    [self.esp32StatusLabel sizeToFit];
+    CGFloat width = MIN(self.esp32StatusLabel.frame.size.width + 20, MAX(0, self.view.bounds.size.width - 24));
+    // Match the performance HUD's top-center alignment, stacking independently.
+    CGFloat top = 20;
+    if (self.overlayContainer.superview && !self.overlayContainer.hidden) {
+        top += self.overlayContainer.frame.size.height + 6;
+    }
+    CGFloat y = self.view.isFlipped ? top : self.view.bounds.size.height - top - 26;
+    bar.frame = NSMakeRect((self.view.bounds.size.width - width) / 2, MAX(0, y), width, 26);
+    self.esp32StatusLabel.frame = NSMakeRect(10, 5, MAX(0, width - 20), 16);
 }
 
 - (void)setupOverlay {

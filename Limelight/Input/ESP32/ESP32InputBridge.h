@@ -25,6 +25,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)releaseAll;
 - (void)togglePaused;
 - (void)reconnect;
+// Coherent, thread-safe display snapshot; RTT measures WebSocket, not USB.
+- (NSDictionary *)monitorSnapshot;
 - (void)stop;
 @end
 

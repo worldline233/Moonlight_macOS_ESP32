@@ -290,6 +290,12 @@ static const NSTimeInterval MLStatsOverlayRefreshIntervalSec = 0.5;
 
 @property (nonatomic, strong) NSVisualEffectView *overlayContainer;
 @property (nonatomic, strong) NSTextField *overlayLabel;
+@property (nonatomic, strong) NSTimer *esp32StatusTimer;
+@property (nonatomic, strong) NSView *esp32StatusContainer;
+@property (nonatomic, strong) NSTextField *esp32StatusLabel;
+- (void)setupESP32StatusBar;
+- (void)updateESP32StatusBar;
+- (void)removeESP32StatusBar;
 @property (nonatomic, strong) NSTimer *statsTimer;
 @property (nonatomic, strong) NSTimer *streamHealthTimer;
 @property (nonatomic, strong) NSTimer *inputDiagnosticsTimer;

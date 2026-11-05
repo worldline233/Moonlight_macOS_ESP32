@@ -2044,3 +2044,14 @@
 "ESP32 button middle" = "Middle button";
 "ESP32 button back" = "Back button";
 "ESP32 button forward" = "Forward button";
+
+/* Independent ESP32 status bar */
+"ESP32 Show Status Bar" = "Show independent ESP32 status bar";
+"ESP32 bar connected" = "Connected";
+"ESP32 bar paused" = "Paused";
+"ESP32 bar offline" = "Offline";
+"ESP32 bar USB" = "USB";
+"ESP32 bar blocked" = "Blocked";
+"ESP32 bar keyboard" = "Keys";
+"ESP32 bar buttons" = "Buttons";
+"ESP32 bar uncaptured" = "Not captured";

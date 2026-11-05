@@ -1183,6 +1183,7 @@ highFreqMotor:(unsigned short)highFreqMotor {
 }
 
 - (void)tearDownStreamLifecycleObserversAndTimers {
+    [self removeESP32StatusBar];
     NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
 
     // Never leave the system gesture filter running once the stream is stopping or gone.
@@ -1823,6 +1824,7 @@ highFreqMotor:(unsigned short)highFreqMotor {
         }
     }
     self.hidSupport = [[HIDSupport alloc] init:self.app.host];
+    [self setupESP32StatusBar];
     [self configurePrecisionTouchpadInput];
     [self refreshTextInputConfiguration];
     __weak StreamViewController *shortcutOwner = self;
@@ -2267,6 +2269,7 @@ highFreqMotor:(unsigned short)highFreqMotor {
     dispatch_async(dispatch_get_main_queue(), ^{
         [self releaseClipboardSyncOwnershipWithUnbind:NO];
         [self hideConnectionTimeoutOverlay];
+        [self removeESP32StatusBar];
         if (self.statsTimer) {
             [self.statsTimer invalidate];
             self.statsTimer = nil;

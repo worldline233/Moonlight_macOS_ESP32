@@ -155,6 +155,7 @@ extension SettingsSearchIndex {
     SettingsSearchEntry(id: "keyboard/Keyboard & Mouse/Scroll Mode", pane: .keyboard, kind: .row, sectionKey: "Keyboard & Mouse", titleKey: "Scroll Mode", detailKey: nil, keywords: []),
     SettingsSearchEntry(id: "keyboard/Keyboard & Mouse/Input Monitoring", pane: .keyboard, kind: .row, sectionKey: "Keyboard & Mouse", titleKey: "Input Monitoring", detailKey: nil, keywords: []),
     SettingsSearchEntry(id: "keyboard/ESP32 USB Input/ESP32 Enable", pane: .keyboard, kind: .row, sectionKey: "ESP32 USB Input", titleKey: "ESP32 Enable", detailKey: nil, keywords: []),
+    SettingsSearchEntry(id: "keyboard/ESP32 USB Input/ESP32 Show Status Bar", pane: .keyboard, kind: .row, sectionKey: "ESP32 USB Input", titleKey: "ESP32 Show Status Bar", detailKey: nil, keywords: []),
     SettingsSearchEntry(id: "keyboard/ESP32 USB Input/ESP32 Address", pane: .keyboard, kind: .row, sectionKey: "ESP32 USB Input", titleKey: "ESP32 Address", detailKey: nil, keywords: []),
     SettingsSearchEntry(id: "keyboard/ESP32 USB Input/ESP32 Port", pane: .keyboard, kind: .row, sectionKey: "ESP32 USB Input", titleKey: "ESP32 Port", detailKey: nil, keywords: []),
     SettingsSearchEntry(id: "keyboard/ESP32 USB Input/ESP32 Control Key", pane: .keyboard, kind: .row, sectionKey: "ESP32 USB Input", titleKey: "ESP32 Control Key", detailKey: nil, keywords: []),

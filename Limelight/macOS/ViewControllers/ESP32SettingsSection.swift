@@ -6,6 +6,7 @@ import SwiftUI
 struct ESP32SettingsSection: View {
   @EnvironmentObject private var settingsModel: SettingsModel
   @ObservedObject private var language = LanguageManager.shared
+  @AppStorage("esp32.showStatusBar") private var showStatusBar = true
   @SwiftUI.State private var enabled = false
   @SwiftUI.State private var keyboard = true
   @SwiftUI.State private var mouse = true
@@ -32,6 +33,7 @@ struct ESP32SettingsSection: View {
         Text(tr("ESP32 choose host")).foregroundStyle(.secondary)
       } else {
         ToggleCell(title: "ESP32 Enable", boolBinding: $enabled)
+        ToggleCell(title: "ESP32 Show Status Bar", boolBinding: $showStatusBar)
         Group {
           SettingsRow(title: "ESP32 Address") {
             TextField("192.168.1.100", text: $address).frame(width: 230)

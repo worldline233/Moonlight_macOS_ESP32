@@ -44,6 +44,10 @@ int main(int argc, const char **argv) {
             assert([bridge handleMacKeyCode:0 pressed:YES]);
         } else {
             waitReady(bridge);
+            usleep(1300000); // Observe an actual WebSocket ping/pong RTT.
+            NSDictionary *snapshot = [bridge monitorSnapshot];
+            assert([snapshot[@"ready"] boolValue] && [snapshot[@"keyboard"] boolValue]);
+            assert([snapshot[@"mouse"] boolValue] && [snapshot[@"rttMs"] doubleValue] >= 0);
             assert([bridge handleMacKeyCode:0 pressed:YES]); // A
             [bridge handlePhysicalModifierMask:(1u << 2) | (1u << 3)]; // both controls
             assert([bridge handleMouseButton:1 pressed:YES]);
@@ -57,6 +61,7 @@ int main(int argc, const char **argv) {
             [bridge handleMacKeyCode:12 pressed:NO];
             settle();
             [bridge togglePaused];
+            assert([[bridge monitorSnapshot][@"paused"] boolValue]);
             assert([bridge handleMacKeyCode:11 pressed:YES]); // B, suppressed while paused
             settle();
             [bridge togglePaused];
@@ -81,6 +86,7 @@ int main(int argc, const char **argv) {
         [bridge stop];
         usleep(350000);
         assert(!bridge.ready);
+        assert([[bridge monitorSnapshot][@"rttMs"] doubleValue] < 0);
         [NSUserDefaults.standardUserDefaults removeObjectForKey:store];
     }
     return 0;
