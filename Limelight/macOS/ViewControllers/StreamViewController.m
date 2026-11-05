@@ -1824,7 +1824,6 @@ highFreqMotor:(unsigned short)highFreqMotor {
         }
     }
     self.hidSupport = [[HIDSupport alloc] init:self.app.host];
-    [self setupESP32StatusBar];
     [self configurePrecisionTouchpadInput];
     [self refreshTextInputConfiguration];
     __weak StreamViewController *shortcutOwner = self;
@@ -2156,6 +2155,9 @@ highFreqMotor:(unsigned short)highFreqMotor {
             self.reconnectInProgress = NO;
             [self hideReconnectOverlay];
         }
+
+        // Install the independent HUD after the renderer has inserted its video view.
+        [self setupESP32StatusBar];
 
         // Create overlay after streaming starts so it stays on top of the video view.
         if ([SettingsClass showPerformanceOverlayFor:self.app.host.uuid] && !self.overlayContainer) {

@@ -34,6 +34,8 @@ jobs:
         run: python3 tests/esp32/button_ordering.py
       - name: Native ESP32 bridge and WebSocket tests
         run: python3 tests/esp32/integration.py
+      - name: Native ESP32 status bar regression
+        run: python3 tests/esp32/status_bar.py
       - name: Download upstream XCFrameworks
         run: |
           curl --fail --location --retry 3 --output /tmp/xcframeworks.zip \

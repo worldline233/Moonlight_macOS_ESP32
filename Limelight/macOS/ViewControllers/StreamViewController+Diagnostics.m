@@ -1824,6 +1824,10 @@ static NSString *MLDynamicHdrFallbackDisplayName(int fallback) {
     NSNumber *visible = [NSUserDefaults.standardUserDefaults objectForKey:@"esp32.showStatusBar"];
     bar.hidden = visible != nil && !visible.boolValue;
     if (bar.hidden) return;
+    // Renderer replacement can insert another opaque view after connection start.
+    if (bar.superview != self.view || self.view.subviews.lastObject != bar) {
+        [self.view addSubview:bar positioned:NSWindowAbove relativeTo:nil];
+    }
     NSDictionary *snapshot = [self.hidSupport.esp32Input monitorSnapshot];
     BOOL ready = [snapshot[@"ready"] boolValue];
     BOOL paused = [snapshot[@"paused"] boolValue];
