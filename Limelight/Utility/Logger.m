@@ -505,7 +505,7 @@ static NSString *EnsureLogDirectoryPath(void) {
         return nil;
     }
 
-    NSString *logDir = [libraryPath stringByAppendingPathComponent:@"Logs/Moonlight"];
+    NSString *logDir = [libraryPath stringByAppendingPathComponent:@"Logs/MoonlightESP32"];
     NSError *dirError = nil;
     [[NSFileManager defaultManager] createDirectoryAtPath:logDir withIntermediateDirectories:YES attributes:nil error:&dirError];
     if (dirError != nil) {

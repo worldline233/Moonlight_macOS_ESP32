@@ -267,6 +267,7 @@ final class ReleaseUpdateChecker: ObservableObject {
   ]
 
   func check() {
+    guard !((Bundle.main.object(forInfoDictionaryKey: "ESP32DevelopmentBuild") as? Bool) ?? false) else { return }
     guard state != .checking else { return }
     state = .checking
     errorMessage = ""

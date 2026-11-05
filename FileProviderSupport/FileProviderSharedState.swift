@@ -13,7 +13,7 @@ struct FileProviderSharedState: Codable {
 }
 
 enum FileProviderSharedStateStore {
-  static let appGroupIdentifier = "group.std.skyhua.MoonlightMacEnhanced"
+  static let appGroupIdentifier = "group.org.worldline233.MoonlightMacESP32"
   private static let filename = "remote-file-provider-state.json"
 
   static func write(_ state: FileProviderSharedState) -> Bool {

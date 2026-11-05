@@ -2566,6 +2566,7 @@ static inline NSPoint MLClampFreeMousePointToExitEdge(NSPoint point,
 }
 
 - (BOOL)shouldDeferCommandModifierForShortcutHandlingWithEvent:(NSEvent *)event {
+    if (self.hidSupport.esp32Input.keyboardExclusive) return NO;
     if (event == nil || self.app.host.uuid.length == 0) {
         return NO;
     }
@@ -2711,6 +2712,7 @@ static inline NSPoint MLClampFreeMousePointToExitEdge(NSPoint point,
 }
 
 - (BOOL)handleKeyboardTranslationRuleForEvent:(NSEvent *)event {
+    if (self.hidSupport.esp32Input.keyboardExclusive) return NO;
     KeyboardTranslationRule *rule = [self keyboardTranslationRuleMatchingEvent:event];
     if (rule == nil) {
         return NO;

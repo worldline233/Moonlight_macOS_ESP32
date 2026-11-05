@@ -110,7 +110,8 @@ final class SparkleUpdateManager: NSObject, ObservableObject, SPUUpdaterDelegate
 
   private override init() {
     super.init()
-    guard let publicKey = Bundle.main.object(forInfoDictionaryKey: "SUPublicEDKey") as? String,
+    guard !((Bundle.main.object(forInfoDictionaryKey: "ESP32DevelopmentBuild") as? Bool) ?? false),
+      let publicKey = Bundle.main.object(forInfoDictionaryKey: "SUPublicEDKey") as? String,
       let keyData = Data(base64Encoded: publicKey), keyData.count == 32
     else { return }
 

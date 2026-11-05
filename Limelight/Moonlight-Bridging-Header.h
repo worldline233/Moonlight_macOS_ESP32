@@ -2,6 +2,7 @@
 //  Use this file to import your target's public headers that you would like to expose to Swift.
 //
 
+#import "Input/ESP32/ESP32InputBridge.h"
 #import "DataManager.h"
 #import "CryptoManager.h"
 #import "TemporaryHost.h"

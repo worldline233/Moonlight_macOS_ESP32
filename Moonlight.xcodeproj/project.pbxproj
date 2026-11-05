@@ -7,9 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4C38E7F91FEE085B000425CD /* (null) in Sources */ = {isa = PBXBuildFile; };
-		4C38E7FC1FEE0875000425CD /* (null) in Sources */ = {isa = PBXBuildFile; };
-		4C38E8011FEE08AA000425CD /* (null) in Sources */ = {isa = PBXBuildFile; };
 		D10000020000000000000002 /* FoundationDisplayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000010000000000000001 /* FoundationDisplayView.swift */; };
 		4C38E82E1FF0C71D000425CD /* libmoonlight-common.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 98AB2E841CAD46840089BB98 /* libmoonlight-common.a */; };
 		A42858422D5065B800E39078 /* OpenSSL in Frameworks */ = {isa = PBXBuildFile; productRef = A42858412D5065B800E39078 /* OpenSSL */; };
@@ -28,6 +25,161 @@
 		D20000220000000000000022 /* Ds5HapticsAudioRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = D20000230000000000000023 /* Ds5HapticsAudioRenderer.m */; };
 		D20000240000000000000024 /* FileProviderCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = D20000250000000000000025 /* FileProviderCoordinator.swift */; };
 		D30000020000000000000002 /* SettingsSearchIndex.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = D30000010000000000000001 /* SettingsSearchIndex.generated.swift */; };
+		E53200000000000000000001 /* ESP32InputBridge.mm in Sources */ = {isa = PBXBuildFile; fileRef = E53200010000000000000001 /* ESP32InputBridge.mm */; };
+		E53200000000000000000002 /* ESP32SettingsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = E53200010000000000000002 /* ESP32SettingsSection.swift */; };
+		C42653DA277888865D0DFBAE /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 13C41423999DDEB27C8029E0 /* Main.storyboard */; };
+		E90BEE57E918FE4A61291C46 /* CryptoManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 99E3382CDC52019434F6F761 /* CryptoManager.m */; };
+		55B8E8C3E9F705E5C3041C45 /* IdManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD210191FF765984532A23D /* IdManager.m */; };
+		CF4C5A1B768A5FD11508999F /* mkcert.c in Sources */ = {isa = PBXBuildFile; fileRef = F989071D14195740817DF675 /* mkcert.c */; };
+		07829F0BA3C07F88DB356E50 /* DataManager.m in Sources */ = {isa = PBXBuildFile; fileRef = F45BBC374A4B7D24D98A00BC /* DataManager.m */; };
+		E4EC0351A4C57E9299EF06D5 /* TemporaryApp.m in Sources */ = {isa = PBXBuildFile; fileRef = 575BE299EAC76B231A281904 /* TemporaryApp.m */; };
+		FAC6E886C0B429DE7D9BD4B5 /* TemporaryHost.m in Sources */ = {isa = PBXBuildFile; fileRef = D113B2F1B402C26AE17F39EE /* TemporaryHost.m */; };
+		294A496A07FFCD0D68106B1E /* TemporarySettings.m in Sources */ = {isa = PBXBuildFile; fileRef = 5DE61C52B075734BD2206B16 /* TemporarySettings.m */; };
+		335BF31CBD1CB46B6A146665 /* DatabaseSingleton.m in Sources */ = {isa = PBXBuildFile; fileRef = 546D53427AF444C8A7453BAE /* DatabaseSingleton.m */; };
+		E8A078BA2859195BD27925A3 /* Controller.m in Sources */ = {isa = PBXBuildFile; fileRef = A79C5FC12BBDFBA023A68B16 /* Controller.m */; };
+		A51B390DD7363DC6184E53E5 /* ControllerSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = B47F8265704A88AE3B3051DB /* ControllerSupport.m */; };
+		C901157045D3AEDF87243A4D /* CoreHIDMouseDriver.swift in Sources */ = {isa = PBXBuildFile; fileRef = E34582B8017A1FFDC1735384 /* CoreHIDMouseDriver.swift */; };
+		C9510A9CD4E14A31A9DFC980 /* HapticContext.m in Sources */ = {isa = PBXBuildFile; fileRef = E79217144519F8449E0AB3C8 /* HapticContext.m */; };
+		65AE11478D767E037D666F20 /* MLDualSenseTouchpad.m in Sources */ = {isa = PBXBuildFile; fileRef = FEAD7E91ACC44544A7A057B8 /* MLDualSenseTouchpad.m */; };
+		B599BB4BE13048DF9B6E8E45 /* MLPrecisionTouchpad.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D08B2737EBBF660B7D93675 /* MLPrecisionTouchpad.m */; };
+		EBEC892D66CB789D3DE10E68 /* MLSystemGestureBlocker.m in Sources */ = {isa = PBXBuildFile; fileRef = F222FCAFDC09530EC529A518 /* MLSystemGestureBlocker.m */; };
+		C902E83B29EAB2C743124542 /* MLSystemShortcutCapture.m in Sources */ = {isa = PBXBuildFile; fileRef = 13CBC13F9F9C1259E804705D /* MLSystemShortcutCapture.m */; };
+		96B0CF51301518687101F654 /* HIDSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = 65B4F1D882CD334B86830DD3 /* HIDSupport.m */; };
+		0827EB26C1B3FF75A15118E4 /* HIDSupport+Pointer.m in Sources */ = {isa = PBXBuildFile; fileRef = 13E0764BFECE7C36A63E1E8C /* HIDSupport+Pointer.m */; };
+		2DC7D20E18E6BDF9C10370B4 /* HIDSupport+Rumble.m in Sources */ = {isa = PBXBuildFile; fileRef = AD3DD349839BB33ADEDE6931 /* HIDSupport+Rumble.m */; };
+		081E28572CEBD34AC73FB43C /* HIDSupport+Scroll.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D59C35D170C35295F0B40C0 /* HIDSupport+Scroll.m */; };
+		916E2047C2EDAF59795E8DBC /* Ticks.m in Sources */ = {isa = PBXBuildFile; fileRef = 8707248BA82562BB1712BFC3 /* Ticks.m */; };
+		4A3AE3D61C25B19343CB8F22 /* MLAV1SoftwareDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 122F6A5424BF9BAA7229AFF4 /* MLAV1SoftwareDecoder.m */; };
+		C7BBA1D82C12E01EC833851F /* MLAudioBitstreamOutput.m in Sources */ = {isa = PBXBuildFile; fileRef = 18BC9F8C3E568DB5D8CBD3AC /* MLAudioBitstreamOutput.m */; };
+		011BBD10DF77DD5115173D5D /* MLAdaptiveBitrateController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7637B4717717EB215F0EF85E /* MLAdaptiveBitrateController.m */; };
+		553A625888A7817BA372CE09 /* MLIEC61937.c in Sources */ = {isa = PBXBuildFile; fileRef = 307AD87E7B3EA5E985719900 /* MLIEC61937.c */; };
+		8C8B746565FC8BEC0FF6B988 /* Limelight.xcdatamodeld in Resources */ = {isa = PBXBuildFile; fileRef = 0686105711AE80A4F57BA27F /* Limelight.xcdatamodeld */; };
+		9167D3D119EC1F2BABB0CB86 /* AppCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 211EF47ACEF7CAE9D2169535 /* AppCell.xib */; };
+		1AA755782FE60A2546587995 /* AppDelegateForAppKit.m in Sources */ = {isa = PBXBuildFile; fileRef = 3835CD7E3ED385DE05F1530B /* AppDelegateForAppKit.m */; };
+		3D27F60E3788C5638AF59735 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5A1C8A2822DDD1F188A313E1 /* Assets.xcassets */; };
+		7D312738AD789C4CAC2C50FA /* AlertPresenter.m in Sources */ = {isa = PBXBuildFile; fileRef = 4191903E39C37C1996CCE443 /* AlertPresenter.m */; };
+		F31C148F89E1779AC0BA5302 /* AwdlAuthorizationHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 847714DB6EDAC0E981869399 /* AwdlAuthorizationHelper.m */; };
+		09015A7A2DFA551A7B6F7D45 /* BackgroundColorView.m in Sources */ = {isa = PBXBuildFile; fileRef = 62684B6BFF5A77A5892BC5F4 /* BackgroundColorView.m */; };
+		1822C390B06ED4BBF6F9FFA1 /* ControllerNavigation.m in Sources */ = {isa = PBXBuildFile; fileRef = 58824CB835DB2DECE2BA4272 /* ControllerNavigation.m */; };
+		7823C71170A335B1A1A32854 /* F.m in Sources */ = {isa = PBXBuildFile; fileRef = D5D91DF8F99CF15C5E653AFF /* F.m */; };
+		EB9D77E7B5F67020FE5A9644 /* NSArray+F.m in Sources */ = {isa = PBXBuildFile; fileRef = 2FDE00743EE27E5EBA6E3FBD /* NSArray+F.m */; };
+		D07EC576BACF69AF97E68257 /* NSDictionary+F.m in Sources */ = {isa = PBXBuildFile; fileRef = C45C405D885D5ACA7903E733 /* NSDictionary+F.m */; };
+		A581B104476036DC81C3BE71 /* NSNumber+F.m in Sources */ = {isa = PBXBuildFile; fileRef = 2EEB68763E028369BB15F9AE /* NSNumber+F.m */; };
+		89EC49EF5F3BFB878C0467DE /* Helpers.m in Sources */ = {isa = PBXBuildFile; fileRef = 5D5FD15D92D4AC4915E27F8A /* Helpers.m */; };
+		43CDFB51C19094B181488485 /* ImageFader.m in Sources */ = {isa = PBXBuildFile; fileRef = 39576C8B0E3981770F061B9A /* ImageFader.m */; };
+		43405C01906D980EAA7484CB /* LanguageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849636B299A6714EC630AEA2 /* LanguageManager.swift */; };
+		E92FB89B495DCC44FE85861C /* MASPreferencesWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = AADBD8112502E366599811E2 /* MASPreferencesWindow.xib */; };
+		F302EEF1569026C209BCD5CD /* MASPreferencesWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = A447B4FE3CBDFC30ADF72FA7 /* MASPreferencesWindowController.m */; };
+		024CCF775094BE68DD3E1E20 /* MicrophoneManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7FD8BE142ECF3BBF822F8AE /* MicrophoneManager.swift */; };
+		13D3FFDF845080096C8E3700 /* NSApplication+Moonlight.m in Sources */ = {isa = PBXBuildFile; fileRef = 9BBC9D478343D8478C8C0549 /* NSApplication+Moonlight.m */; };
+		4568F9B1125A99797A668196 /* NSCollectionView+Moonlight.m in Sources */ = {isa = PBXBuildFile; fileRef = CB0C9AD6C447CDB525F981D5 /* NSCollectionView+Moonlight.m */; };
+		6A07F0A400DC95C5E4A6C611 /* NSResponder+Moonlight.m in Sources */ = {isa = PBXBuildFile; fileRef = 57CB1ACF3A02D3A835C0D234 /* NSResponder+Moonlight.m */; };
+		4C832FF3B656C1EECA373C39 /* NSView+Moonlight.m in Sources */ = {isa = PBXBuildFile; fileRef = 40F00402441064F4D327A1CE /* NSView+Moonlight.m */; };
+		7D8CAB59F1E8A6F3571EDE49 /* NSWindow+Moonlight.m in Sources */ = {isa = PBXBuildFile; fileRef = 2418DBAD92538CF740E28A8A /* NSWindow+Moonlight.m */; };
+		56A3F7A4B0362344987A9E42 /* NumberOnlyFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47FC953AC9A9DFC46A297BE0 /* NumberOnlyFormatter.swift */; };
+		13F8A1943A5D3F10EB082B3A /* SparkleUpdateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD662724DDAE3836F783BA78 /* SparkleUpdateManager.swift */; };
+		6D6389B54CD915A847FEAD89 /* ViewExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD0C413D688C4A7704F5297 /* ViewExtensions.swift */; };
+		BC76C96973FA977F0B4B9F5F /* HostCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 74A8EDD9A4BFB9E1678BD8C6 /* HostCell.xib */; };
+		2EC6C608C43E400F6C38A5AA /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 0D742F1FAE27AC9A3ACF5245 /* main.m */; };
+		9264987952E768EAF037AE14 /* AboutView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 83E0D39C3C3736417FFB67B4 /* AboutView.xib */; };
+		4E75A57FE907A0A8770D41FA /* AboutViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 60617C02ED9EBDB68DFEA0AC /* AboutViewController.m */; };
+		E7DE404A1442ADD0A2E7012F /* AboutWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = AECCE81AFC3D66FB6CE95C1D /* AboutWindow.xib */; };
+		570ED52FCC4B7D087A781D64 /* AppCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 40E635EB8A68A51380E381A9 /* AppCell.m */; };
+		82CF9E8314C4A9CB141DA017 /* AppsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 99D9CC4992EC9A0402BB7225 /* AppsViewController.m */; };
+		9DEF263B8840D0B7B7346345 /* AppsWorkspaceViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3DC1475E9A39F95ED508455F /* AppsWorkspaceViewController.m */; };
+		712FA34F527803E07BB9D9E9 /* ConnectionDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FAA17E8C85FFD4457420AF7 /* ConnectionDetailsViewController.swift */; };
+		C529EC5A381A8F79CED2411A /* ConnectionEditorViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8DBFAD4FC958200EBD78D11B /* ConnectionEditorViewController.m */; };
+		AA39E1389F5870A7E0477A1F /* ContainerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D3835A869F36ACB6B0228C05 /* ContainerViewController.m */; };
+		28AE27986FF89EBD87AA6FF2 /* DebugLogParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 074001344F2E83C31E542B9F /* DebugLogParser.swift */; };
+		41769F33ED9C69FF9C36D48A /* GeneralPrefsPaneVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DA8BD1095B8FE3713874F71 /* GeneralPrefsPaneVC.m */; };
+		CC06CE1717C69DE7CDA7A897 /* GeneralPrefsPaneView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 61604E185CA8F869D9DE15C2 /* GeneralPrefsPaneView.xib */; };
+		EE280E39101DB7FEFBA18654 /* HostCell.m in Sources */ = {isa = PBXBuildFile; fileRef = D0128B86F4B4FC9C2857A687 /* HostCell.m */; };
+		45119847A55C2DF2863C4122 /* HostSidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00B3E9DEFA398E6E69101662 /* HostSidebarView.swift */; };
+		5627DA55EF81B8F7B6E23902 /* HostSidebarViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17A1EAA731404D85965F2C6D /* HostSidebarViewModel.swift */; };
+		4AC47223BB93B516F1C3642F /* HostsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3A431D600B78932C7EE739D6 /* HostsViewController.m */; };
+		7D2CFBA0CF48351268DE8BB9 /* MLEdgeMenuUI.m in Sources */ = {isa = PBXBuildFile; fileRef = BB92A3E523670A17EB74F6ED /* MLEdgeMenuUI.m */; };
+		6C0FEF791093B3FC36FA17F4 /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B2131205A221755F9830179 /* Settings.swift */; };
+		270C45E8C043DE618CA10B84 /* SettingsAppPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19EB8930B56596947F606364 /* SettingsAppPane.swift */; };
+		F3485396E2581180AE491259 /* HeadphoneCorrections.tsv in Resources */ = {isa = PBXBuildFile; fileRef = 4A0C675309020D07AE3293F0 /* HeadphoneCorrections.tsv */; };
+		9F776909B18EC013AEC153F1 /* ThirdPartyLicenses.txt in Resources */ = {isa = PBXBuildFile; fileRef = 755E936B4343656044650DB9 /* ThirdPartyLicenses.txt */; };
+		5FF41587C9149648FE6C62CA /* EnhancedAudioEQ.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72178B9FB34CE64B97EB8C43 /* EnhancedAudioEQ.swift */; };
+		4EA233FE11FEA6C812AC85B1 /* EnhancedAudioSpectrum.swift in Sources */ = {isa = PBXBuildFile; fileRef = F015C1B7854BDFF69216F04D /* EnhancedAudioSpectrum.swift */; };
+		1300E8F8FCD23836099E00A7 /* SettingsAudioPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = 915B7F4A8640209B438F7393 /* SettingsAudioPane.swift */; };
+		4C86867D27BBCA81F093485E /* SettingsHostingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FE499BDC2C6025AE8B250A /* SettingsHostingController.swift */; };
+		7377C16A3CC29EBEE25BF8EF /* SettingsInputPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55C7784AFC29029DF4CB4ED2 /* SettingsInputPane.swift */; };
+		4B0B4786966AAEB72B7279E9 /* ControllerTouchpadShortcut.swift in Sources */ = {isa = PBXBuildFile; fileRef = 211B63E2BF2020335A3C783D /* ControllerTouchpadShortcut.swift */; };
+		6F4E35580DE14F428D07F8FF /* ControllerShortcutRuntime.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E14084782A5C4820449A55E /* ControllerShortcutRuntime.swift */; };
+		ED29100E975A03907A50613A /* ControllerHintOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8381E1CB4990723CA4C599CE /* ControllerHintOverlay.swift */; };
+		A1D3DBC3BFDEDDA6B09F7F1F /* ControllerFocusNavigator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B22D1151848859761DE30471 /* ControllerFocusNavigator.swift */; };
+		9864099A502EE1C8F7A6E07A /* ControllerKeyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 001247A0A30801C9404BC4B4 /* ControllerKeyboard.swift */; };
+		BA1A6A8D55BF81BAA167F907 /* SettingsShortcutEditors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39E54272127A7439AD43C68B /* SettingsShortcutEditors.swift */; };
+		6D5E81C6DB5DFF26E01B3D40 /* SettingsLogViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C112AA525ED8E6100EABE35B /* SettingsLogViewer.swift */; };
+		BC2729547860DF7402B3C4AE /* RemoteUSBForwardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1B5E7E29C2E7BC78CD52CD /* RemoteUSBForwardingViewModel.swift */; };
+		5A28BCA4A9C6E9C81AD3ED38 /* RemoteFileMappingClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = FDBBDDD82C5D110150E31197 /* RemoteFileMappingClient.swift */; };
+		DFDA24F87BB63C9E9C359433 /* RemoteFileMappingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBD1F486DEB5FB7108744184 /* RemoteFileMappingView.swift */; };
+		67C4085E87A6A7074D42ECC7 /* RemoteFileMappingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2C096ACFC7825A12F5F9E27 /* RemoteFileMappingViewModel.swift */; };
+		A24F9B8F2CDE018CF41D67F5 /* SettingsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52566599317245BF2CE74B1C /* SettingsModel.swift */; };
+		02E93349944B281FDA43C69A /* SettingsModel+DerivedValues.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B05BF285145CC48FC565D29 /* SettingsModel+DerivedValues.swift */; };
+		6BBBDCA1A68C05030241F647 /* SettingsModel+Persistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5BC0AE2E0E4A01590493CF3 /* SettingsModel+Persistence.swift */; };
+		903F89279C465B14C47FB86E /* SettingsModel+ProfileCopy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C5870017E51BA81C603384A /* SettingsModel+ProfileCopy.swift */; };
+		7CAD0153E3395C30D8C7E456 /* SettingsModel+RiskAssessment.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4C8ABCE27E0D5FABE5F600D /* SettingsModel+RiskAssessment.swift */; };
+		2AD33B0F1E5A2A6B1CBFB828 /* SettingsObjCBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4873BDC7437864C7884D5C50 /* SettingsObjCBridge.swift */; };
+		089E7399EE7743E47A1CDE84 /* SettingsPictureSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = F993CA16D1A2FD9DC56386C5 /* SettingsPictureSection.swift */; };
+		A4B39EF9582E0CC0A3341123 /* SettingsProfileDifferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = B32E9C50943ED5E9FD3AFD91 /* SettingsProfileDifferences.swift */; };
+		E5B3B8DF3E48ACB6F29E5422 /* SettingsProfileFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = D211435B7B69932A725E8DFD /* SettingsProfileFile.swift */; };
+		31643BCBF656BB332485CDFA /* SettingsProfilesPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35065B25784D8B001847C7B3 /* SettingsProfilesPane.swift */; };
+		833130539A83552FEDD041FB /* SettingsSharedControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA4E9E82B81B4F98475A896 /* SettingsSharedControls.swift */; };
+		4C4AA5ED8EE6F4094F50CAE5 /* SettingsShortcuts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2769068257FD7D8136D7CD6F /* SettingsShortcuts.swift */; };
+		72A1E71BBDEF3665BCC536B0 /* SettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = E38D3C18F6AEBECE2B48244F /* SettingsStore.swift */; };
+		A8C23A75AA957E9A2EBFB5B5 /* SettingsStreamPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4CD59CD8AB7E20BAD9ED15A /* SettingsStreamPane.swift */; };
+		2B406AFAE73CCEF392C98C87 /* SettingsVideoPane.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A3A0FF12C3F54B80E6D3172 /* SettingsVideoPane.swift */; };
+		244DE7D6D6472D4DD3DE6EF6 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 633684B5C3D27272D02D4864 /* SettingsView.swift */; };
+		68E71F7694A3546C3EB61E1B /* StreamRiskAssessment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57E8AD5C1A37C168A9322023 /* StreamRiskAssessment.swift */; };
+		44CA0A5E8C8B586CFA6B807C /* StreamDisplay.swift in Sources */ = {isa = PBXBuildFile; fileRef = E71FE8642135CA16488B9596 /* StreamDisplay.swift */; };
+		F264EEA707F45E86B64D35F8 /* StreamViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 897EA50E5BA9C886D00046CA /* StreamViewController.m */; };
+		B78137B8F42369C0511BB4B7 /* StreamViewController+Diagnostics.m in Sources */ = {isa = PBXBuildFile; fileRef = 1EFD9076640AC6775626C7B1 /* StreamViewController+Diagnostics.m */; };
+		F0B636F881B95F6E57082967 /* StreamViewController+FreeWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = E648F04C950EF98F9F9539EC /* StreamViewController+FreeWindow.m */; };
+		7F0C92303A8B83C6F3BAC0E2 /* StreamViewController+LiveStream.m in Sources */ = {isa = PBXBuildFile; fileRef = 2DC9DCFC2F63565A030C97E5 /* StreamViewController+LiveStream.m */; };
+		643540F0A8063E6AC16055BC /* StreamViewController+Input.m in Sources */ = {isa = PBXBuildFile; fileRef = 97373C4D7C581AE52FDC24A4 /* StreamViewController+Input.m */; };
+		52DE5D85FB8D7AED876A6391 /* StreamViewController+MenuUI.m in Sources */ = {isa = PBXBuildFile; fileRef = 68F562888DECC54C0516F496 /* StreamViewController+MenuUI.m */; };
+		702DABB096ACD890F0044122 /* StreamViewController+MouseCapture.m in Sources */ = {isa = PBXBuildFile; fileRef = 7816066B610D200E41A75E5E /* StreamViewController+MouseCapture.m */; };
+		AC33E1C49851C0ED2E9055B9 /* StreamViewController+WindowModes.m in Sources */ = {isa = PBXBuildFile; fileRef = CE40D4C6A79C2BB0FE56DCC0 /* StreamViewController+WindowModes.m */; };
+		0D65A6AF8E93A395A4CFDE1E /* AppCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2601F8A878806822528FF8D7 /* AppCellView.m */; };
+		EF70DBD5AF48C00A50383E07 /* CollectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1230E03747931C8B3DDE945A /* CollectionView.m */; };
+		26A67506BDA698750635715B /* HostCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = 386D64B45BF4485BA21D5298 /* HostCellView.m */; };
+		CF4192660AC8BDA8A1018C8D /* LinkTextField.m in Sources */ = {isa = PBXBuildFile; fileRef = DC20DA0085B909353E7D8909 /* LinkTextField.m */; };
+		65ACDB4B428048AED6863501 /* NavigatableAlertView.m in Sources */ = {isa = PBXBuildFile; fileRef = 402649AD65A90655DC95B2CF /* NavigatableAlertView.m */; };
+		51E5DCF957AF1261F4D66876 /* StreamingLockOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD40DFB5301EE8CA199ACE8C /* StreamingLockOverlayView.swift */; };
+		288642978D4574E21ACFA1A3 /* StreamingStartupOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BA2A515B772EE39E99A04D9 /* StreamingStartupOverlay.swift */; };
+		825DDC05CA320C44B526A14E /* ReleaseNotesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44BBAC12AC58507860CE83C0 /* ReleaseNotesView.swift */; };
+		A355E08C7E4918073BEE9BBA /* StreamViewMac.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C21587EC01E2F3970438E9F /* StreamViewMac.m */; };
+		9F1840A3FAD113B1A68038CF /* AppAssetManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F0718079DD5BC2496FE98CB /* AppAssetManager.m */; };
+		662838D6A3503B755572B61E /* AppAssetResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 81EA1064B7D598887D1BC5F3 /* AppAssetResponse.m */; };
+		3175A559A4706444DD5F429B /* AppAssetRetriever.m in Sources */ = {isa = PBXBuildFile; fileRef = 59136727791FE754AF9BB5D3 /* AppAssetRetriever.m */; };
+		3E0A53274096C3B446C240B4 /* AppListResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 3285D4A51836855CD32AF3D1 /* AppListResponse.m */; };
+		AF59AA984DB12212B85DFA37 /* ConnectionEndpointStore.m in Sources */ = {isa = PBXBuildFile; fileRef = E82D11D1350140F86D711C90 /* ConnectionEndpointStore.m */; };
+		E7AACEAE7583071219245FA3 /* ConnectionHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = BFD8A4C4F42173BDEA97B3BB /* ConnectionHelper.m */; };
+		4EFB7F518C17C15EDBC6A51B /* DiscoveryManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 8EC3C088FB3EDD1447F27C2F /* DiscoveryManager.m */; };
+		67DF7CD2F3245242646E8A00 /* DiscoveryWorker.m in Sources */ = {isa = PBXBuildFile; fileRef = 3A9E20AF82410FA4E6B6FCCF /* DiscoveryWorker.m */; };
+		4053D9F6127CD9077FCA1FF3 /* HttpManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 05BD6BE4BEF1A8344EBFBC08 /* HttpManager.m */; };
+		E672C70418250F375FD34553 /* HttpRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = F92D7756BDB9103D7C5DBC33 /* HttpRequest.m */; };
+		5018343D4133430F1376C597 /* HttpResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = A7C18A0DA5CC391A40BF62A1 /* HttpResponse.m */; };
+		8522D629F07E08B82F8B17A1 /* LatencyProbe.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BD369B6E10AC32D5D8A821E /* LatencyProbe.m */; };
+		445E8D2DF962B0DF34899796 /* MDNSManager.m in Sources */ = {isa = PBXBuildFile; fileRef = CC36F2A0C9037F455DAC9C32 /* MDNSManager.m */; };
+		46FDE5C2402FDC069E1249A9 /* PairManager.m in Sources */ = {isa = PBXBuildFile; fileRef = EDB1F8AF144B483B5FE157EC /* PairManager.m */; };
+		CDCB6C520BF3C6512228BBF3 /* RemoteUSBForwardingSession.m in Sources */ = {isa = PBXBuildFile; fileRef = C1FB9E1CE54E1FFC8B0CC964 /* RemoteUSBForwardingSession.m */; };
+		E6A65EB6B2A5DC0EE64215A3 /* RemoteUSBReverseTunnel.m in Sources */ = {isa = PBXBuildFile; fileRef = 48A46F4E4A735A3F8CF58E51 /* RemoteUSBReverseTunnel.m */; };
+		F1641F9FC8831411CE9CFB90 /* ServerInfoResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 6AE53BAE6240D28D4B717F7C /* ServerInfoResponse.m */; };
+		56D8DB713443E97630CF5A7D /* StreamingSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = C1739E7340F494ED2FFBF363 /* StreamingSessionManager.m */; };
+		D177FF16348C02630E7E126D /* WakeOnLanManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 43E376775FE9461FD8E5F930 /* WakeOnLanManager.m */; };
+		87C68460FAA65EB26EC5810B /* Connection.m in Sources */ = {isa = PBXBuildFile; fileRef = C78D2BC4FBDC6A0B84811568 /* Connection.m */; };
+		6E6D32F22498965113B92947 /* RendererLayerContainer.m in Sources */ = {isa = PBXBuildFile; fileRef = 54ED75C46B524D93ED8C43EA /* RendererLayerContainer.m */; };
+		7C91CD389BC4D8124ABBE28D /* StreamConfiguration.m in Sources */ = {isa = PBXBuildFile; fileRef = A38E33D017A389BF98BA4D27 /* StreamConfiguration.m */; };
+		F8F0E932D1806C635470FE4A /* StreamManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 52EF23AA8FFFAB96A67B78C8 /* StreamManager.m */; };
+		06D95DE10650BD321FE792C9 /* VideoDecoderRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 860D29DDA955D816414334DE /* VideoDecoderRenderer.m */; };
+		D0A4506BFA5C835B879AC506 /* LogBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = 11C8B5CD55E959A97889F024 /* LogBuffer.m */; };
+		29186CBF97E237FCA24EC5AA /* Logger.m in Sources */ = {isa = PBXBuildFile; fileRef = 7FCCFCBF519DDD86AF99DA5E /* Logger.m */; };
+		E06FB8959F12D1790A48662C /* Utils.m in Sources */ = {isa = PBXBuildFile; fileRef = D2AED08C234B331C1FAADCCB /* Utils.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -81,7 +233,7 @@
 
 /* Begin PBXFileReference section */
 		4C2556A121F56F280009838E /* Moonlight.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Moonlight.entitlements; sourceTree = "<group>"; };
-		4C7E0A7A1FECBFFD00684411 /* MoonlightEnhanced.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MoonlightEnhanced.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		4C7E0A7A1FECBFFD00684411 /* MoonlightESP32.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MoonlightESP32.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4CD17E9B2733C0FC004D438C /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		98AB2E7F1CAD46830089BB98 /* moonlight-common.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "moonlight-common.xcodeproj"; path = "moonlight-common/moonlight-common.xcodeproj"; sourceTree = "<group>"; };
 		A42858432D5066A000E39078 /* FFmpeg.xcframework */ = {isa = PBXFileReference; expectedSignature = "AppleDeveloperProgram:KHSNQKXT55:Martin Kenny"; lastKnownFileType = wrapper.xcframework; name = FFmpeg.xcframework; path = xcframeworks/FFmpeg.xcframework; sourceTree = "<group>"; };
@@ -100,6 +252,175 @@
 		D20000230000000000000023 /* Ds5HapticsAudioRenderer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/Input/Ds5HapticsAudioRenderer.m"; sourceTree = SOURCE_ROOT; };
 		D20000250000000000000025 /* FileProviderCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Limelight/macOS/ViewControllers/FileProviderCoordinator.swift"; sourceTree = SOURCE_ROOT; };
 		D30000010000000000000001 /* SettingsSearchIndex.generated.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Limelight/macOS/ViewControllers/SettingsSearchIndex.generated.swift"; sourceTree = SOURCE_ROOT; };
+		E53200010000000000000001 /* ESP32InputBridge.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "Limelight/Input/ESP32/ESP32InputBridge.mm"; sourceTree = SOURCE_ROOT; };
+		E53200010000000000000002 /* ESP32SettingsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Limelight/macOS/ViewControllers/ESP32SettingsSection.swift"; sourceTree = SOURCE_ROOT; };
+		E53200010000000000000003 /* ESP32InputBridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Limelight/Input/ESP32/ESP32InputBridge.h"; sourceTree = SOURCE_ROOT; };
+		E53200010000000000000004 /* ESP32MacKeyMap.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Limelight/Input/ESP32/ESP32MacKeyMap.h"; sourceTree = SOURCE_ROOT; };
+		E53200010000000000000005 /* ESP32KeyboardRouter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Limelight/Input/ESP32/ESP32KeyboardRouter.h"; sourceTree = SOURCE_ROOT; };
+		E53200010000000000000006 /* ESP32MouseRouter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Limelight/Input/ESP32/ESP32MouseRouter.h"; sourceTree = SOURCE_ROOT; };
+		CE54E350764DD8439136FF12 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = "Limelight/macOS/Base.lproj/Main.storyboard"; sourceTree = SOURCE_ROOT; };
+		99E3382CDC52019434F6F761 /* CryptoManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/Crypto/CryptoManager.m"; sourceTree = SOURCE_ROOT; };
+		1AD210191FF765984532A23D /* IdManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/Crypto/IdManager.m"; sourceTree = SOURCE_ROOT; };
+		F989071D14195740817DF675 /* mkcert.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "Limelight/Crypto/mkcert.c"; sourceTree = SOURCE_ROOT; };
+		F45BBC374A4B7D24D98A00BC /* DataManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/Database/DataManager.m"; sourceTree = SOURCE_ROOT; };
+		575BE299EAC76B231A281904 /* TemporaryApp.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/Database/TemporaryApp.m"; sourceTree = SOURCE_ROOT; };
+		D113B2F1B402C26AE17F39EE /* TemporaryHost.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/Database/TemporaryHost.m"; sourceTree = SOURCE_ROOT; };
+		5DE61C52B075734BD2206B16 /* TemporarySettings.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/Database/TemporarySettings.m"; sourceTree = SOURCE_ROOT; };
+		546D53427AF444C8A7453BAE /* DatabaseSingleton.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/DatabaseSingleton.m"; sourceTree = SOURCE_ROOT; };
+		A79C5FC12BBDFBA023A68B16 /* Controller.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/Input/Controller.m"; sourceTree = SOURCE_ROOT; };
+		B47F8265704A88AE3B3051DB /* ControllerSupport.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/Input/ControllerSupport.m"; sourceTree = SOURCE_ROOT; };
+		E34582B8017A1FFDC1735384 /* CoreHIDMouseDriver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Limelight/Input/CoreHIDMouseDriver.swift"; sourceTree = SOURCE_ROOT; };
+		E79217144519F8449E0AB3C8 /* HapticContext.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/Input/HapticContext.m"; sourceTree = SOURCE_ROOT; };
+		FEAD7E91ACC44544A7A057B8 /* MLDualSenseTouchpad.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/Input/MLDualSenseTouchpad.m"; sourceTree = SOURCE_ROOT; };
+		1D08B2737EBBF660B7D93675 /* MLPrecisionTouchpad.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/Input/MLPrecisionTouchpad.m"; sourceTree = SOURCE_ROOT; };
+		F222FCAFDC09530EC529A518 /* MLSystemGestureBlocker.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/Input/MLSystemGestureBlocker.m"; sourceTree = SOURCE_ROOT; };
+		13CBC13F9F9C1259E804705D /* MLSystemShortcutCapture.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/Input/MLSystemShortcutCapture.m"; sourceTree = SOURCE_ROOT; };
+		65B4F1D882CD334B86830DD3 /* HIDSupport.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/Input/HIDSupport.m"; sourceTree = SOURCE_ROOT; };
+		13E0764BFECE7C36A63E1E8C /* HIDSupport+Pointer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/Input/HIDSupport+Pointer.m"; sourceTree = SOURCE_ROOT; };
+		AD3DD349839BB33ADEDE6931 /* HIDSupport+Rumble.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/Input/HIDSupport+Rumble.m"; sourceTree = SOURCE_ROOT; };
+		1D59C35D170C35295F0B40C0 /* HIDSupport+Scroll.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/Input/HIDSupport+Scroll.m"; sourceTree = SOURCE_ROOT; };
+		8707248BA82562BB1712BFC3 /* Ticks.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/Input/Ticks.m"; sourceTree = SOURCE_ROOT; };
+		122F6A5424BF9BAA7229AFF4 /* MLAV1SoftwareDecoder.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/Stream/MLAV1SoftwareDecoder.m"; sourceTree = SOURCE_ROOT; };
+		18BC9F8C3E568DB5D8CBD3AC /* MLAudioBitstreamOutput.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/Stream/MLAudioBitstreamOutput.m"; sourceTree = SOURCE_ROOT; };
+		7637B4717717EB215F0EF85E /* MLAdaptiveBitrateController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/Stream/MLAdaptiveBitrateController.m"; sourceTree = SOURCE_ROOT; };
+		307AD87E7B3EA5E985719900 /* MLIEC61937.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "Limelight/Stream/MLIEC61937.c"; sourceTree = SOURCE_ROOT; };
+		FEF02308B730A162FB518855 /* Limelight 0.3.0.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Limelight 0.3.0.xcdatamodel"; sourceTree = "<group>"; };
+		07FD11E1509BA1CAB17D12D6 /* Limelight 0.3.1.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Limelight 0.3.1.xcdatamodel"; sourceTree = "<group>"; };
+		2D691153C157972EAA9193F3 /* Limelight.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Limelight.xcdatamodel"; sourceTree = "<group>"; };
+		29EA8471EA3F6F30AB6BA0B5 /* Moonlight v1.0-2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Moonlight v1.0-2.xcdatamodel"; sourceTree = "<group>"; };
+		AFFA55FEE3B5419248CA32F8 /* Moonlight v1.0.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Moonlight v1.0.xcdatamodel"; sourceTree = "<group>"; };
+		FA92024E0C639148170005A1 /* Moonlight v1.1.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Moonlight v1.1.xcdatamodel"; sourceTree = "<group>"; };
+		266B7921602800EBCA7E4975 /* Moonlight v1.2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Moonlight v1.2.xcdatamodel"; sourceTree = "<group>"; };
+		F57ADC20268287D236AE1E52 /* Moonlight v1.3.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Moonlight v1.3.xcdatamodel"; sourceTree = "<group>"; };
+		5FF382A192B49A408C101667 /* Moonlight v1.4.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Moonlight v1.4.xcdatamodel"; sourceTree = "<group>"; };
+		DD008C18CD3A54C0DA32483A /* Moonlight v1.5.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Moonlight v1.5.xcdatamodel"; sourceTree = "<group>"; };
+		C02D10549CA12D2D7A846052 /* Moonlight v1.6.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Moonlight v1.6.xcdatamodel"; sourceTree = "<group>"; };
+		211EF47ACEF7CAE9D2169535 /* AppCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = "Limelight/macOS/AppCell.xib"; sourceTree = SOURCE_ROOT; };
+		3835CD7E3ED385DE05F1530B /* AppDelegateForAppKit.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/macOS/AppDelegateForAppKit.m"; sourceTree = SOURCE_ROOT; };
+		5A1C8A2822DDD1F188A313E1 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Limelight/macOS/Assets.xcassets"; sourceTree = SOURCE_ROOT; };
+		4191903E39C37C1996CCE443 /* AlertPresenter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/macOS/Helpers/AlertPresenter.m"; sourceTree = SOURCE_ROOT; };
+		847714DB6EDAC0E981869399 /* AwdlAuthorizationHelper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/macOS/Helpers/AwdlAuthorizationHelper.m"; sourceTree = SOURCE_ROOT; };
+		62684B6BFF5A77A5892BC5F4 /* BackgroundColorView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/macOS/Helpers/BackgroundColorView.m"; sourceTree = SOURCE_ROOT; };
+		58824CB835DB2DECE2BA4272 /* ControllerNavigation.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/macOS/Helpers/ControllerNavigation.m"; sourceTree = SOURCE_ROOT; };
+		D5D91DF8F99CF15C5E653AFF /* F.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/macOS/Helpers/Functional/F.m"; sourceTree = SOURCE_ROOT; };
+		2FDE00743EE27E5EBA6E3FBD /* NSArray+F.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/macOS/Helpers/Functional/NSArray+F.m"; sourceTree = SOURCE_ROOT; };
+		C45C405D885D5ACA7903E733 /* NSDictionary+F.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/macOS/Helpers/Functional/NSDictionary+F.m"; sourceTree = SOURCE_ROOT; };
+		2EEB68763E028369BB15F9AE /* NSNumber+F.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/macOS/Helpers/Functional/NSNumber+F.m"; sourceTree = SOURCE_ROOT; };
+		5D5FD15D92D4AC4915E27F8A /* Helpers.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/macOS/Helpers/Helpers.m"; sourceTree = SOURCE_ROOT; };
+		39576C8B0E3981770F061B9A /* ImageFader.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/macOS/Helpers/ImageFader.m"; sourceTree = SOURCE_ROOT; };
+		849636B299A6714EC630AEA2 /* LanguageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Limelight/macOS/Helpers/LanguageManager.swift"; sourceTree = SOURCE_ROOT; };
+		AADBD8112502E366599811E2 /* MASPreferencesWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = "Limelight/macOS/Helpers/MASPreferences/MASPreferencesWindow.xib"; sourceTree = SOURCE_ROOT; };
+		A447B4FE3CBDFC30ADF72FA7 /* MASPreferencesWindowController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/macOS/Helpers/MASPreferences/MASPreferencesWindowController.m"; sourceTree = SOURCE_ROOT; };
+		A7FD8BE142ECF3BBF822F8AE /* MicrophoneManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Limelight/macOS/Helpers/MicrophoneManager.swift"; sourceTree = SOURCE_ROOT; };
+		9BBC9D478343D8478C8C0549 /* NSApplication+Moonlight.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/macOS/Helpers/NSApplication+Moonlight.m"; sourceTree = SOURCE_ROOT; };
+		CB0C9AD6C447CDB525F981D5 /* NSCollectionView+Moonlight.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/macOS/Helpers/NSCollectionView+Moonlight.m"; sourceTree = SOURCE_ROOT; };
+		57CB1ACF3A02D3A835C0D234 /* NSResponder+Moonlight.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/macOS/Helpers/NSResponder+Moonlight.m"; sourceTree = SOURCE_ROOT; };
+		40F00402441064F4D327A1CE /* NSView+Moonlight.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/macOS/Helpers/NSView+Moonlight.m"; sourceTree = SOURCE_ROOT; };
+		2418DBAD92538CF740E28A8A /* NSWindow+Moonlight.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/macOS/Helpers/NSWindow+Moonlight.m"; sourceTree = SOURCE_ROOT; };
+		47FC953AC9A9DFC46A297BE0 /* NumberOnlyFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Limelight/macOS/Helpers/NumberOnlyFormatter.swift"; sourceTree = SOURCE_ROOT; };
+		FD662724DDAE3836F783BA78 /* SparkleUpdateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Limelight/macOS/Helpers/SparkleUpdateManager.swift"; sourceTree = SOURCE_ROOT; };
+		EFD0C413D688C4A7704F5297 /* ViewExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Limelight/macOS/Helpers/ViewExtensions.swift"; sourceTree = SOURCE_ROOT; };
+		74A8EDD9A4BFB9E1678BD8C6 /* HostCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = "Limelight/macOS/HostCell.xib"; sourceTree = SOURCE_ROOT; };
+		0D742F1FAE27AC9A3ACF5245 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/macOS/Supporting Files/main.m"; sourceTree = SOURCE_ROOT; };
+		83E0D39C3C3736417FFB67B4 /* AboutView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = "Limelight/macOS/ViewControllers/AboutView.xib"; sourceTree = SOURCE_ROOT; };
+		60617C02ED9EBDB68DFEA0AC /* AboutViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/macOS/ViewControllers/AboutViewController.m"; sourceTree = SOURCE_ROOT; };
+		AECCE81AFC3D66FB6CE95C1D /* AboutWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = "Limelight/macOS/ViewControllers/AboutWindow.xib"; sourceTree = SOURCE_ROOT; };
+		40E635EB8A68A51380E381A9 /* AppCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/macOS/ViewControllers/AppCell.m"; sourceTree = SOURCE_ROOT; };
+		99D9CC4992EC9A0402BB7225 /* AppsViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/macOS/ViewControllers/AppsViewController.m"; sourceTree = SOURCE_ROOT; };
+		3DC1475E9A39F95ED508455F /* AppsWorkspaceViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/macOS/ViewControllers/AppsWorkspaceViewController.m"; sourceTree = SOURCE_ROOT; };
+		1FAA17E8C85FFD4457420AF7 /* ConnectionDetailsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Limelight/macOS/ViewControllers/ConnectionDetailsViewController.swift"; sourceTree = SOURCE_ROOT; };
+		8DBFAD4FC958200EBD78D11B /* ConnectionEditorViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/macOS/ViewControllers/ConnectionEditorViewController.m"; sourceTree = SOURCE_ROOT; };
+		D3835A869F36ACB6B0228C05 /* ContainerViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/macOS/ViewControllers/ContainerViewController.m"; sourceTree = SOURCE_ROOT; };
+		074001344F2E83C31E542B9F /* DebugLogParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Limelight/macOS/ViewControllers/DebugLogParser.swift"; sourceTree = SOURCE_ROOT; };
+		7DA8BD1095B8FE3713874F71 /* GeneralPrefsPaneVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/macOS/ViewControllers/GeneralPrefsPaneVC.m"; sourceTree = SOURCE_ROOT; };
+		61604E185CA8F869D9DE15C2 /* GeneralPrefsPaneView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = "Limelight/macOS/ViewControllers/GeneralPrefsPaneView.xib"; sourceTree = SOURCE_ROOT; };
+		D0128B86F4B4FC9C2857A687 /* HostCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/macOS/ViewControllers/HostCell.m"; sourceTree = SOURCE_ROOT; };
+		00B3E9DEFA398E6E69101662 /* HostSidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Limelight/macOS/ViewControllers/HostSidebarView.swift"; sourceTree = SOURCE_ROOT; };
+		17A1EAA731404D85965F2C6D /* HostSidebarViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Limelight/macOS/ViewControllers/HostSidebarViewModel.swift"; sourceTree = SOURCE_ROOT; };
+		3A431D600B78932C7EE739D6 /* HostsViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/macOS/ViewControllers/HostsViewController.m"; sourceTree = SOURCE_ROOT; };
+		BB92A3E523670A17EB74F6ED /* MLEdgeMenuUI.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/macOS/ViewControllers/MLEdgeMenuUI.m"; sourceTree = SOURCE_ROOT; };
+		9B2131205A221755F9830179 /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Limelight/macOS/ViewControllers/Settings.swift"; sourceTree = SOURCE_ROOT; };
+		19EB8930B56596947F606364 /* SettingsAppPane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Limelight/macOS/ViewControllers/SettingsAppPane.swift"; sourceTree = SOURCE_ROOT; };
+		4A0C675309020D07AE3293F0 /* HeadphoneCorrections.tsv */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Limelight/macOS/Supporting Files/HeadphoneCorrections.tsv"; sourceTree = SOURCE_ROOT; };
+		755E936B4343656044650DB9 /* ThirdPartyLicenses.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Limelight/macOS/Supporting Files/ThirdPartyLicenses.txt"; sourceTree = SOURCE_ROOT; };
+		72178B9FB34CE64B97EB8C43 /* EnhancedAudioEQ.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Limelight/macOS/ViewControllers/EnhancedAudioEQ.swift"; sourceTree = SOURCE_ROOT; };
+		F015C1B7854BDFF69216F04D /* EnhancedAudioSpectrum.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Limelight/macOS/ViewControllers/EnhancedAudioSpectrum.swift"; sourceTree = SOURCE_ROOT; };
+		915B7F4A8640209B438F7393 /* SettingsAudioPane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Limelight/macOS/ViewControllers/SettingsAudioPane.swift"; sourceTree = SOURCE_ROOT; };
+		84FE499BDC2C6025AE8B250A /* SettingsHostingController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Limelight/macOS/ViewControllers/SettingsHostingController.swift"; sourceTree = SOURCE_ROOT; };
+		55C7784AFC29029DF4CB4ED2 /* SettingsInputPane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Limelight/macOS/ViewControllers/SettingsInputPane.swift"; sourceTree = SOURCE_ROOT; };
+		211B63E2BF2020335A3C783D /* ControllerTouchpadShortcut.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Limelight/macOS/ViewControllers/ControllerTouchpadShortcut.swift"; sourceTree = SOURCE_ROOT; };
+		0E14084782A5C4820449A55E /* ControllerShortcutRuntime.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Limelight/macOS/ViewControllers/ControllerShortcutRuntime.swift"; sourceTree = SOURCE_ROOT; };
+		8381E1CB4990723CA4C599CE /* ControllerHintOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Limelight/macOS/ViewControllers/ControllerHintOverlay.swift"; sourceTree = SOURCE_ROOT; };
+		B22D1151848859761DE30471 /* ControllerFocusNavigator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Limelight/macOS/ViewControllers/ControllerFocusNavigator.swift"; sourceTree = SOURCE_ROOT; };
+		001247A0A30801C9404BC4B4 /* ControllerKeyboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Limelight/macOS/ViewControllers/ControllerKeyboard.swift"; sourceTree = SOURCE_ROOT; };
+		39E54272127A7439AD43C68B /* SettingsShortcutEditors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Limelight/macOS/ViewControllers/SettingsShortcutEditors.swift"; sourceTree = SOURCE_ROOT; };
+		C112AA525ED8E6100EABE35B /* SettingsLogViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Limelight/macOS/ViewControllers/SettingsLogViewer.swift"; sourceTree = SOURCE_ROOT; };
+		9A1B5E7E29C2E7BC78CD52CD /* RemoteUSBForwardingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Limelight/macOS/ViewControllers/RemoteUSBForwardingViewModel.swift"; sourceTree = SOURCE_ROOT; };
+		FDBBDDD82C5D110150E31197 /* RemoteFileMappingClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Limelight/macOS/ViewControllers/RemoteFileMappingClient.swift"; sourceTree = SOURCE_ROOT; };
+		CBD1F486DEB5FB7108744184 /* RemoteFileMappingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Limelight/macOS/ViewControllers/RemoteFileMappingView.swift"; sourceTree = SOURCE_ROOT; };
+		F2C096ACFC7825A12F5F9E27 /* RemoteFileMappingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Limelight/macOS/ViewControllers/RemoteFileMappingViewModel.swift"; sourceTree = SOURCE_ROOT; };
+		52566599317245BF2CE74B1C /* SettingsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Limelight/macOS/ViewControllers/SettingsModel.swift"; sourceTree = SOURCE_ROOT; };
+		6B05BF285145CC48FC565D29 /* SettingsModel+DerivedValues.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Limelight/macOS/ViewControllers/SettingsModel+DerivedValues.swift"; sourceTree = SOURCE_ROOT; };
+		F5BC0AE2E0E4A01590493CF3 /* SettingsModel+Persistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Limelight/macOS/ViewControllers/SettingsModel+Persistence.swift"; sourceTree = SOURCE_ROOT; };
+		2C5870017E51BA81C603384A /* SettingsModel+ProfileCopy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Limelight/macOS/ViewControllers/SettingsModel+ProfileCopy.swift"; sourceTree = SOURCE_ROOT; };
+		A4C8ABCE27E0D5FABE5F600D /* SettingsModel+RiskAssessment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Limelight/macOS/ViewControllers/SettingsModel+RiskAssessment.swift"; sourceTree = SOURCE_ROOT; };
+		4873BDC7437864C7884D5C50 /* SettingsObjCBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Limelight/macOS/ViewControllers/SettingsObjCBridge.swift"; sourceTree = SOURCE_ROOT; };
+		F993CA16D1A2FD9DC56386C5 /* SettingsPictureSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Limelight/macOS/ViewControllers/SettingsPictureSection.swift"; sourceTree = SOURCE_ROOT; };
+		B32E9C50943ED5E9FD3AFD91 /* SettingsProfileDifferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Limelight/macOS/ViewControllers/SettingsProfileDifferences.swift"; sourceTree = SOURCE_ROOT; };
+		D211435B7B69932A725E8DFD /* SettingsProfileFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Limelight/macOS/ViewControllers/SettingsProfileFile.swift"; sourceTree = SOURCE_ROOT; };
+		35065B25784D8B001847C7B3 /* SettingsProfilesPane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Limelight/macOS/ViewControllers/SettingsProfilesPane.swift"; sourceTree = SOURCE_ROOT; };
+		FAA4E9E82B81B4F98475A896 /* SettingsSharedControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Limelight/macOS/ViewControllers/SettingsSharedControls.swift"; sourceTree = SOURCE_ROOT; };
+		2769068257FD7D8136D7CD6F /* SettingsShortcuts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Limelight/macOS/ViewControllers/SettingsShortcuts.swift"; sourceTree = SOURCE_ROOT; };
+		E38D3C18F6AEBECE2B48244F /* SettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Limelight/macOS/ViewControllers/SettingsStore.swift"; sourceTree = SOURCE_ROOT; };
+		D4CD59CD8AB7E20BAD9ED15A /* SettingsStreamPane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Limelight/macOS/ViewControllers/SettingsStreamPane.swift"; sourceTree = SOURCE_ROOT; };
+		6A3A0FF12C3F54B80E6D3172 /* SettingsVideoPane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Limelight/macOS/ViewControllers/SettingsVideoPane.swift"; sourceTree = SOURCE_ROOT; };
+		633684B5C3D27272D02D4864 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Limelight/macOS/ViewControllers/SettingsView.swift"; sourceTree = SOURCE_ROOT; };
+		57E8AD5C1A37C168A9322023 /* StreamRiskAssessment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Limelight/macOS/ViewControllers/StreamRiskAssessment.swift"; sourceTree = SOURCE_ROOT; };
+		E71FE8642135CA16488B9596 /* StreamDisplay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Limelight/macOS/ViewControllers/StreamDisplay.swift"; sourceTree = SOURCE_ROOT; };
+		897EA50E5BA9C886D00046CA /* StreamViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/macOS/ViewControllers/StreamViewController.m"; sourceTree = SOURCE_ROOT; };
+		1EFD9076640AC6775626C7B1 /* StreamViewController+Diagnostics.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/macOS/ViewControllers/StreamViewController+Diagnostics.m"; sourceTree = SOURCE_ROOT; };
+		E648F04C950EF98F9F9539EC /* StreamViewController+FreeWindow.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/macOS/ViewControllers/StreamViewController+FreeWindow.m"; sourceTree = SOURCE_ROOT; };
+		2DC9DCFC2F63565A030C97E5 /* StreamViewController+LiveStream.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/macOS/ViewControllers/StreamViewController+LiveStream.m"; sourceTree = SOURCE_ROOT; };
+		97373C4D7C581AE52FDC24A4 /* StreamViewController+Input.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/macOS/ViewControllers/StreamViewController+Input.m"; sourceTree = SOURCE_ROOT; };
+		68F562888DECC54C0516F496 /* StreamViewController+MenuUI.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/macOS/ViewControllers/StreamViewController+MenuUI.m"; sourceTree = SOURCE_ROOT; };
+		7816066B610D200E41A75E5E /* StreamViewController+MouseCapture.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/macOS/ViewControllers/StreamViewController+MouseCapture.m"; sourceTree = SOURCE_ROOT; };
+		CE40D4C6A79C2BB0FE56DCC0 /* StreamViewController+WindowModes.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/macOS/ViewControllers/StreamViewController+WindowModes.m"; sourceTree = SOURCE_ROOT; };
+		2601F8A878806822528FF8D7 /* AppCellView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/macOS/Views/AppCellView.m"; sourceTree = SOURCE_ROOT; };
+		1230E03747931C8B3DDE945A /* CollectionView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/macOS/Views/CollectionView.m"; sourceTree = SOURCE_ROOT; };
+		386D64B45BF4485BA21D5298 /* HostCellView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/macOS/Views/HostCellView.m"; sourceTree = SOURCE_ROOT; };
+		DC20DA0085B909353E7D8909 /* LinkTextField.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/macOS/Views/LinkTextField.m"; sourceTree = SOURCE_ROOT; };
+		402649AD65A90655DC95B2CF /* NavigatableAlertView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/macOS/Views/NavigatableAlertView.m"; sourceTree = SOURCE_ROOT; };
+		DD40DFB5301EE8CA199ACE8C /* StreamingLockOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Limelight/macOS/Views/StreamingLockOverlayView.swift"; sourceTree = SOURCE_ROOT; };
+		1BA2A515B772EE39E99A04D9 /* StreamingStartupOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Limelight/macOS/Views/StreamingStartupOverlay.swift"; sourceTree = SOURCE_ROOT; };
+		44BBAC12AC58507860CE83C0 /* ReleaseNotesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Limelight/macOS/Views/ReleaseNotesView.swift"; sourceTree = SOURCE_ROOT; };
+		9C21587EC01E2F3970438E9F /* StreamViewMac.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/macOS/Views/StreamViewMac.m"; sourceTree = SOURCE_ROOT; };
+		3F0718079DD5BC2496FE98CB /* AppAssetManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/Network/AppAssetManager.m"; sourceTree = SOURCE_ROOT; };
+		81EA1064B7D598887D1BC5F3 /* AppAssetResponse.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/Network/AppAssetResponse.m"; sourceTree = SOURCE_ROOT; };
+		59136727791FE754AF9BB5D3 /* AppAssetRetriever.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/Network/AppAssetRetriever.m"; sourceTree = SOURCE_ROOT; };
+		3285D4A51836855CD32AF3D1 /* AppListResponse.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/Network/AppListResponse.m"; sourceTree = SOURCE_ROOT; };
+		E82D11D1350140F86D711C90 /* ConnectionEndpointStore.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/Network/ConnectionEndpointStore.m"; sourceTree = SOURCE_ROOT; };
+		BFD8A4C4F42173BDEA97B3BB /* ConnectionHelper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/Network/ConnectionHelper.m"; sourceTree = SOURCE_ROOT; };
+		8EC3C088FB3EDD1447F27C2F /* DiscoveryManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/Network/DiscoveryManager.m"; sourceTree = SOURCE_ROOT; };
+		3A9E20AF82410FA4E6B6FCCF /* DiscoveryWorker.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/Network/DiscoveryWorker.m"; sourceTree = SOURCE_ROOT; };
+		05BD6BE4BEF1A8344EBFBC08 /* HttpManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/Network/HttpManager.m"; sourceTree = SOURCE_ROOT; };
+		F92D7756BDB9103D7C5DBC33 /* HttpRequest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/Network/HttpRequest.m"; sourceTree = SOURCE_ROOT; };
+		A7C18A0DA5CC391A40BF62A1 /* HttpResponse.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/Network/HttpResponse.m"; sourceTree = SOURCE_ROOT; };
+		2BD369B6E10AC32D5D8A821E /* LatencyProbe.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/Network/LatencyProbe.m"; sourceTree = SOURCE_ROOT; };
+		CC36F2A0C9037F455DAC9C32 /* MDNSManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/Network/MDNSManager.m"; sourceTree = SOURCE_ROOT; };
+		EDB1F8AF144B483B5FE157EC /* PairManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/Network/PairManager.m"; sourceTree = SOURCE_ROOT; };
+		C1FB9E1CE54E1FFC8B0CC964 /* RemoteUSBForwardingSession.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/Network/RemoteUSBForwardingSession.m"; sourceTree = SOURCE_ROOT; };
+		48A46F4E4A735A3F8CF58E51 /* RemoteUSBReverseTunnel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/Network/RemoteUSBReverseTunnel.m"; sourceTree = SOURCE_ROOT; };
+		6AE53BAE6240D28D4B717F7C /* ServerInfoResponse.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/Network/ServerInfoResponse.m"; sourceTree = SOURCE_ROOT; };
+		C1739E7340F494ED2FFBF363 /* StreamingSessionManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/Network/StreamingSessionManager.m"; sourceTree = SOURCE_ROOT; };
+		43E376775FE9461FD8E5F930 /* WakeOnLanManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/Network/WakeOnLanManager.m"; sourceTree = SOURCE_ROOT; };
+		C78D2BC4FBDC6A0B84811568 /* Connection.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/Stream/Connection.m"; sourceTree = SOURCE_ROOT; };
+		54ED75C46B524D93ED8C43EA /* RendererLayerContainer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/Stream/RendererLayerContainer.m"; sourceTree = SOURCE_ROOT; };
+		A38E33D017A389BF98BA4D27 /* StreamConfiguration.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/Stream/StreamConfiguration.m"; sourceTree = SOURCE_ROOT; };
+		52EF23AA8FFFAB96A67B78C8 /* StreamManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/Stream/StreamManager.m"; sourceTree = SOURCE_ROOT; };
+		860D29DDA955D816414334DE /* VideoDecoderRenderer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/Stream/VideoDecoderRenderer.m"; sourceTree = SOURCE_ROOT; };
+		11C8B5CD55E959A97889F024 /* LogBuffer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/Utility/LogBuffer.m"; sourceTree = SOURCE_ROOT; };
+		7FCCFCBF519DDD86AF99DA5E /* Logger.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/Utility/Logger.m"; sourceTree = SOURCE_ROOT; };
+		D2AED08C234B331C1FAADCCB /* Utils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Limelight/Utility/Utils.m"; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -305,6 +626,13 @@
 			isa = PBXGroup;
 			children = (
 				4CD17E9B2733C0FC004D438C /* README.md */,
+				F86F0B606068DAF3B7A396BB /* Native macOS explicit membership */,
+				E53200010000000000000003 /* ESP32InputBridge.h */,
+				E53200010000000000000004 /* ESP32MacKeyMap.h */,
+				E53200010000000000000005 /* ESP32KeyboardRouter.h */,
+				E53200010000000000000006 /* ESP32MouseRouter.h */,
+				E53200010000000000000001 /* ESP32InputBridge.mm */,
+				E53200010000000000000002 /* ESP32SettingsSection.swift */,
 				4C2556A121F56F280009838E /* Moonlight.entitlements */,
 				98AB2E7F1CAD46830089BB98 /* moonlight-common.xcodeproj */,
 				A40F5A3F2D432ABE006DA227 /* Limelight */,
@@ -318,7 +646,7 @@
 		FB290CEF19B2C406004C83CF /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				4C7E0A7A1FECBFFD00684411 /* MoonlightEnhanced.app */,
+				4C7E0A7A1FECBFFD00684411 /* MoonlightESP32.app */,
 				D20000100000000000000010 /* RemoteFileProvider.appex */,
 			);
 			name = Products;
@@ -332,6 +660,166 @@
 				A42858452D5066A000E39078 /* SDL2.xcframework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		F86F0B606068DAF3B7A396BB /* Native macOS explicit membership */ = {
+			isa = PBXGroup;
+			children = (
+				13C41423999DDEB27C8029E0 /* Main.storyboard */,
+				99E3382CDC52019434F6F761 /* CryptoManager.m */,
+				1AD210191FF765984532A23D /* IdManager.m */,
+				F989071D14195740817DF675 /* mkcert.c */,
+				F45BBC374A4B7D24D98A00BC /* DataManager.m */,
+				575BE299EAC76B231A281904 /* TemporaryApp.m */,
+				D113B2F1B402C26AE17F39EE /* TemporaryHost.m */,
+				5DE61C52B075734BD2206B16 /* TemporarySettings.m */,
+				546D53427AF444C8A7453BAE /* DatabaseSingleton.m */,
+				A79C5FC12BBDFBA023A68B16 /* Controller.m */,
+				B47F8265704A88AE3B3051DB /* ControllerSupport.m */,
+				E34582B8017A1FFDC1735384 /* CoreHIDMouseDriver.swift */,
+				E79217144519F8449E0AB3C8 /* HapticContext.m */,
+				FEAD7E91ACC44544A7A057B8 /* MLDualSenseTouchpad.m */,
+				1D08B2737EBBF660B7D93675 /* MLPrecisionTouchpad.m */,
+				F222FCAFDC09530EC529A518 /* MLSystemGestureBlocker.m */,
+				13CBC13F9F9C1259E804705D /* MLSystemShortcutCapture.m */,
+				65B4F1D882CD334B86830DD3 /* HIDSupport.m */,
+				13E0764BFECE7C36A63E1E8C /* HIDSupport+Pointer.m */,
+				AD3DD349839BB33ADEDE6931 /* HIDSupport+Rumble.m */,
+				1D59C35D170C35295F0B40C0 /* HIDSupport+Scroll.m */,
+				8707248BA82562BB1712BFC3 /* Ticks.m */,
+				122F6A5424BF9BAA7229AFF4 /* MLAV1SoftwareDecoder.m */,
+				18BC9F8C3E568DB5D8CBD3AC /* MLAudioBitstreamOutput.m */,
+				7637B4717717EB215F0EF85E /* MLAdaptiveBitrateController.m */,
+				307AD87E7B3EA5E985719900 /* MLIEC61937.c */,
+				0686105711AE80A4F57BA27F /* Limelight.xcdatamodeld */,
+				211EF47ACEF7CAE9D2169535 /* AppCell.xib */,
+				3835CD7E3ED385DE05F1530B /* AppDelegateForAppKit.m */,
+				5A1C8A2822DDD1F188A313E1 /* Assets.xcassets */,
+				4191903E39C37C1996CCE443 /* AlertPresenter.m */,
+				847714DB6EDAC0E981869399 /* AwdlAuthorizationHelper.m */,
+				62684B6BFF5A77A5892BC5F4 /* BackgroundColorView.m */,
+				58824CB835DB2DECE2BA4272 /* ControllerNavigation.m */,
+				D5D91DF8F99CF15C5E653AFF /* F.m */,
+				2FDE00743EE27E5EBA6E3FBD /* NSArray+F.m */,
+				C45C405D885D5ACA7903E733 /* NSDictionary+F.m */,
+				2EEB68763E028369BB15F9AE /* NSNumber+F.m */,
+				5D5FD15D92D4AC4915E27F8A /* Helpers.m */,
+				39576C8B0E3981770F061B9A /* ImageFader.m */,
+				849636B299A6714EC630AEA2 /* LanguageManager.swift */,
+				AADBD8112502E366599811E2 /* MASPreferencesWindow.xib */,
+				A447B4FE3CBDFC30ADF72FA7 /* MASPreferencesWindowController.m */,
+				A7FD8BE142ECF3BBF822F8AE /* MicrophoneManager.swift */,
+				9BBC9D478343D8478C8C0549 /* NSApplication+Moonlight.m */,
+				CB0C9AD6C447CDB525F981D5 /* NSCollectionView+Moonlight.m */,
+				57CB1ACF3A02D3A835C0D234 /* NSResponder+Moonlight.m */,
+				40F00402441064F4D327A1CE /* NSView+Moonlight.m */,
+				2418DBAD92538CF740E28A8A /* NSWindow+Moonlight.m */,
+				47FC953AC9A9DFC46A297BE0 /* NumberOnlyFormatter.swift */,
+				FD662724DDAE3836F783BA78 /* SparkleUpdateManager.swift */,
+				EFD0C413D688C4A7704F5297 /* ViewExtensions.swift */,
+				74A8EDD9A4BFB9E1678BD8C6 /* HostCell.xib */,
+				0D742F1FAE27AC9A3ACF5245 /* main.m */,
+				83E0D39C3C3736417FFB67B4 /* AboutView.xib */,
+				60617C02ED9EBDB68DFEA0AC /* AboutViewController.m */,
+				AECCE81AFC3D66FB6CE95C1D /* AboutWindow.xib */,
+				40E635EB8A68A51380E381A9 /* AppCell.m */,
+				99D9CC4992EC9A0402BB7225 /* AppsViewController.m */,
+				3DC1475E9A39F95ED508455F /* AppsWorkspaceViewController.m */,
+				1FAA17E8C85FFD4457420AF7 /* ConnectionDetailsViewController.swift */,
+				8DBFAD4FC958200EBD78D11B /* ConnectionEditorViewController.m */,
+				D3835A869F36ACB6B0228C05 /* ContainerViewController.m */,
+				074001344F2E83C31E542B9F /* DebugLogParser.swift */,
+				7DA8BD1095B8FE3713874F71 /* GeneralPrefsPaneVC.m */,
+				61604E185CA8F869D9DE15C2 /* GeneralPrefsPaneView.xib */,
+				D0128B86F4B4FC9C2857A687 /* HostCell.m */,
+				00B3E9DEFA398E6E69101662 /* HostSidebarView.swift */,
+				17A1EAA731404D85965F2C6D /* HostSidebarViewModel.swift */,
+				3A431D600B78932C7EE739D6 /* HostsViewController.m */,
+				BB92A3E523670A17EB74F6ED /* MLEdgeMenuUI.m */,
+				9B2131205A221755F9830179 /* Settings.swift */,
+				19EB8930B56596947F606364 /* SettingsAppPane.swift */,
+				4A0C675309020D07AE3293F0 /* HeadphoneCorrections.tsv */,
+				755E936B4343656044650DB9 /* ThirdPartyLicenses.txt */,
+				72178B9FB34CE64B97EB8C43 /* EnhancedAudioEQ.swift */,
+				F015C1B7854BDFF69216F04D /* EnhancedAudioSpectrum.swift */,
+				915B7F4A8640209B438F7393 /* SettingsAudioPane.swift */,
+				84FE499BDC2C6025AE8B250A /* SettingsHostingController.swift */,
+				55C7784AFC29029DF4CB4ED2 /* SettingsInputPane.swift */,
+				211B63E2BF2020335A3C783D /* ControllerTouchpadShortcut.swift */,
+				0E14084782A5C4820449A55E /* ControllerShortcutRuntime.swift */,
+				8381E1CB4990723CA4C599CE /* ControllerHintOverlay.swift */,
+				B22D1151848859761DE30471 /* ControllerFocusNavigator.swift */,
+				001247A0A30801C9404BC4B4 /* ControllerKeyboard.swift */,
+				39E54272127A7439AD43C68B /* SettingsShortcutEditors.swift */,
+				C112AA525ED8E6100EABE35B /* SettingsLogViewer.swift */,
+				9A1B5E7E29C2E7BC78CD52CD /* RemoteUSBForwardingViewModel.swift */,
+				FDBBDDD82C5D110150E31197 /* RemoteFileMappingClient.swift */,
+				CBD1F486DEB5FB7108744184 /* RemoteFileMappingView.swift */,
+				F2C096ACFC7825A12F5F9E27 /* RemoteFileMappingViewModel.swift */,
+				52566599317245BF2CE74B1C /* SettingsModel.swift */,
+				6B05BF285145CC48FC565D29 /* SettingsModel+DerivedValues.swift */,
+				F5BC0AE2E0E4A01590493CF3 /* SettingsModel+Persistence.swift */,
+				2C5870017E51BA81C603384A /* SettingsModel+ProfileCopy.swift */,
+				A4C8ABCE27E0D5FABE5F600D /* SettingsModel+RiskAssessment.swift */,
+				4873BDC7437864C7884D5C50 /* SettingsObjCBridge.swift */,
+				F993CA16D1A2FD9DC56386C5 /* SettingsPictureSection.swift */,
+				B32E9C50943ED5E9FD3AFD91 /* SettingsProfileDifferences.swift */,
+				D211435B7B69932A725E8DFD /* SettingsProfileFile.swift */,
+				35065B25784D8B001847C7B3 /* SettingsProfilesPane.swift */,
+				FAA4E9E82B81B4F98475A896 /* SettingsSharedControls.swift */,
+				2769068257FD7D8136D7CD6F /* SettingsShortcuts.swift */,
+				E38D3C18F6AEBECE2B48244F /* SettingsStore.swift */,
+				D4CD59CD8AB7E20BAD9ED15A /* SettingsStreamPane.swift */,
+				6A3A0FF12C3F54B80E6D3172 /* SettingsVideoPane.swift */,
+				633684B5C3D27272D02D4864 /* SettingsView.swift */,
+				57E8AD5C1A37C168A9322023 /* StreamRiskAssessment.swift */,
+				E71FE8642135CA16488B9596 /* StreamDisplay.swift */,
+				897EA50E5BA9C886D00046CA /* StreamViewController.m */,
+				1EFD9076640AC6775626C7B1 /* StreamViewController+Diagnostics.m */,
+				E648F04C950EF98F9F9539EC /* StreamViewController+FreeWindow.m */,
+				2DC9DCFC2F63565A030C97E5 /* StreamViewController+LiveStream.m */,
+				97373C4D7C581AE52FDC24A4 /* StreamViewController+Input.m */,
+				68F562888DECC54C0516F496 /* StreamViewController+MenuUI.m */,
+				7816066B610D200E41A75E5E /* StreamViewController+MouseCapture.m */,
+				CE40D4C6A79C2BB0FE56DCC0 /* StreamViewController+WindowModes.m */,
+				2601F8A878806822528FF8D7 /* AppCellView.m */,
+				1230E03747931C8B3DDE945A /* CollectionView.m */,
+				386D64B45BF4485BA21D5298 /* HostCellView.m */,
+				DC20DA0085B909353E7D8909 /* LinkTextField.m */,
+				402649AD65A90655DC95B2CF /* NavigatableAlertView.m */,
+				DD40DFB5301EE8CA199ACE8C /* StreamingLockOverlayView.swift */,
+				1BA2A515B772EE39E99A04D9 /* StreamingStartupOverlay.swift */,
+				44BBAC12AC58507860CE83C0 /* ReleaseNotesView.swift */,
+				9C21587EC01E2F3970438E9F /* StreamViewMac.m */,
+				3F0718079DD5BC2496FE98CB /* AppAssetManager.m */,
+				81EA1064B7D598887D1BC5F3 /* AppAssetResponse.m */,
+				59136727791FE754AF9BB5D3 /* AppAssetRetriever.m */,
+				3285D4A51836855CD32AF3D1 /* AppListResponse.m */,
+				E82D11D1350140F86D711C90 /* ConnectionEndpointStore.m */,
+				BFD8A4C4F42173BDEA97B3BB /* ConnectionHelper.m */,
+				8EC3C088FB3EDD1447F27C2F /* DiscoveryManager.m */,
+				3A9E20AF82410FA4E6B6FCCF /* DiscoveryWorker.m */,
+				05BD6BE4BEF1A8344EBFBC08 /* HttpManager.m */,
+				F92D7756BDB9103D7C5DBC33 /* HttpRequest.m */,
+				A7C18A0DA5CC391A40BF62A1 /* HttpResponse.m */,
+				2BD369B6E10AC32D5D8A821E /* LatencyProbe.m */,
+				CC36F2A0C9037F455DAC9C32 /* MDNSManager.m */,
+				EDB1F8AF144B483B5FE157EC /* PairManager.m */,
+				C1FB9E1CE54E1FFC8B0CC964 /* RemoteUSBForwardingSession.m */,
+				48A46F4E4A735A3F8CF58E51 /* RemoteUSBReverseTunnel.m */,
+				6AE53BAE6240D28D4B717F7C /* ServerInfoResponse.m */,
+				C1739E7340F494ED2FFBF363 /* StreamingSessionManager.m */,
+				43E376775FE9461FD8E5F930 /* WakeOnLanManager.m */,
+				C78D2BC4FBDC6A0B84811568 /* Connection.m */,
+				54ED75C46B524D93ED8C43EA /* RendererLayerContainer.m */,
+				A38E33D017A389BF98BA4D27 /* StreamConfiguration.m */,
+				52EF23AA8FFFAB96A67B78C8 /* StreamManager.m */,
+				860D29DDA955D816414334DE /* VideoDecoderRenderer.m */,
+				11C8B5CD55E959A97889F024 /* LogBuffer.m */,
+				7FCCFCBF519DDD86AF99DA5E /* Logger.m */,
+				D2AED08C234B331C1FAADCCB /* Utils.m */,
+			);
+			name = "Native macOS explicit membership";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -358,7 +846,7 @@
 			);
 			name = "Moonlight for macOS";
 			productName = "Moonlight for macOS";
-			productReference = 4C7E0A7A1FECBFFD00684411 /* MoonlightEnhanced.app */;
+			productReference = 4C7E0A7A1FECBFFD00684411 /* MoonlightESP32.app */;
 			productType = "com.apple.product-type.application";
 		};
 		D20000140000000000000014 /* RemoteFileProvider */ = {
@@ -452,6 +940,17 @@
 			files = (
 				A4B1C1002D9F0A1B00C0FF04 /* Localizable.strings in Resources */,
 				A4B1C1002D9F0A1B00C0FF10 /* InfoPlist.strings in Resources */,
+				C42653DA277888865D0DFBAE /* Main.storyboard in Resources */,
+				8C8B746565FC8BEC0FF6B988 /* Limelight.xcdatamodeld in Resources */,
+				9167D3D119EC1F2BABB0CB86 /* AppCell.xib in Resources */,
+				3D27F60E3788C5638AF59735 /* Assets.xcassets in Resources */,
+				E92FB89B495DCC44FE85861C /* MASPreferencesWindow.xib in Resources */,
+				BC76C96973FA977F0B4B9F5F /* HostCell.xib in Resources */,
+				9264987952E768EAF037AE14 /* AboutView.xib in Resources */,
+				E7DE404A1442ADD0A2E7012F /* AboutWindow.xib in Resources */,
+				CC06CE1717C69DE7CDA7A897 /* GeneralPrefsPaneView.xib in Resources */,
+				F3485396E2581180AE491259 /* HeadphoneCorrections.tsv in Resources */,
+				9F776909B18EC013AEC153F1 /* ThirdPartyLicenses.txt in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -542,9 +1041,150 @@
 				D20000220000000000000022 /* Ds5HapticsAudioRenderer.m in Sources */,
 				D20000240000000000000024 /* FileProviderCoordinator.swift in Sources */,
 				D30000020000000000000002 /* SettingsSearchIndex.generated.swift in Sources */,
-				4C38E8011FEE08AA000425CD /* (null) in Sources */,
-				4C38E7FC1FEE0875000425CD /* (null) in Sources */,
-				4C38E7F91FEE085B000425CD /* (null) in Sources */,
+				E90BEE57E918FE4A61291C46 /* CryptoManager.m in Sources */,
+				55B8E8C3E9F705E5C3041C45 /* IdManager.m in Sources */,
+				CF4C5A1B768A5FD11508999F /* mkcert.c in Sources */,
+				07829F0BA3C07F88DB356E50 /* DataManager.m in Sources */,
+				E4EC0351A4C57E9299EF06D5 /* TemporaryApp.m in Sources */,
+				FAC6E886C0B429DE7D9BD4B5 /* TemporaryHost.m in Sources */,
+				294A496A07FFCD0D68106B1E /* TemporarySettings.m in Sources */,
+				335BF31CBD1CB46B6A146665 /* DatabaseSingleton.m in Sources */,
+				E8A078BA2859195BD27925A3 /* Controller.m in Sources */,
+				A51B390DD7363DC6184E53E5 /* ControllerSupport.m in Sources */,
+				C901157045D3AEDF87243A4D /* CoreHIDMouseDriver.swift in Sources */,
+				C9510A9CD4E14A31A9DFC980 /* HapticContext.m in Sources */,
+				65AE11478D767E037D666F20 /* MLDualSenseTouchpad.m in Sources */,
+				B599BB4BE13048DF9B6E8E45 /* MLPrecisionTouchpad.m in Sources */,
+				EBEC892D66CB789D3DE10E68 /* MLSystemGestureBlocker.m in Sources */,
+				C902E83B29EAB2C743124542 /* MLSystemShortcutCapture.m in Sources */,
+				96B0CF51301518687101F654 /* HIDSupport.m in Sources */,
+				0827EB26C1B3FF75A15118E4 /* HIDSupport+Pointer.m in Sources */,
+				2DC7D20E18E6BDF9C10370B4 /* HIDSupport+Rumble.m in Sources */,
+				081E28572CEBD34AC73FB43C /* HIDSupport+Scroll.m in Sources */,
+				916E2047C2EDAF59795E8DBC /* Ticks.m in Sources */,
+				4A3AE3D61C25B19343CB8F22 /* MLAV1SoftwareDecoder.m in Sources */,
+				C7BBA1D82C12E01EC833851F /* MLAudioBitstreamOutput.m in Sources */,
+				011BBD10DF77DD5115173D5D /* MLAdaptiveBitrateController.m in Sources */,
+				553A625888A7817BA372CE09 /* MLIEC61937.c in Sources */,
+				1AA755782FE60A2546587995 /* AppDelegateForAppKit.m in Sources */,
+				7D312738AD789C4CAC2C50FA /* AlertPresenter.m in Sources */,
+				F31C148F89E1779AC0BA5302 /* AwdlAuthorizationHelper.m in Sources */,
+				09015A7A2DFA551A7B6F7D45 /* BackgroundColorView.m in Sources */,
+				1822C390B06ED4BBF6F9FFA1 /* ControllerNavigation.m in Sources */,
+				7823C71170A335B1A1A32854 /* F.m in Sources */,
+				EB9D77E7B5F67020FE5A9644 /* NSArray+F.m in Sources */,
+				D07EC576BACF69AF97E68257 /* NSDictionary+F.m in Sources */,
+				A581B104476036DC81C3BE71 /* NSNumber+F.m in Sources */,
+				89EC49EF5F3BFB878C0467DE /* Helpers.m in Sources */,
+				43CDFB51C19094B181488485 /* ImageFader.m in Sources */,
+				43405C01906D980EAA7484CB /* LanguageManager.swift in Sources */,
+				F302EEF1569026C209BCD5CD /* MASPreferencesWindowController.m in Sources */,
+				024CCF775094BE68DD3E1E20 /* MicrophoneManager.swift in Sources */,
+				13D3FFDF845080096C8E3700 /* NSApplication+Moonlight.m in Sources */,
+				4568F9B1125A99797A668196 /* NSCollectionView+Moonlight.m in Sources */,
+				6A07F0A400DC95C5E4A6C611 /* NSResponder+Moonlight.m in Sources */,
+				4C832FF3B656C1EECA373C39 /* NSView+Moonlight.m in Sources */,
+				7D8CAB59F1E8A6F3571EDE49 /* NSWindow+Moonlight.m in Sources */,
+				56A3F7A4B0362344987A9E42 /* NumberOnlyFormatter.swift in Sources */,
+				13F8A1943A5D3F10EB082B3A /* SparkleUpdateManager.swift in Sources */,
+				6D6389B54CD915A847FEAD89 /* ViewExtensions.swift in Sources */,
+				2EC6C608C43E400F6C38A5AA /* main.m in Sources */,
+				4E75A57FE907A0A8770D41FA /* AboutViewController.m in Sources */,
+				570ED52FCC4B7D087A781D64 /* AppCell.m in Sources */,
+				82CF9E8314C4A9CB141DA017 /* AppsViewController.m in Sources */,
+				9DEF263B8840D0B7B7346345 /* AppsWorkspaceViewController.m in Sources */,
+				712FA34F527803E07BB9D9E9 /* ConnectionDetailsViewController.swift in Sources */,
+				C529EC5A381A8F79CED2411A /* ConnectionEditorViewController.m in Sources */,
+				AA39E1389F5870A7E0477A1F /* ContainerViewController.m in Sources */,
+				28AE27986FF89EBD87AA6FF2 /* DebugLogParser.swift in Sources */,
+				41769F33ED9C69FF9C36D48A /* GeneralPrefsPaneVC.m in Sources */,
+				EE280E39101DB7FEFBA18654 /* HostCell.m in Sources */,
+				45119847A55C2DF2863C4122 /* HostSidebarView.swift in Sources */,
+				5627DA55EF81B8F7B6E23902 /* HostSidebarViewModel.swift in Sources */,
+				4AC47223BB93B516F1C3642F /* HostsViewController.m in Sources */,
+				7D2CFBA0CF48351268DE8BB9 /* MLEdgeMenuUI.m in Sources */,
+				6C0FEF791093B3FC36FA17F4 /* Settings.swift in Sources */,
+				270C45E8C043DE618CA10B84 /* SettingsAppPane.swift in Sources */,
+				5FF41587C9149648FE6C62CA /* EnhancedAudioEQ.swift in Sources */,
+				4EA233FE11FEA6C812AC85B1 /* EnhancedAudioSpectrum.swift in Sources */,
+				1300E8F8FCD23836099E00A7 /* SettingsAudioPane.swift in Sources */,
+				4C86867D27BBCA81F093485E /* SettingsHostingController.swift in Sources */,
+				7377C16A3CC29EBEE25BF8EF /* SettingsInputPane.swift in Sources */,
+				4B0B4786966AAEB72B7279E9 /* ControllerTouchpadShortcut.swift in Sources */,
+				6F4E35580DE14F428D07F8FF /* ControllerShortcutRuntime.swift in Sources */,
+				ED29100E975A03907A50613A /* ControllerHintOverlay.swift in Sources */,
+				A1D3DBC3BFDEDDA6B09F7F1F /* ControllerFocusNavigator.swift in Sources */,
+				9864099A502EE1C8F7A6E07A /* ControllerKeyboard.swift in Sources */,
+				BA1A6A8D55BF81BAA167F907 /* SettingsShortcutEditors.swift in Sources */,
+				6D5E81C6DB5DFF26E01B3D40 /* SettingsLogViewer.swift in Sources */,
+				BC2729547860DF7402B3C4AE /* RemoteUSBForwardingViewModel.swift in Sources */,
+				5A28BCA4A9C6E9C81AD3ED38 /* RemoteFileMappingClient.swift in Sources */,
+				DFDA24F87BB63C9E9C359433 /* RemoteFileMappingView.swift in Sources */,
+				67C4085E87A6A7074D42ECC7 /* RemoteFileMappingViewModel.swift in Sources */,
+				A24F9B8F2CDE018CF41D67F5 /* SettingsModel.swift in Sources */,
+				02E93349944B281FDA43C69A /* SettingsModel+DerivedValues.swift in Sources */,
+				6BBBDCA1A68C05030241F647 /* SettingsModel+Persistence.swift in Sources */,
+				903F89279C465B14C47FB86E /* SettingsModel+ProfileCopy.swift in Sources */,
+				7CAD0153E3395C30D8C7E456 /* SettingsModel+RiskAssessment.swift in Sources */,
+				2AD33B0F1E5A2A6B1CBFB828 /* SettingsObjCBridge.swift in Sources */,
+				089E7399EE7743E47A1CDE84 /* SettingsPictureSection.swift in Sources */,
+				A4B39EF9582E0CC0A3341123 /* SettingsProfileDifferences.swift in Sources */,
+				E5B3B8DF3E48ACB6F29E5422 /* SettingsProfileFile.swift in Sources */,
+				31643BCBF656BB332485CDFA /* SettingsProfilesPane.swift in Sources */,
+				833130539A83552FEDD041FB /* SettingsSharedControls.swift in Sources */,
+				4C4AA5ED8EE6F4094F50CAE5 /* SettingsShortcuts.swift in Sources */,
+				72A1E71BBDEF3665BCC536B0 /* SettingsStore.swift in Sources */,
+				A8C23A75AA957E9A2EBFB5B5 /* SettingsStreamPane.swift in Sources */,
+				2B406AFAE73CCEF392C98C87 /* SettingsVideoPane.swift in Sources */,
+				244DE7D6D6472D4DD3DE6EF6 /* SettingsView.swift in Sources */,
+				68E71F7694A3546C3EB61E1B /* StreamRiskAssessment.swift in Sources */,
+				44CA0A5E8C8B586CFA6B807C /* StreamDisplay.swift in Sources */,
+				F264EEA707F45E86B64D35F8 /* StreamViewController.m in Sources */,
+				B78137B8F42369C0511BB4B7 /* StreamViewController+Diagnostics.m in Sources */,
+				F0B636F881B95F6E57082967 /* StreamViewController+FreeWindow.m in Sources */,
+				7F0C92303A8B83C6F3BAC0E2 /* StreamViewController+LiveStream.m in Sources */,
+				643540F0A8063E6AC16055BC /* StreamViewController+Input.m in Sources */,
+				52DE5D85FB8D7AED876A6391 /* StreamViewController+MenuUI.m in Sources */,
+				702DABB096ACD890F0044122 /* StreamViewController+MouseCapture.m in Sources */,
+				AC33E1C49851C0ED2E9055B9 /* StreamViewController+WindowModes.m in Sources */,
+				0D65A6AF8E93A395A4CFDE1E /* AppCellView.m in Sources */,
+				EF70DBD5AF48C00A50383E07 /* CollectionView.m in Sources */,
+				26A67506BDA698750635715B /* HostCellView.m in Sources */,
+				CF4192660AC8BDA8A1018C8D /* LinkTextField.m in Sources */,
+				65ACDB4B428048AED6863501 /* NavigatableAlertView.m in Sources */,
+				51E5DCF957AF1261F4D66876 /* StreamingLockOverlayView.swift in Sources */,
+				288642978D4574E21ACFA1A3 /* StreamingStartupOverlay.swift in Sources */,
+				825DDC05CA320C44B526A14E /* ReleaseNotesView.swift in Sources */,
+				A355E08C7E4918073BEE9BBA /* StreamViewMac.m in Sources */,
+				9F1840A3FAD113B1A68038CF /* AppAssetManager.m in Sources */,
+				662838D6A3503B755572B61E /* AppAssetResponse.m in Sources */,
+				3175A559A4706444DD5F429B /* AppAssetRetriever.m in Sources */,
+				3E0A53274096C3B446C240B4 /* AppListResponse.m in Sources */,
+				AF59AA984DB12212B85DFA37 /* ConnectionEndpointStore.m in Sources */,
+				E7AACEAE7583071219245FA3 /* ConnectionHelper.m in Sources */,
+				4EFB7F518C17C15EDBC6A51B /* DiscoveryManager.m in Sources */,
+				67DF7CD2F3245242646E8A00 /* DiscoveryWorker.m in Sources */,
+				4053D9F6127CD9077FCA1FF3 /* HttpManager.m in Sources */,
+				E672C70418250F375FD34553 /* HttpRequest.m in Sources */,
+				5018343D4133430F1376C597 /* HttpResponse.m in Sources */,
+				8522D629F07E08B82F8B17A1 /* LatencyProbe.m in Sources */,
+				445E8D2DF962B0DF34899796 /* MDNSManager.m in Sources */,
+				46FDE5C2402FDC069E1249A9 /* PairManager.m in Sources */,
+				CDCB6C520BF3C6512228BBF3 /* RemoteUSBForwardingSession.m in Sources */,
+				E6A65EB6B2A5DC0EE64215A3 /* RemoteUSBReverseTunnel.m in Sources */,
+				F1641F9FC8831411CE9CFB90 /* ServerInfoResponse.m in Sources */,
+				56D8DB713443E97630CF5A7D /* StreamingSessionManager.m in Sources */,
+				D177FF16348C02630E7E126D /* WakeOnLanManager.m in Sources */,
+				87C68460FAA65EB26EC5810B /* Connection.m in Sources */,
+				6E6D32F22498965113B92947 /* RendererLayerContainer.m in Sources */,
+				7C91CD389BC4D8124ABBE28D /* StreamConfiguration.m in Sources */,
+				F8F0E932D1806C635470FE4A /* StreamManager.m in Sources */,
+				06D95DE10650BD321FE792C9 /* VideoDecoderRenderer.m in Sources */,
+				D0A4506BFA5C835B879AC506 /* LogBuffer.m in Sources */,
+				29186CBF97E237FCA24EC5AA /* Logger.m in Sources */,
+				E06FB8959F12D1790A48662C /* Utils.m in Sources */,
+				E53200000000000000000002 /* ESP32SettingsSection.swift in Sources */,
+				E53200000000000000000001 /* ESP32InputBridge.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -593,6 +1233,30 @@
 		};
 /* End PBXVariantGroup section */
 
+/* Begin Native macOS membership model groups */
+		13C41423999DDEB27C8029E0 /* Main.storyboard */ = {isa = PBXVariantGroup; children = (CE54E350764DD8439136FF12 /* Base */, ); name = Main.storyboard; sourceTree = "<group>"; };
+		0686105711AE80A4F57BA27F /* Limelight.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				FEF02308B730A162FB518855 /* Limelight 0.3.0.xcdatamodel */,
+				07FD11E1509BA1CAB17D12D6 /* Limelight 0.3.1.xcdatamodel */,
+				2D691153C157972EAA9193F3 /* Limelight.xcdatamodel */,
+				29EA8471EA3F6F30AB6BA0B5 /* Moonlight v1.0-2.xcdatamodel */,
+				AFFA55FEE3B5419248CA32F8 /* Moonlight v1.0.xcdatamodel */,
+				FA92024E0C639148170005A1 /* Moonlight v1.1.xcdatamodel */,
+				266B7921602800EBCA7E4975 /* Moonlight v1.2.xcdatamodel */,
+				F57ADC20268287D236AE1E52 /* Moonlight v1.3.xcdatamodel */,
+				5FF382A192B49A408C101667 /* Moonlight v1.4.xcdatamodel */,
+				DD008C18CD3A54C0DA32483A /* Moonlight v1.5.xcdatamodel */,
+				C02D10549CA12D2D7A846052 /* Moonlight v1.6.xcdatamodel */,
+			);
+			currentVersion = C02D10549CA12D2D7A846052;
+			path = "Limelight/Limelight.xcdatamodeld";
+			sourceTree = SOURCE_ROOT;
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End Native macOS membership model groups */
+
 /* Begin XCBuildConfiguration section */
 		4C7E0A8B1FECBFFD00684411 /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -628,6 +1292,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Limelight/macOS/Supporting Files/Limelight-Prefix.pch";
+				USER_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/Limelight/**";
 				HEADER_SEARCH_PATHS = (
 					"$(SDKROOT)/usr/include/libxml2",
 					"$(PROJECT_DIR)/moonlight-common/moonlight-common-c/src",
@@ -650,11 +1315,12 @@
 					MetalFX,
 					"$(PROJECT_DIR)/xcframeworks/dav1d/lib/libdav1d.a",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = std.skyhua.MoonlightMacEnhanced;
-				PRODUCT_NAME = MoonlightEnhanced;
+				PRODUCT_BUNDLE_IDENTIFIER = org.worldline233.MoonlightMacESP32;
+				PRODUCT_NAME = MoonlightESP32;
+				PRODUCT_MODULE_NAME = MoonlightEnhanced;
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SPARKLE_ED_PUBLIC_KEY = "0oUtFGXxgldrfua5x34b0mT6RvUQ6eI+xCJiddymRX4=";
-				SPARKLE_FEED_URL = "https://github.com/skyhua0224/moonlight-macos-enhanced/releases/latest/download/appcast.xml";
+				SPARKLE_ED_PUBLIC_KEY = "";
+				SPARKLE_FEED_URL = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "Limelight/Moonlight-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 			};
@@ -695,6 +1361,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Limelight/macOS/Supporting Files/Limelight-Prefix.pch";
+				USER_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/Limelight/**";
 				HEADER_SEARCH_PATHS = (
 					"$(SDKROOT)/usr/include/libxml2",
 					"$(PROJECT_DIR)/moonlight-common/moonlight-common-c/src",
@@ -717,11 +1384,12 @@
 					MetalFX,
 					"$(PROJECT_DIR)/xcframeworks/dav1d/lib/libdav1d.a",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = std.skyhua.MoonlightMacEnhanced;
-				PRODUCT_NAME = MoonlightEnhanced;
+				PRODUCT_BUNDLE_IDENTIFIER = org.worldline233.MoonlightMacESP32;
+				PRODUCT_NAME = MoonlightESP32;
+				PRODUCT_MODULE_NAME = MoonlightEnhanced;
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SPARKLE_ED_PUBLIC_KEY = "0oUtFGXxgldrfua5x34b0mT6RvUQ6eI+xCJiddymRX4=";
-				SPARKLE_FEED_URL = "https://github.com/skyhua0224/moonlight-macos-enhanced/releases/latest/download/appcast.xml";
+				SPARKLE_ED_PUBLIC_KEY = "";
+				SPARKLE_FEED_URL = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "Limelight/Moonlight-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 			};
@@ -846,7 +1514,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				INFOPLIST_FILE = "FileProviderExtension/Info.plist";
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "std.skyhua.MoonlightMacEnhanced.FileProvider";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.worldline233.MoonlightMacESP32.FileProvider";
 				PRODUCT_NAME = RemoteFileProvider;
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
@@ -862,7 +1530,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				INFOPLIST_FILE = "FileProviderExtension/Info.plist";
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "std.skyhua.MoonlightMacEnhanced.FileProvider";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.worldline233.MoonlightMacESP32.FileProvider";
 				PRODUCT_NAME = RemoteFileProvider;
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;

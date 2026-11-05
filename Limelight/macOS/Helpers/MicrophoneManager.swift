@@ -752,7 +752,7 @@ final class AwdlHelperManager: NSObject, ObservableObject {
     private static let lastErrorMessageKey = "networkCompatibility.awdlHelperLastErrorMessage"
     private static let pendingRestoreKey = "networkCompatibility.awdlHelperPendingRestore"
     private static let helperSuffix = ".AwdlPrivilegedHelper"
-    private static let helperFallbackLabel = "std.skyhua.MoonlightMacEnhanced.AwdlPrivilegedHelper"
+    private static let helperFallbackLabel = "org.worldline233.MoonlightMacESP32.AwdlPrivilegedHelper"
 
     private let sessionQueue = DispatchQueue(label: "moonlight.awdl.helper")
     private let isSandboxedBuild = AwdlHelperManager.detectSandboxedBuild()

@@ -31,7 +31,7 @@ def main() -> None:
     args = parser.parse_args()
     app = args.app.resolve()
     info = plistlib.loads((app / 'Contents/Info.plist').read_bytes())
-    if app.suffix != '.app' or info.get('CFBundleIdentifier') != 'std.skyhua.MoonlightMacEnhanced':
+    if app.suffix != '.app' or info.get('CFBundleIdentifier') != 'org.worldline233.MoonlightMacESP32':
         raise SystemExit('Expected the enhanced application bundle.')
     main_binary = (app / 'Contents/MacOS' / info['CFBundleExecutable']).resolve()
     binaries: list[Path] = []

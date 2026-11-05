@@ -1,0 +1,421 @@
+#import "ESP32InputBridge.h"
+#include "ESP32MacKeyMap.h"
+#include "ESP32KeyboardRouter.h"
+#include "ESP32MouseRouter.h"
+#include <limits>
+#import <dispatch/dispatch.h>
+
+static NSString *const ESP32SettingsPrefix = @"esp32.input.host.";
+static NSArray<NSString *> *ESP32ButtonNames(void) {
+    return @[@"left", @"right", @"middle", @"back", @"forward"];
+}
+static NSString *ESP32Code(unsigned usage) {
+    const char *code = esp32KeyboardCode(usage);
+    return code ? [NSString stringWithUTF8String:code] : nil;
+}
+
+// Configuration is a snapshot for the lifetime of a stream. Host profiles never
+// inherit an ESP32 endpoint from a global/default profile.
+static NSURL *ESP32Endpoint(NSDictionary *settings) {
+    if (![settings[@"address"] isKindOfClass:NSString.class] ||
+        ![settings[@"access_key"] isKindOfClass:NSString.class]) return nil;
+    NSString *address = [settings[@"address"] stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet];
+    if (![address containsString:@"://"]) address = [@"ws://" stringByAppendingString:address];
+    NSURLComponents *parts = [NSURLComponents componentsWithString:address];
+    if ([parts.scheme isEqualToString:@"http"]) parts.scheme = @"ws";
+    if ([parts.scheme isEqualToString:@"https"]) parts.scheme = @"wss";
+    NSString *key = settings[@"access_key"];
+    NSNumber *port = settings[@"port"];
+    if (![port isKindOfClass:NSNumber.class] || port.doubleValue != port.integerValue ||
+        port.integerValue < 1 || port.integerValue > 65535 ||
+        (parts.port && ![parts.port isEqualToNumber:port]) ||
+        parts.host.length == 0 ||
+        (![parts.scheme isEqualToString:@"ws"] && ![parts.scheme isEqualToString:@"wss"]) ||
+        parts.user != nil || parts.password != nil || parts.query != nil || parts.fragment != nil ||
+        (parts.path.length && ![parts.path isEqualToString:@"/"] && ![parts.path isEqualToString:@"/ws"]) ||
+        key.length != 6 || [key rangeOfCharacterFromSet:[NSCharacterSet characterSetWithCharactersInString:@"0123456789"].invertedSet].location != NSNotFound) return nil;
+    parts.port = port;
+    parts.path = @"/ws";
+    parts.queryItems = @[[NSURLQueryItem queryItemWithName:@"key" value:key]];
+    return parts.URL;
+}
+
+@interface ESP32InputBridge ()
+- (void)startOnQueue;
+- (void)openOnQueue;
+- (void)tickOnQueue;
+- (void)setStatusOnQueue:(NSString *)status;
+- (void)appendOnQueue:(NSString *)type fields:(NSDictionary *)fields;
+- (void)enqueueInput:(NSString *)type fields:(NSDictionary *)fields keyboard:(BOOL)keyboard;
+- (void)enqueueKeyboardReport:(const Esp32KeyboardRouter::Report &)report;
+- (void)receiveOnQueue:(NSURLSessionWebSocketTask *)task;
+- (void)failOnQueue:(NSString *)status;
+- (void)pumpOnQueue;
+@end
+
+@implementation ESP32InputBridge {
+    NSDictionary *_settings;
+    NSURL *_endpoint;
+    NSSet<NSString *> *_excluded;
+    BOOL _enabled, _exclusive, _paused, _stopped;
+    uint8_t _selected;
+    uint64_t _epoch, _nextEpoch, _keyboardGeneration, _mouseGeneration;
+    NSUInteger _pendingReports;
+    NSString *_statusText;
+    Esp32KeyboardRouter _keyboard;
+    Esp32MouseRouter _mouse;
+
+    // All transport state below belongs exclusively to _queue.
+    dispatch_queue_t _queue;
+    dispatch_source_t _timer;
+    NSURLSessionWebSocketTask *_task;
+    NSMutableArray<NSDictionary *> *_outbox;
+    BOOL _sending, _awaitingHello;
+    uint32_t _sequence;
+    NSTimeInterval _openedAt, _lastPong, _retryAt;
+    unsigned _pingTicks;
+}
+
++ (NSDictionary *)settingsForHost:(NSString *)hostUUID {
+    NSDictionary *defaults = @{@"enabled": @NO, @"keyboard_enabled": @YES,
+        @"mouse_enabled": @YES, @"mouse_buttons": @31, @"address": @"",
+        @"port": @80, @"access_key": @"", @"excluded_keys": @""};
+    NSMutableDictionary *result = defaults.mutableCopy;
+    if (hostUUID.length) {
+        NSDictionary *saved = [NSUserDefaults.standardUserDefaults dictionaryForKey:[ESP32SettingsPrefix stringByAppendingString:hostUUID]];
+        if (saved) [result addEntriesFromDictionary:saved];
+    }
+    return result;
+}
+
++ (NSString *)validationErrorForSettings:(NSDictionary *)settings {
+    if (![settings[@"enabled"] boolValue]) return nil;
+    if (!ESP32Endpoint(settings)) return @"ESP32 invalid endpoint";
+    NSNumber *buttons = settings[@"mouse_buttons"];
+    if (![buttons isKindOfClass:NSNumber.class] || buttons.doubleValue != buttons.integerValue ||
+        buttons.integerValue < 0 || buttons.integerValue > 31 ||
+        (![settings[@"keyboard_enabled"] boolValue] &&
+         (![settings[@"mouse_enabled"] boolValue] || buttons.integerValue == 0))) return @"ESP32 select input";
+    if (![settings[@"excluded_keys"] isKindOfClass:NSString.class]) return @"ESP32 invalid excluded keys";
+    NSMutableSet *valid = [NSMutableSet set];
+    for (unsigned i = 0; i < 232; ++i) if (ESP32Code(i)) [valid addObject:ESP32Code(i)];
+    for (NSString *raw in [settings[@"excluded_keys"] componentsSeparatedByString:@","]) {
+        NSString *code = [raw stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet];
+        if (code.length && ![valid containsObject:code]) return @"ESP32 invalid excluded keys";
+    }
+    return nil;
+}
+
++ (BOOL)saveSettings:(NSDictionary *)settings forHost:(NSString *)hostUUID {
+    if (!hostUUID.length || [hostUUID isEqualToString:@"__global__"] || [self validationErrorForSettings:settings]) return NO;
+    [NSUserDefaults.standardUserDefaults setObject:settings forKey:[ESP32SettingsPrefix stringByAppendingString:hostUUID]];
+    return YES;
+}
+
+- (instancetype)initWithHostUUID:(NSString *)hostUUID {
+    if ((self = [super init])) {
+        _settings = [[self.class settingsForHost:hostUUID] copy];
+        _enabled = [_settings[@"enabled"] boolValue];
+        _exclusive = _enabled && [_settings[@"keyboard_enabled"] boolValue];
+        _selected = _enabled && [_settings[@"mouse_enabled"] boolValue] ? [_settings[@"mouse_buttons"] unsignedCharValue] & 31 : 0;
+        NSMutableSet *excluded = [NSMutableSet set];
+        if ([_settings[@"excluded_keys"] isKindOfClass:NSString.class]) {
+            for (NSString *raw in [_settings[@"excluded_keys"] componentsSeparatedByString:@","]) {
+                [excluded addObject:[raw stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet]];
+            }
+        }
+        _excluded = excluded.copy;
+        _statusText = @"ESP32 disabled";
+        _queue = dispatch_queue_create("org.worldline233.moonlight.esp32", DISPATCH_QUEUE_SERIAL);
+        _outbox = [NSMutableArray array];
+        if (_enabled) {
+            if ([self.class validationErrorForSettings:_settings]) {
+                _statusText = @"ESP32 invalid endpoint";
+            } else {
+                _endpoint = ESP32Endpoint(_settings);
+                __weak ESP32InputBridge *weakSelf = self;
+                dispatch_async(_queue, ^{ [weakSelf startOnQueue]; });
+            }
+        }
+    }
+    return self;
+}
+
+- (BOOL)enabled { return _enabled; }
+- (BOOL)configured { return _endpoint != nil; }
+- (BOOL)keyboardExclusive { return _exclusive; }
+- (BOOL)ready { @synchronized (self) { return !_stopped && _epoch != 0; } }
+- (BOOL)paused { @synchronized (self) { return _paused; } }
+- (NSString *)statusText { @synchronized (self) { return _statusText; } }
+
+- (void)setStatusOnQueue:(NSString *)status {
+    @synchronized (self) { _statusText = status.copy; }
+    // Never log an endpoint or an NSError: either can contain the control key.
+    NSLog(@"[ESP32] %@", status);
+}
+
+- (void)startOnQueue {
+    @synchronized (self) { if (_stopped) return; }
+    _timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, _queue);
+    dispatch_source_set_timer(_timer, dispatch_time(DISPATCH_TIME_NOW, 200 * NSEC_PER_MSEC), 200 * NSEC_PER_MSEC, 20 * NSEC_PER_MSEC);
+    __weak ESP32InputBridge *weakSelf = self;
+    dispatch_source_set_event_handler(_timer, ^{ [weakSelf tickOnQueue]; });
+    dispatch_resume(_timer);
+    [self openOnQueue];
+}
+
+- (void)openOnQueue {
+    @synchronized (self) { if (_stopped) return; _epoch = 0; }
+    _sequence = 0;
+    _sending = NO;
+    [_outbox removeAllObjects];
+    _awaitingHello = YES;
+    _openedAt = NSProcessInfo.processInfo.systemUptime;
+    _task = [NSURLSession.sharedSession webSocketTaskWithURL:_endpoint];
+    _task.maximumMessageSize = 4096;
+    [_task resume];
+    [self setStatusOnQueue:@"ESP32 connecting"];
+    [self appendOnQueue:@"hello" fields:@{@"protocol": @2, @"client": @"moonlight-macos-esp32-nkro"}];
+    [self receiveOnQueue:_task];
+}
+
+- (void)receiveOnQueue:(NSURLSessionWebSocketTask *)task {
+    __weak ESP32InputBridge *weakSelf = self;
+    [task receiveMessageWithCompletionHandler:^(NSURLSessionWebSocketMessage *message, NSError *error) {
+        ESP32InputBridge *bridge = weakSelf;
+        if (!bridge) return;
+        dispatch_async(bridge->_queue, ^{
+            @synchronized (bridge) { if (bridge->_stopped) return; }
+            if (bridge->_task != task) return;
+            if (error || message.type != NSURLSessionWebSocketMessageTypeString) {
+                [bridge failOnQueue:@"ESP32 disconnected"]; return;
+            }
+            NSData *data = [message.string dataUsingEncoding:NSUTF8StringEncoding];
+            id decoded = [NSJSONSerialization JSONObjectWithData:data options:0 error:nullptr];
+            if (![decoded isKindOfClass:NSDictionary.class] || [decoded[@"type"] isEqual:@"error"]) {
+                [bridge failOnQueue:@"ESP32 protocol rejected"]; return;
+            }
+            if (bridge->_awaitingHello && [decoded[@"type"] isEqual:@"macro_status"] &&
+                [decoded[@"running"] isEqual:@NO]) {
+                if (![decoded[@"protocol"] isEqual:@2] || ![decoded[@"keyboard_nkro"] isEqual:@YES] ||
+                    ![decoded[@"keyboard_max_keys"] isEqual:@16]) {
+                    [bridge failOnQueue:@"ESP32 incompatible firmware"]; return;
+                }
+                bridge->_awaitingHello = NO;
+                bridge->_lastPong = NSProcessInfo.processInfo.systemUptime;
+                bridge->_pingTicks = 0;
+                // The ordered send pump places this before all new input reports.
+                [bridge appendOnQueue:@"release_all" fields:@{}];
+                @synchronized (bridge) { bridge->_epoch = ++bridge->_nextEpoch; }
+                [bridge setStatusOnQueue:@"ESP32 connected"];
+            }
+            [bridge receiveOnQueue:task];
+        });
+    }];
+}
+
+- (void)tickOnQueue {
+    NSTimeInterval now = NSProcessInfo.processInfo.systemUptime;
+    if (!_task) {
+        if (now >= _retryAt) [self openOnQueue];
+        return;
+    }
+    if ((_awaitingHello && now - _openedAt > 5.0) || (!_awaitingHello && now - _lastPong > 3.0)) {
+        [self failOnQueue:@"ESP32 timeout"]; return;
+    }
+    if (_awaitingHello) return;
+    [self appendOnQueue:@"ping" fields:@{}];
+    if (++_pingTicks % 5 == 0) {
+        NSURLSessionWebSocketTask *task = _task;
+        __weak ESP32InputBridge *weakSelf = self;
+        [task sendPingWithPongReceiveHandler:^(NSError *error) {
+            ESP32InputBridge *bridge = weakSelf;
+            if (!bridge) return;
+            dispatch_async(bridge->_queue, ^{
+                if (bridge->_task != task) return;
+                if (error) [bridge failOnQueue:@"ESP32 disconnected"];
+                else bridge->_lastPong = NSProcessInfo.processInfo.systemUptime;
+            });
+        }];
+    }
+}
+
+- (void)failOnQueue:(NSString *)status {
+    @synchronized (self) { _epoch = 0; ++_keyboardGeneration; ++_mouseGeneration; }
+    NSURLSessionWebSocketTask *old = _task;
+    _task = nil;
+    [old cancelWithCloseCode:NSURLSessionWebSocketCloseCodeGoingAway reason:nil];
+    [_outbox removeAllObjects];
+    _sending = NO;
+    _awaitingHello = NO;
+    _retryAt = NSProcessInfo.processInfo.systemUptime + 2.0;
+    [self setStatusOnQueue:status];
+}
+
+- (void)appendOnQueue:(NSString *)type fields:(NSDictionary *)fields {
+    if (!_task) return;
+    if (_outbox.count >= 256 || _sequence == std::numeric_limits<uint32_t>::max()) {
+        [self failOnQueue:@"ESP32 input queue full"]; return;
+    }
+    NSMutableDictionary *message = fields.mutableCopy;
+    message[@"type"] = type;
+    message[@"seq"] = @(++_sequence);
+    NSUInteger kind = [type isEqualToString:@"state"] ? 1 : ([type isEqualToString:@"mouse_state"] ? 2 : 0);
+    @synchronized (self) {
+        uint64_t generation = kind == 1 ? _keyboardGeneration : _mouseGeneration;
+        [_outbox addObject:@{@"payload": message, @"kind": @(kind), @"epoch": @(_epoch), @"generation": @(generation)}];
+    }
+    [self pumpOnQueue];
+}
+
+- (void)pumpOnQueue {
+    if (_sending || !_task) return;
+    NSDictionary *fields = nil;
+    while (_outbox.count) {
+        NSDictionary *entry = _outbox.firstObject;
+        [_outbox removeObjectAtIndex:0];
+        NSUInteger kind = [entry[@"kind"] unsignedIntegerValue];
+        @synchronized (self) {
+            if (kind && (_stopped || !_epoch || [entry[@"epoch"] unsignedLongLongValue] != _epoch ||
+                [entry[@"generation"] unsignedLongLongValue] != (kind == 1 ? _keyboardGeneration : _mouseGeneration))) continue;
+        }
+        fields = entry[@"payload"];
+        break;
+    }
+    if (!fields) return;
+    NSData *data = [NSJSONSerialization dataWithJSONObject:fields options:0 error:nullptr];
+    NSString *text = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    _sending = YES;
+    NSURLSessionWebSocketTask *task = _task;
+    __weak ESP32InputBridge *weakSelf = self;
+    [task sendMessage:[[NSURLSessionWebSocketMessage alloc] initWithString:text] completionHandler:^(NSError *error) {
+        ESP32InputBridge *bridge = weakSelf;
+        if (!bridge) return;
+        dispatch_async(bridge->_queue, ^{
+            if (bridge->_task != task) return;
+            bridge->_sending = NO;
+            if (error) [bridge failOnQueue:@"ESP32 disconnected"];
+            else [bridge pumpOnQueue];
+        });
+    }];
+}
+
+// Called with @synchronized(self) held. Mark reports at input time, so a queued
+// down cannot reappear after a release, pause, disconnect, or reconnect.
+- (void)enqueueInput:(NSString *)type fields:(NSDictionary *)fields keyboard:(BOOL)keyboard {
+    if (!_epoch || _stopped) return;
+    const uint64_t epoch = _epoch;
+    const uint64_t generation = keyboard ? _keyboardGeneration : _mouseGeneration;
+    if (_pendingReports >= 256) {
+        _epoch = 0;
+        dispatch_async(_queue, ^{ [self failOnQueue:@"ESP32 input queue full"]; });
+        return;
+    }
+    ++_pendingReports;
+    dispatch_async(_queue, ^{
+        @synchronized (self) {
+            --self->_pendingReports;
+            if (self->_stopped || self->_epoch != epoch ||
+                generation != (keyboard ? self->_keyboardGeneration : self->_mouseGeneration)) return;
+            [self appendOnQueue:type fields:fields];
+        }
+    });
+}
+
+- (BOOL)handleMacKeyCode:(unsigned short)keyCode pressed:(BOOL)pressed {
+    if (!_exclusive) return NO;
+    @synchronized (self) {
+        unsigned usage = esp32MacKeyUsage(keyCode);
+        NSString *code = ESP32Code(usage);
+        if (code && [_excluded containsObject:code]) return YES;
+        auto report = _keyboard.handle(usage, pressed, _paused ? 0 : _epoch);
+        if (report.send) [self enqueueKeyboardReport:report];
+    }
+    // Includes unsupported keys, offline and paused input. Never native fallback.
+    return YES;
+}
+
+- (void)enqueueKeyboardReport:(const Esp32KeyboardRouter::Report &)report {
+    NSMutableArray *keys = [NSMutableArray array];
+    NSMutableArray *modifiers = [NSMutableArray array];
+    for (unsigned usage : report.keys) if (usage && ESP32Code(usage)) [keys addObject:ESP32Code(usage)];
+    for (unsigned i = 0; i < 8; ++i) if (report.modifiers & (1u << i)) [modifiers addObject:ESP32Code(224 + i)];
+    [self enqueueInput:@"state" fields:@{@"keys": keys, @"modifiers": modifiers} keyboard:YES];
+}
+
+- (void)handlePhysicalModifierMask:(NSUInteger)mask {
+    if (!_exclusive) return;
+    static const unsigned usages[] = {225, 229, 224, 228, 226, 230, 227, 231};
+    @synchronized (self) {
+        for (unsigned i = 0; i < 8; ++i) {
+            if ([_excluded containsObject:ESP32Code(usages[i])]) continue;
+            auto report = _keyboard.handle(usages[i], (mask & (1u << i)) != 0, _paused ? 0 : _epoch);
+            if (report.send) [self enqueueKeyboardReport:report];
+        }
+    }
+}
+
+- (BOOL)handleMouseButton:(int)button pressed:(BOOL)pressed {
+    if (!_enabled || !_endpoint) return NO;
+    static const unsigned map[] = {99, 0, 2, 1, 3, 4};
+    unsigned index = button >= 1 && button <= 5 ? map[button] : 99;
+    @synchronized (self) {
+        auto result = _mouse.handle(index, pressed, _paused ? 0 : _epoch, _selected, _paused);
+        if (result.sendUsb) {
+            NSMutableArray *buttons = [NSMutableArray array];
+            for (unsigned i = 0; i < 5; ++i) if (result.usbButtons & (1u << i)) [buttons addObject:ESP32ButtonNames()[i]];
+            [self enqueueInput:@"mouse_state" fields:@{@"buttons": buttons} keyboard:NO];
+        }
+        return result.consume;
+    }
+}
+
+- (uint8_t)releaseMouseButtons {
+    @synchronized (self) {
+        uint8_t native = _mouse.cancel();
+        ++_mouseGeneration;
+        if (_endpoint) [self enqueueInput:@"mouse_state" fields:@{@"buttons": @[]} keyboard:NO];
+        return native;
+    }
+}
+- (void)releaseKeyboard {
+    @synchronized (self) {
+        _keyboard.cancel();
+        ++_keyboardGeneration;
+        if (_exclusive && _endpoint) [self enqueueInput:@"state" fields:@{@"keys": @[], @"modifiers": @[]} keyboard:YES];
+    }
+}
+- (void)releaseAll { [self releaseKeyboard]; [self releaseMouseButtons]; }
+- (void)togglePaused {
+    @synchronized (self) { _paused = !_paused; [self releaseAll]; }
+}
+- (void)reconnect {
+    @synchronized (self) {
+        [self releaseAll];
+        _epoch = 0;
+    }
+    dispatch_async(_queue, ^{ [self failOnQueue:@"ESP32 reconnecting"]; self->_retryAt = 0; });
+}
+- (void)stop {
+    @synchronized (self) {
+        if (_stopped) return;
+        _stopped = YES;
+        _epoch = 0;
+        ++_keyboardGeneration; ++_mouseGeneration;
+    }
+    dispatch_async(_queue, ^{
+        if (self->_timer) { dispatch_source_cancel(self->_timer); self->_timer = nil; }
+        // A best-effort final release, with a short close deadline. Unexpected
+        // network loss still relies on the firmware's existing watchdog.
+        [self->_outbox removeAllObjects];
+        [self appendOnQueue:@"release_all" fields:@{}];
+        NSURLSessionWebSocketTask *task = self->_task;
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 200 * NSEC_PER_MSEC), self->_queue, ^{
+            if (self->_task == task) {
+                self->_task = nil;
+                [task cancelWithCloseCode:NSURLSessionWebSocketCloseCodeNormalClosure reason:nil];
+            }
+        });
+    });
+}
+@end

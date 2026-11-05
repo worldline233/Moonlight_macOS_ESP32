@@ -1,432 +1,67 @@
-name: Build and Release
+name: Build macOS ESP32
 
 on:
-  push:
-    branches: [master, main]
-    tags:
-      - 'v*'
-  pull_request:
-    branches: [master, main]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: macos-esp32-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  build_arch:
-    name: Build ${{ matrix.variant }}
-    runs-on: ${{ matrix.runner }}
-    env:
-      # The EdDSA public key is safe to publish. Keep a repository fallback so
-      # a missing optional secret cannot silently disable Sparkle in release
-      # artifacts. The private signing key remains outside Git.
-      SPARKLE_ED_PUBLIC_KEY: ${{ secrets.SPARKLE_ED_PUBLIC_KEY || '0oUtFGXxgldrfua5x34b0mT6RvUQ6eI+xCJiddymRX4=' }}
-      SPARKLE_FEED_URL: https://github.com/skyhua0224/moonlight-macos-enhanced/releases/latest/download/appcast.xml
-
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          # Xcode 27 is only provided on the Apple Silicon xcode-27 image, so
-          # the Intel package is cross-built there.
-          - variant: arm64
-            runner: xcode-27
-            destination: 'platform=macOS,arch=arm64'
-            archs: 'arm64'
-            display_name: Apple Silicon
-          - variant: x86_64
-            runner: xcode-27
-            destination: 'platform=macOS,arch=x86_64'
-            archs: 'x86_64'
-            display_name: Intel
-
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v6
-      with:
-        submodules: recursive
-        fetch-depth: 0
-
-    - name: Select Xcode 27.0
-      run: sudo xcode-select -s /Applications/Xcode_27.0.app/Contents/Developer
-
-    - name: Show Build Environment
-      run: |
-        xcodebuild -version
-        swift --version
-        uname -m
-        echo "Available schemes:"
-        xcodebuild -list -project Moonlight.xcodeproj || true
-
-    - name: Download XCFrameworks
-      run: |
-        curl -L -o xcframeworks.zip "https://github.com/coofdy/moonlight-mobile-deps/releases/download/latest/moonlight-apple-xcframeworks.zip"
-        unzip -o xcframeworks.zip -d xcframeworks/
-        ls -la xcframeworks/
-
-    - name: Build dav1d
-      run: |
-        brew install meson ninja nasm
-        bash scripts/build_dav1d.sh
-
-    - name: Configure version and update channel
-      shell: bash
-      run: |
-        marketing_version=1.3.9
-        display_version=1.3.9
-        update_channel=stable
-        if [[ "$GITHUB_REF_TYPE" == tag ]]; then
-          if [[ ! "$GITHUB_REF_NAME" =~ ^v([0-9]+\.[0-9]+\.[0-9]+)(-(rc|beta|alpha)[.-][0-9]+)?$ ]]; then
-            echo "Unsupported release tag: $GITHUB_REF_NAME" >&2
-            exit 1
-          fi
-          marketing_version="${BASH_REMATCH[1]}"
-          display_version="${GITHUB_REF_NAME#v}"
-          if [[ -n "${BASH_REMATCH[2]}" ]]; then update_channel=beta; fi
-        fi
-        echo "RELEASE_MARKETING_VERSION=$marketing_version" >> "$GITHUB_ENV"
-        echo "RELEASE_DISPLAY_VERSION=$display_version" >> "$GITHUB_ENV"
-        echo "UPDATE_CHANNEL=$update_channel" >> "$GITHUB_ENV"
-        echo "RELEASE_BUILD_NUMBER=$((1335 + GITHUB_RUN_NUMBER))" >> "$GITHUB_ENV"
-
-    - name: Build ${{ matrix.display_name }} package
-      run: |
-        xcodebuild -project Moonlight.xcodeproj \
-          -scheme "Moonlight for macOS" \
-          -configuration Release \
-          -derivedDataPath build \
-          -destination "${{ matrix.destination }}" \
-          ARCHS="${{ matrix.archs }}" \
-          ONLY_ACTIVE_ARCH=YES \
-          CODE_SIGN_IDENTITY="-" \
-          CODE_SIGNING_REQUIRED=NO \
-          CODE_SIGNING_ALLOWED=NO \
-          BUILD_NUMBER="$RELEASE_BUILD_NUMBER" \
-          MARKETING_VERSION="$RELEASE_MARKETING_VERSION" \
-          UPDATE_DISPLAY_VERSION="$RELEASE_DISPLAY_VERSION" \
-          UPDATE_CHANNEL="$UPDATE_CHANNEL" \
-          SPARKLE_ED_PUBLIC_KEY="$SPARKLE_ED_PUBLIC_KEY" \
-          SPARKLE_FEED_URL="$SPARKLE_FEED_URL" \
-          build
-
-    - name: Verify ${{ matrix.variant }} binary slices
-      run: |
-        main_binary="build/Build/Products/Release/MoonlightEnhanced.app/Contents/MacOS/MoonlightEnhanced"
-        helper_binary="build/Build/Products/Release/MoonlightEnhanced.app/Contents/Library/LaunchServices/std.skyhua.MoonlightMacEnhanced.AwdlPrivilegedHelper"
-
-        lipo -info "$main_binary"
-        file "$main_binary"
-
-        if [ ! -f "$helper_binary" ]; then
-          echo "Expected AWDL helper at $helper_binary"
-          exit 1
-        fi
-
-        lipo -info "$helper_binary"
-        file "$helper_binary"
-
-        main_archs="$(lipo -archs "$main_binary")"
-        helper_archs="$(lipo -archs "$helper_binary")"
-        echo "Main binary architectures: $main_archs"
-        echo "Helper binary architectures: $helper_archs"
-
-        if [[ "$main_archs" != *"${{ matrix.archs }}"* ]]; then
-          echo "Main binary missing expected architecture ${{ matrix.archs }}"
-          exit 1
-        fi
-
-        if [[ "$helper_archs" != *"${{ matrix.archs }}"* ]]; then
-          echo "Helper binary missing expected architecture ${{ matrix.archs }}"
-          exit 1
-        fi
-
-    - name: Sign ${{ matrix.variant }} app bundle
-      run: |
-        python3 scripts/sign_app_bundle.py build/Build/Products/Release/MoonlightEnhanced.app \
-          --entitlements Moonlight.entitlements \
-          --extension-entitlements FileProviderExtension/FileProvider.entitlements
-
-    - name: Package ${{ matrix.variant }} app bundle
-      run: |
-        mkdir -p dist/app
-        cp -R "build/Build/Products/Release/MoonlightEnhanced.app" "dist/app/MoonlightEnhanced.app"
-        tar -czf "dist/Moonlight-macOS-${{ matrix.variant }}.app.tar.gz" -C dist/app MoonlightEnhanced.app
-
-    - name: Create ${{ matrix.variant }} DMG
-      run: |
-        brew install create-dmg || true
-
-        create-dmg \
-          --volname "Moonlight macOS Enhanced (${{ matrix.variant }})" \
-          --volicon "dist/app/MoonlightEnhanced.app/Contents/Resources/AppIcon.icns" \
-          --window-pos 200 120 \
-          --window-size 600 400 \
-          --icon-size 100 \
-          --icon "MoonlightEnhanced.app" 150 185 \
-          --hide-extension "MoonlightEnhanced.app" \
-          --app-drop-link 450 185 \
-          "dist/Moonlight-macOS-Enhanced-${{ matrix.variant }}.dmg" \
-          "dist/app/MoonlightEnhanced.app" || \
-        hdiutil create -volname "Moonlight-${{ matrix.variant }}" -srcfolder "dist/app/MoonlightEnhanced.app" -ov -format UDZO "dist/Moonlight-macOS-Enhanced-${{ matrix.variant }}.dmg"
-
-    - name: Upload ${{ matrix.variant }} app artifact
-      uses: actions/upload-artifact@v7
-      with:
-        name: Moonlight-macOS-app-${{ matrix.variant }}
-        path: dist/Moonlight-macOS-${{ matrix.variant }}.app.tar.gz
-        if-no-files-found: error
-
-    - name: Upload ${{ matrix.variant }} DMG artifact
-      uses: actions/upload-artifact@v7
-      with:
-        name: Moonlight-macOS-dmg-${{ matrix.variant }}
-        path: dist/Moonlight-macOS-Enhanced-${{ matrix.variant }}.dmg
-        if-no-files-found: error
-
-  build_universal:
-    name: Build universal
-    needs: build_arch
-    runs-on: xcode-27
-
-    steps:
-    - name: Checkout signing tools
-      uses: actions/checkout@v6
-
-    - name: Download arm64 app artifact
-      uses: actions/download-artifact@v8
-      with:
-        name: Moonlight-macOS-app-arm64
-        path: artifacts/arm64
-
-    - name: Download x86_64 app artifact
-      uses: actions/download-artifact@v8
-      with:
-        name: Moonlight-macOS-app-x86_64
-        path: artifacts/x86_64
-
-    - name: Extract app bundles
-      run: |
-        mkdir -p work/arm64 work/x86_64 dist
-        tar -xzf "artifacts/arm64/Moonlight-macOS-arm64.app.tar.gz" -C work/arm64
-        tar -xzf "artifacts/x86_64/Moonlight-macOS-x86_64.app.tar.gz" -C work/x86_64
-
-    - name: Merge universal app bundle
-      run: |
-        mkdir -p dist/universal
-        rsync -a "work/arm64/MoonlightEnhanced.app/" "dist/universal/MoonlightEnhanced.app/"
-
-        export ARM_APP="$PWD/work/arm64/MoonlightEnhanced.app"
-        export X86_APP="$PWD/work/x86_64/MoonlightEnhanced.app"
-        export UNIVERSAL_APP="$PWD/dist/universal/MoonlightEnhanced.app"
-
-        python3 <<'PY'
-        import os
-        import shutil
-        import subprocess
-        import sys
-        from pathlib import Path
-
-        arm_app = Path(os.environ["ARM_APP"])
-        x86_app = Path(os.environ["X86_APP"])
-        universal_app = Path(os.environ["UNIVERSAL_APP"])
-        expected_archs = {"arm64", "x86_64"}
-
-        def file_description(path: Path) -> str:
-            return subprocess.check_output(["file", "-b", str(path)], text=True).strip()
-
-        def is_macho(path: Path) -> bool:
-            return "Mach-O" in file_description(path)
-
-        def archs(path: Path) -> set[str]:
-            return set(subprocess.check_output(["lipo", "-archs", str(path)], text=True).split())
-
-        relpaths: set[Path] = set()
-        for root in (arm_app, x86_app):
-            for path in root.rglob("*"):
-                if path.is_symlink() or not path.is_file():
-                    continue
-                relpaths.add(path.relative_to(root))
-
-        for relpath in sorted(relpaths):
-            arm_path = arm_app / relpath
-            x86_path = x86_app / relpath
-            dest_path = universal_app / relpath
-
-            existing_path = arm_path if arm_path.exists() else x86_path
-            if existing_path.is_symlink() or not existing_path.is_file():
-                continue
-
-            if not is_macho(existing_path):
-                if not dest_path.exists() and existing_path.exists():
-                    dest_path.parent.mkdir(parents=True, exist_ok=True)
-                    shutil.copy2(existing_path, dest_path)
-                continue
-
-            if not arm_path.exists() or not x86_path.exists():
-                print(f"Missing counterpart while merging Mach-O file: {relpath}", file=sys.stderr)
-                sys.exit(1)
-
-            arm_archs = archs(arm_path)
-            x86_archs = archs(x86_path)
-
-            if arm_archs == expected_archs:
-                continue
-
-            if x86_archs == expected_archs:
-                shutil.copy2(x86_path, dest_path)
-                continue
-
-            if (arm_archs | x86_archs) != expected_archs:
-                print(
-                    f"Unexpected architecture union for {relpath}: arm={sorted(arm_archs)} x86={sorted(x86_archs)}",
-                    file=sys.stderr,
-                )
-                sys.exit(1)
-
-            dest_path.parent.mkdir(parents=True, exist_ok=True)
-            subprocess.check_call(["lipo", "-create", str(arm_path), str(x86_path), "-output", str(dest_path)])
-        PY
-
-    - name: Verify universal binary slices
-      run: |
-        main_binary="dist/universal/MoonlightEnhanced.app/Contents/MacOS/MoonlightEnhanced"
-        helper_binary="dist/universal/MoonlightEnhanced.app/Contents/Library/LaunchServices/std.skyhua.MoonlightMacEnhanced.AwdlPrivilegedHelper"
-
-        lipo -info "$main_binary"
-        lipo -info "$helper_binary"
-
-        main_archs="$(lipo -archs "$main_binary")"
-        helper_archs="$(lipo -archs "$helper_binary")"
-
-        if [[ "$main_archs" != *"arm64"* || "$main_archs" != *"x86_64"* ]]; then
-          echo "Universal main binary missing expected slices"
-          exit 1
-        fi
-
-        if [[ "$helper_archs" != *"arm64"* || "$helper_archs" != *"x86_64"* ]]; then
-          echo "Universal helper binary missing expected slices"
-          exit 1
-        fi
-
-    - name: Sign universal app bundle
-      run: |
-        python3 scripts/sign_app_bundle.py dist/universal/MoonlightEnhanced.app \
-          --entitlements Moonlight.entitlements \
-          --extension-entitlements FileProviderExtension/FileProvider.entitlements
-
-    - name: Create universal DMG
-      run: |
-        brew install create-dmg || true
-
-        create-dmg \
-          --volname "Moonlight macOS Enhanced (universal)" \
-          --volicon "dist/universal/MoonlightEnhanced.app/Contents/Resources/AppIcon.icns" \
-          --window-pos 200 120 \
-          --window-size 600 400 \
-          --icon-size 100 \
-          --icon "MoonlightEnhanced.app" 150 185 \
-          --hide-extension "MoonlightEnhanced.app" \
-          --app-drop-link 450 185 \
-          "dist/Moonlight-macOS-Enhanced-universal.dmg" \
-          "dist/universal/MoonlightEnhanced.app" || \
-        hdiutil create -volname "Moonlight-universal" -srcfolder "dist/universal/MoonlightEnhanced.app" -ov -format UDZO "dist/Moonlight-macOS-Enhanced-universal.dmg"
-
-    - name: Upload universal DMG artifact
-      uses: actions/upload-artifact@v7
-      with:
-        name: Moonlight-macOS-dmg-universal
-        path: dist/Moonlight-macOS-Enhanced-universal.dmg
-        if-no-files-found: error
-
   build:
-    name: build
-    needs: [build_arch, build_universal]
-    runs-on: ubuntu-latest
-    if: always()
-
+    runs-on: macos-26
+    timeout-minutes: 90
     steps:
-    - name: Verify required build jobs
-      run: |
-        echo "build_arch result: ${{ needs.build_arch.result }}"
-        echo "build_universal result: ${{ needs.build_universal.result }}"
-
-        if [ "${{ needs.build_arch.result }}" != "success" ]; then
-          echo "build_arch did not succeed"
-          exit 1
-        fi
-
-        if [ "${{ needs.build_universal.result }}" != "success" ]; then
-          echo "build_universal did not succeed"
-          exit 1
-        fi
-
-        echo "All required build jobs passed."
-
-  release:
-    needs: [build_arch, build_universal, build]
-    runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v')
-
-    permissions:
-      contents: write
-
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v6
-      with:
-        fetch-depth: 0
-
-    - name: Download x86_64 DMG artifact
-      uses: actions/download-artifact@v8
-      with:
-        name: Moonlight-macOS-dmg-x86_64
-        path: dist
-
-    - name: Download arm64 DMG artifact
-      uses: actions/download-artifact@v8
-      with:
-        name: Moonlight-macOS-dmg-arm64
-        path: dist
-
-    - name: Download universal DMG artifact
-      uses: actions/download-artifact@v8
-      with:
-        name: Moonlight-macOS-dmg-universal
-        path: dist
-
-    - name: Get Version
-      id: version
-      run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
-
-    - name: Check whether release archives are finalized
-      id: publication
-      env:
-        GH_TOKEN: ${{ github.token }}
-        RELEASE_TAG: ${{ github.ref_name }}
-      run: |
-        existing_state=$(gh api --paginate "repos/$GITHUB_REPOSITORY/releases?per_page=100" \
-          --jq '.[] | select(.tag_name == env.RELEASE_TAG) | (.draft == false or any(.assets[]; .name == "SHA256SUMS"))')
-        if [[ "$existing_state" == true ]]; then
-          echo "locked=true" >> "$GITHUB_OUTPUT"
-        else
-          echo "locked=false" >> "$GITHUB_OUTPUT"
-        fi
-
-    - name: Build Release Body
-      env:
-        VERSION: ${{ steps.version.outputs.VERSION }}
-        GITHUB_REPOSITORY: ${{ github.repository }}
-      run: |
-        python3 .github/scripts/build_release_body.py
-
-    - name: Create Release
-      if: steps.publication.outputs.locked != 'true'
-      uses: softprops/action-gh-release@v3
-      with:
-        name: ${{ steps.version.outputs.VERSION }}
-        # Publish only after signing the final archives with the local EdDSA key.
-        # Never replace a published archive: its appcast signature binds its bytes.
-        draft: true
-        prerelease: ${{ contains(github.ref, 'beta') || contains(github.ref, 'alpha') || contains(github.ref, '-rc') }}
-        files: |
-          dist/Moonlight-macOS-Enhanced-x86_64.dmg
-          dist/Moonlight-macOS-Enhanced-arm64.dmg
-          dist/Moonlight-macOS-Enhanced-universal.dmg
-        body_path: release_body.md
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+      - name: Show toolchain
+        run: |
+          xcodebuild -version
+          swift --version
+          uname -m
+      - name: ESP32 routing tests
+        run: |
+          bash tests/esp32/run.sh
+          python3 tests/esp32/check_project.py
+          python3 scripts/generate_settings_search_index.py --check
+      - name: Native ESP32 bridge and WebSocket tests
+        run: python3 tests/esp32/integration.py
+      - name: Download upstream XCFrameworks
+        run: |
+          curl --fail --location --retry 3 --output /tmp/xcframeworks.zip \
+            https://github.com/coofdy/moonlight-mobile-deps/releases/download/latest/moonlight-apple-xcframeworks.zip
+          unzip -q -o /tmp/xcframeworks.zip -d xcframeworks/
+      - name: Build dav1d
+        run: |
+          brew install meson ninja nasm
+          bash scripts/build_dav1d.sh
+      - name: Build Apple Silicon app
+        run: |
+          xcodebuild -project Moonlight.xcodeproj \
+            -scheme 'Moonlight for macOS' -configuration Release \
+            -derivedDataPath build -destination 'platform=macOS,arch=arm64' \
+            ARCHS=arm64 ONLY_ACTIVE_ARCH=YES \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY=- \
+            BUILD_NUMBER="$GITHUB_RUN_NUMBER" UPDATE_DISPLAY_VERSION=1.3.9-esp32-dev \
+            SPARKLE_ED_PUBLIC_KEY= SPARKLE_FEED_URL= build
+      - name: Sign and package
+        run: |
+          app=build/Build/Products/Release/MoonlightESP32.app
+          lipo -verify_arch arm64 "$app/Contents/MacOS/MoonlightESP32"
+          python3 scripts/sign_app_bundle.py "$app" \
+            --entitlements Moonlight.entitlements \
+            --extension-entitlements FileProviderExtension/FileProvider.entitlements
+          mkdir -p dist
+          ditto -c -k --sequesterRsrc --keepParent "$app" dist/MoonlightESP32-macOS-arm64.zip
+          cp docs/ESP32.md dist/ESP32.md
+          git rev-parse HEAD > dist/source-commit.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MoonlightESP32-macOS-arm64
+          path: dist/
+          retention-days: 7

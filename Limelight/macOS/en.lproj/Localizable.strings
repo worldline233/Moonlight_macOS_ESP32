@@ -2020,3 +2020,27 @@
 "Display" = "Display";
 "Common" = "Common";
 "This Mac's Screens" = "This Mac's Screens";
+
+// Moonlight ESP32 native input
+"ESP32 USB Input" = "ESP32 USB Input";
+"ESP32 Enable" = "Enable ESP32 input";
+"ESP32 Address" = "Device address";
+"ESP32 Port" = "Port";
+"ESP32 Control Key" = "Control key";
+"ESP32 six digits" = "6 digits";
+"ESP32 Keyboard" = "Keyboard via USB (exclusive)";
+"ESP32 Mouse Buttons" = "Mouse buttons via USB";
+"ESP32 Excluded Keys" = "Keys to keep local";
+"ESP32 Save" = "Save ESP32 settings";
+"ESP32 saved" = "Saved. Reconnect the stream to apply.";
+"ESP32 choose host" = "Select a specific host profile to configure its ESP32 device.";
+"ESP32 routing detail" = "Mouse movement and scrolling keep the original route. USB keyboard input uses physical key positions; key translation, Mac IME text and clipboard typing are unavailable while exclusive input is enabled. Comma-separated exclusions use names such as MetaLeft,KeyQ. Excluded keys stay local. Settings apply on the next stream.";
+"ESP32 controls detail" = "During capture: Control+Option+Shift+F9 pauses/resumes USB input; F10 reconnects ESP32; F11 releases all USB keys and buttons.";
+"ESP32 invalid endpoint" = "Enter a valid device address, matching port and 6-digit control key.";
+"ESP32 select input" = "Select keyboard input or at least one mouse button.";
+"ESP32 invalid excluded keys" = "Unknown excluded key. Use protocol names such as KeyA,ShiftLeft,MetaRight.";
+"ESP32 button left" = "Left button";
+"ESP32 button right" = "Right button";
+"ESP32 button middle" = "Middle button";
+"ESP32 button back" = "Back button";
+"ESP32 button forward" = "Forward button";

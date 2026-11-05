@@ -100,7 +100,7 @@
 + (NSURL *)applicationSupportDirectory {
     
     NSURL *directoryUrl = [[[[NSFileManager defaultManager] URLsForDirectory:NSApplicationSupportDirectory inDomains:NSUserDomainMask] firstObject]
-            URLByAppendingPathComponent:@"Moonlight"];
+            URLByAppendingPathComponent:@"MoonlightESP32"];
     NSError *error;
     if (![[NSFileManager defaultManager] fileExistsAtPath:directoryUrl.path]) {
         [[NSFileManager defaultManager] createDirectoryAtPath:directoryUrl.path withIntermediateDirectories:YES attributes:nil error:&error];

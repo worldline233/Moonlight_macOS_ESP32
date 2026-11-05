@@ -44,6 +44,7 @@ struct InputView: View {
               tint: .blue
             )
             KeyboardMouseSettingsSection()
+            ESP32SettingsSection()
             MouseTuningSettingsSection()
             FormSection(title: "Shortcut Translation Rules") {
               KeyboardTranslationRulesView(settingsModel: settingsModel)

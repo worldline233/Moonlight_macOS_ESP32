@@ -2070,3 +2070,27 @@
 "Free Window fallback notice" = "这台主机不能跟着窗口改分辨率，窗口会保持串流的比例。";
 "Common" = "常见";
 "This Mac's Screens" = "本机屏幕";
+
+// Moonlight ESP32 native input
+"ESP32 USB Input" = "ESP32 USB 输入";
+"ESP32 Enable" = "启用 ESP32 输入";
+"ESP32 Address" = "设备地址";
+"ESP32 Port" = "端口";
+"ESP32 Control Key" = "控制密钥";
+"ESP32 six digits" = "6 位数字";
+"ESP32 Keyboard" = "键盘通过 USB（独占）";
+"ESP32 Mouse Buttons" = "鼠标按钮通过 USB";
+"ESP32 Excluded Keys" = "仅留在本地的按键";
+"ESP32 Save" = "保存 ESP32 设置";
+"ESP32 saved" = "已保存，重新连接串流后生效。";
+"ESP32 choose host" = "请选择具体主机配置，再设置对应的 ESP32。";
+"ESP32 routing detail" = "鼠标移动与滚轮沿用原路径。USB 键盘按物理键位发送；独占启用时不使用按键翻译、Mac 输入法文本和剪贴板键入。排除名单用英文逗号分隔，例如 MetaLeft,KeyQ；排除键仅留在本地。设置在下次串流生效。";
+"ESP32 controls detail" = "捕获输入时：Control+Option+Shift+F9 暂停或恢复 USB 输入；F10 重连 ESP32；F11 释放全部 USB 按键与按钮。";
+"ESP32 invalid endpoint" = "请填写有效的设备地址、匹配的端口和 6 位数字控制密钥。";
+"ESP32 select input" = "请启用键盘，或至少选择一个鼠标按钮。";
+"ESP32 invalid excluded keys" = "排除名单包含未知按键，请使用 KeyA,ShiftLeft,MetaRight 等协议名称。";
+"ESP32 button left" = "左键";
+"ESP32 button right" = "右键";
+"ESP32 button middle" = "中键";
+"ESP32 button back" = "后退键";
+"ESP32 button forward" = "前进键";

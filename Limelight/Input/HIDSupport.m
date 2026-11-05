@@ -359,7 +359,7 @@ static NSUInteger HIDSyntheticRemoteModifierMaskForKeyCode(HIDSupport *support,
 static void HIDDispatchSyntheticRemoteModifierTap(HIDSupport *support,
                                                   NSUInteger remoteModifierMask,
                                                   const char *op) {
-    if (remoteModifierMask == 0) {
+    if (remoteModifierMask == 0 || support.esp32Input.keyboardExclusive) {
         return;
     }
 
@@ -452,6 +452,7 @@ static short HIDVirtualKeyForTypedCharacter(UniChar character) {
     // Mac key code -> packed (VK, flags) of the key-down that is still held.
     // Guarded by _pressedKeyPairsLock; written from key events, drained by
     // releaseAllModifierKeys.
+    NSMutableSet<NSNumber *> *_esp32LocalShortcutKeys;
     NSMutableDictionary<NSNumber *, NSNumber *> *_pressedKeyPairs;
     NSLock *_pressedKeyPairsLock;
     // Typed-character cache. Main thread only (Text Input Services is not
@@ -845,6 +846,8 @@ static short HIDVirtualKeyForTypedCharacter(UniChar character) {
     self = [super init];
     if (self) {
         self.host = host;
+        _esp32Input = [[ESP32InputBridge alloc] initWithHostUUID:host.uuid];
+        _esp32LocalShortcutKeys = [NSMutableSet set];
         self.inputQueue = dispatch_queue_create("com.moonlight.input", DISPATCH_QUEUE_SERIAL);
         _pressedKeyPairs = [NSMutableDictionary dictionary];
         _pressedKeyPairsLock = [[NSLock alloc] init];
@@ -906,6 +909,7 @@ static short HIDVirtualKeyForTypedCharacter(UniChar character) {
 }
 
 - (void)dealloc {
+    [self.esp32Input stop];
     [[NSDistributedNotificationCenter defaultCenter] removeObserver:self];
     [self.authoredRumbleTimer invalidate];
     [self.gamepadMenuTimer invalidate];
@@ -1101,6 +1105,7 @@ static short HIDVirtualKeyForTypedCharacter(UniChar character) {
 }
 
 - (void)syncKeyboardModifierStateForEvent:(NSEvent *)event {
+    if (self.esp32Input.keyboardExclusive) return;
     NSUInteger previous = self.keyboardRemoteModifierMask;
     NSUInteger desired = [self desiredRemoteKeyboardModifierMaskForEvent:event];
     NSUInteger changed = previous ^ desired;
@@ -1151,6 +1156,10 @@ static short HIDVirtualKeyForTypedCharacter(UniChar character) {
     }
 
     [self updateKeyboardPhysicalModifierStateFromEvent:event];
+    if (self.esp32Input.keyboardExclusive) {
+        [self.esp32Input handlePhysicalModifierMask:self.keyboardPhysicalModifierSourceMask];
+        return;
+    }
     [self syncKeyboardModifierStateForEvent:event];
 }
 
@@ -1300,7 +1309,33 @@ static unsigned short HIDPositionalKeyCode(unsigned short macKeyCode) {
     return HIDPackKeyPair((short)(0x8000 | (positional != nil ? [positional shortValue] : 0)), 0);
 }
 
+- (BOOL)handleESP32LocalControl:(NSEvent *)event pressed:(BOOL)pressed {
+    NSNumber *key = @(event.keyCode);
+    if ([_esp32LocalShortcutKeys containsObject:key]) {
+        if (!pressed) [_esp32LocalShortcutKeys removeObject:key];
+        return YES;
+    }
+    NSEventModifierFlags wanted = NSEventModifierFlagControl | NSEventModifierFlagOption | NSEventModifierFlagShift;
+    NSEventModifierFlags actual = event.modifierFlags & (wanted | NSEventModifierFlagCommand);
+    if (!pressed || !self.shouldSendInputEvents || actual != wanted ||
+        !self.esp32Input.enabled) return NO;
+    if (event.keyCode != kVK_F9 && event.keyCode != kVK_F10 && event.keyCode != kVK_F11) return NO;
+    [_esp32LocalShortcutKeys addObject:key];
+    [self releaseAllPressedMouseButtons];
+    [self releaseAllModifierKeys];
+    if (event.keyCode == kVK_F9) [self.esp32Input togglePaused];
+    else if (event.keyCode == kVK_F10) [self.esp32Input reconnect];
+    else [self.esp32Input releaseAll];
+    NSLog(@"[ESP32] control=%u paused=%d ready=%d", event.keyCode, self.esp32Input.paused, self.esp32Input.ready);
+    return YES;
+}
+
 - (void)keyDown:(NSEvent *)event {
+    if ([self handleESP32LocalControl:event pressed:YES]) return;
+    if (self.esp32Input.keyboardExclusive) {
+        if (self.shouldSendInputEvents) [self.esp32Input handleMacKeyCode:event.keyCode pressed:YES];
+        return;
+    }
     if (self.shouldSendInputEvents) {
         [self syncKeyboardModifierStateForEvent:event];
         char modifiers = [self translateKeyModifierWithEvent:event];
@@ -1348,6 +1383,11 @@ static unsigned short HIDPositionalKeyCode(unsigned short macKeyCode) {
 }
 
 - (void)keyUp:(NSEvent *)event {
+    if ([self handleESP32LocalControl:event pressed:NO]) return;
+    if (self.esp32Input.keyboardExclusive) {
+        [self.esp32Input handleMacKeyCode:event.keyCode pressed:NO];
+        return;
+    }
     if (self.shouldSendInputEvents) {
         [self syncKeyboardModifierStateForEvent:event];
         char modifiers = [self translateKeyModifierWithEvent:event];
@@ -1374,7 +1414,7 @@ static unsigned short HIDPositionalKeyCode(unsigned short macKeyCode) {
 }
 
 - (BOOL)sendUtf8Text:(NSString *)text {
-    if (text.length == 0 || !self.shouldSendInputEvents) {
+    if (text.length == 0 || !self.shouldSendInputEvents || self.esp32Input.keyboardExclusive) {
         return NO;
     }
     PML_INPUT_STREAM_CONTEXT inputCtx = HIDInputContext(self);
@@ -1415,6 +1455,7 @@ static unsigned short HIDPositionalKeyCode(unsigned short macKeyCode) {
 }
 
 - (void)releaseAllModifierKeys {
+    [self.esp32Input releaseKeyboard];
     // Send asynchronously to avoid blocking the main thread if the connection is dead
     self.keyboardPhysicalModifierSourceMask = 0;
     self.keyboardRemoteModifierMask = 0;
@@ -1426,6 +1467,7 @@ static unsigned short HIDPositionalKeyCode(unsigned short macKeyCode) {
     NSArray<NSNumber *> *heldPairs = _pressedKeyPairs.allValues;
     [_pressedKeyPairs removeAllObjects];
     [_pressedKeyPairsLock unlock];
+    if (self.esp32Input.keyboardExclusive) return;
 
     PML_INPUT_STREAM_CONTEXT inputCtx = HIDInputContext(self);
     if (!inputCtx) {
@@ -1500,6 +1542,7 @@ static unsigned short HIDPositionalKeyCode(unsigned short macKeyCode) {
 }
 
 - (void)sendSyntheticRemoteShortcut:(StreamShortcut *)shortcut {
+    if (self.esp32Input.keyboardExclusive) return;
     if (shortcut == nil || shortcut.modifierOnly || shortcut.keyCode == StreamShortcut.noKeyCode) {
         return;
     }
@@ -2624,6 +2667,7 @@ void myHIDDeviceRemovalCallback(void * _Nullable        context,
 }
 
 - (void)tearDownHidManagerOnMainThread {
+    [self.esp32Input stop];
     [self.gamepadMenuTimer invalidate];
     self.gamepadMenuTimer = nil;
     self.gamepadMenuPressed = NO;

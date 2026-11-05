@@ -202,29 +202,17 @@ static NSData* p12 = nil;
     return signedData;
 }
 
+// The native ESP32 fork owns an independent pairing identity.
 + (NSData*) readCryptoObject:(NSString*)item {
 #if TARGET_OS_TV
     return [[NSUserDefaults standardUserDefaults] dataForKey:item];
+#elif TARGET_OS_OSX
+    NSURL *directory = [CryptoManager macIdentityDirectory];
+    return directory != nil ? [NSData dataWithContentsOfURL:[directory URLByAppendingPathComponent:item]] : nil;
 #else
-#if TARGET_OS_OSX
-    NSURL *identityDirectory = [CryptoManager macIdentityDirectory];
-    NSData *stored = identityDirectory != nil
-        ? [NSData dataWithContentsOfURL:[identityDirectory URLByAppendingPathComponent:item]] : nil;
-    if (stored.length > 0) {
-        return stored;
-    }
-#endif
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    NSString *documentsDirectory = [paths objectAtIndex:0];
-    NSString *file = [documentsDirectory stringByAppendingPathComponent:item];
-    NSData *legacy = [NSData dataWithContentsOfFile:file];
-#if TARGET_OS_OSX
-    // Preserve the existing pairing identity; never delete legacy material.
-    if (legacy.length > 0 && identityDirectory != nil) {
-        [CryptoManager writeCryptoObject:item data:legacy];
-    }
-#endif
-    return legacy;
+    NSString *file = [[paths firstObject] stringByAppendingPathComponent:item];
+    return [NSData dataWithContentsOfFile:file];
 #endif
 }
 
@@ -233,7 +221,7 @@ static NSData* p12 = nil;
     NSURL *support = [[NSFileManager defaultManager] URLForDirectory:NSApplicationSupportDirectory
                                                           inDomain:NSUserDomainMask
                                                  appropriateForURL:nil create:YES error:nil];
-    NSURL *directory = [[support URLByAppendingPathComponent:@"Moonlight" isDirectory:YES]
+    NSURL *directory = [[support URLByAppendingPathComponent:@"MoonlightESP32" isDirectory:YES]
                         URLByAppendingPathComponent:@"Identity" isDirectory:YES];
     if (directory == nil || ![[NSFileManager defaultManager] createDirectoryAtURL:directory
                                                 withIntermediateDirectories:YES

@@ -459,7 +459,9 @@ static inline double HIDBlendFreeMouseGain(double currentGain, double rawDelta, 
                     if (!inputCtx) {
                         return;
                     }
-                    LiSendMouseButtonEventCtx(inputCtx, pressed ? BUTTON_ACTION_PRESS : BUTTON_ACTION_RELEASE, BUTTON_LEFT);
+                    if (![self.esp32Input handleMouseButton:BUTTON_LEFT pressed:pressed]) {
+                        LiSendMouseButtonEventCtx(inputCtx, pressed ? BUTTON_ACTION_PRESS : BUTTON_ACTION_RELEASE, BUTTON_LEFT);
+                    }
                 }
             };
             mouse.mouseInput.middleButton.pressedChangedHandler = ^(GCControllerButtonInput * _Nonnull button, float value, BOOL pressed) {
@@ -468,7 +470,9 @@ static inline double HIDBlendFreeMouseGain(double currentGain, double rawDelta, 
                     if (!inputCtx) {
                         return;
                     }
-                    LiSendMouseButtonEventCtx(inputCtx, pressed ? BUTTON_ACTION_PRESS : BUTTON_ACTION_RELEASE, BUTTON_MIDDLE);
+                    if (![self.esp32Input handleMouseButton:BUTTON_MIDDLE pressed:pressed]) {
+                        LiSendMouseButtonEventCtx(inputCtx, pressed ? BUTTON_ACTION_PRESS : BUTTON_ACTION_RELEASE, BUTTON_MIDDLE);
+                    }
                 }
             };
             mouse.mouseInput.rightButton.pressedChangedHandler = ^(GCControllerButtonInput * _Nonnull button, float value, BOOL pressed) {
@@ -480,7 +484,9 @@ static inline double HIDBlendFreeMouseGain(double currentGain, double rawDelta, 
                     if (!inputCtx) {
                         return;
                     }
-                    LiSendMouseButtonEventCtx(inputCtx, pressed ? BUTTON_ACTION_PRESS : BUTTON_ACTION_RELEASE, BUTTON_RIGHT);
+                    if (![self.esp32Input handleMouseButton:BUTTON_RIGHT pressed:pressed]) {
+                        LiSendMouseButtonEventCtx(inputCtx, pressed ? BUTTON_ACTION_PRESS : BUTTON_ACTION_RELEASE, BUTTON_RIGHT);
+                    }
                 }
             };
         
@@ -490,7 +496,9 @@ static inline double HIDBlendFreeMouseGain(double currentGain, double rawDelta, 
                     if (!inputCtx) {
                         return;
                     }
-                    LiSendMouseButtonEventCtx(inputCtx, pressed ? BUTTON_ACTION_PRESS : BUTTON_ACTION_RELEASE, BUTTON_X1);
+                    if (![self.esp32Input handleMouseButton:BUTTON_X1 pressed:pressed]) {
+                        LiSendMouseButtonEventCtx(inputCtx, pressed ? BUTTON_ACTION_PRESS : BUTTON_ACTION_RELEASE, BUTTON_X1);
+                    }
                 }
             };
             mouse.mouseInput.auxiliaryButtons[1].pressedChangedHandler = ^(GCControllerButtonInput * _Nonnull button, float value, BOOL pressed) {
@@ -499,7 +507,9 @@ static inline double HIDBlendFreeMouseGain(double currentGain, double rawDelta, 
                     if (!inputCtx) {
                         return;
                     }
-                    LiSendMouseButtonEventCtx(inputCtx, pressed ? BUTTON_ACTION_PRESS : BUTTON_ACTION_RELEASE, BUTTON_X2);
+                    if (![self.esp32Input handleMouseButton:BUTTON_X2 pressed:pressed]) {
+                        LiSendMouseButtonEventCtx(inputCtx, pressed ? BUTTON_ACTION_PRESS : BUTTON_ACTION_RELEASE, BUTTON_X2);
+                    }
                 }
             };
         } else {
@@ -697,11 +707,15 @@ static CVReturn displayLinkOutputCallback(CVDisplayLinkRef displayLink,
 
 - (void)releaseAllPressedMouseButtons {
     uint32_t pressedMask = self.pressedMouseButtonsMask;
+    uint8_t native = [self.esp32Input releaseMouseButtons];
+    // Bridge masks are left/right/middle; the upstream mask is left/middle/right.
+    if (self.esp32Input.configured) {
+        pressedMask = (native & 0x19) | ((native & 2) << 1) | ((native & 4) >> 1);
+    }
+    self.pressedMouseButtonsMask = 0;
     if (pressedMask == 0) {
         return;
     }
-
-    self.pressedMouseButtonsMask = 0;
 
     PML_INPUT_STREAM_CONTEXT inputCtx = HIDInputContext(self);
     if (self.shouldSendInputEvents && HIDValidateInputContext(inputCtx, "releaseAllPressedMouseButtons")) {
@@ -759,6 +773,7 @@ static CVReturn displayLinkOutputCallback(CVDisplayLinkRef displayLink,
                                       button:button
                                         mask:self.pressedMouseButtonsMask
                                    synthetic:NO];
+    if ([self.esp32Input handleMouseButton:button pressed:YES]) return;
     HIDDispatchInput(self, inputCtx, ^{
         LiSendMouseButtonEventCtx(inputCtx, BUTTON_ACTION_PRESS, button);
     });
@@ -781,7 +796,8 @@ static CVReturn displayLinkOutputCallback(CVDisplayLinkRef displayLink,
         return;
     }
 
-    if (self.shouldSendInputEvents) {
+    BOOL consumed = [self.esp32Input handleMouseButton:button pressed:NO];
+    if (self.shouldSendInputEvents && !consumed) {
         PML_INPUT_STREAM_CONTEXT inputCtx = HIDInputContext(self);
         if (HIDValidateInputContext(inputCtx, "mouseUp")) {
             HIDDispatchInput(self, inputCtx, ^{
@@ -975,13 +991,16 @@ static CVReturn displayLinkOutputCallback(CVDisplayLinkRef displayLink,
                                           height:referenceHeight];
     }
 
+    BOOL consumed = [self.esp32Input handleMouseButton:button pressed:pressed];
     HIDDispatchInput(self, inputCtx, ^{
         if (shouldSendAbsolute) {
             LiSendMousePositionEventCtx(inputCtx, hostX, hostY, referenceWidth, referenceHeight);
         }
-        LiSendMouseButtonEventCtx(inputCtx,
-                                  pressed ? BUTTON_ACTION_PRESS : BUTTON_ACTION_RELEASE,
-                                  button);
+        if (!consumed) {
+            LiSendMouseButtonEventCtx(inputCtx,
+                                     pressed ? BUTTON_ACTION_PRESS : BUTTON_ACTION_RELEASE,
+                                     button);
+        }
     });
 
     if (!pressed) {

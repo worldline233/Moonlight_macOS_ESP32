@@ -7,6 +7,7 @@
 //
 
 #import "TemporaryHost.h"
+#import "ESP32/ESP32InputBridge.h"
 #import <Foundation/Foundation.h>
 
 extern NSString *const HIDMouseModeToggledNotification;
@@ -30,6 +31,7 @@ typedef void (^HIDFreeMouseAbsoluteSyncHandler)(void);
 @end
 
 @interface HIDSupport : NSObject
+@property(nonatomic, strong, readonly) ESP32InputBridge *esp32Input;
 @property(atomic) BOOL shouldSendInputEvents;
 @property(nonatomic, copy) uint64_t (^controllerShortcutHandler)(unsigned short, uint32_t);
 - (void)refreshControllerShortcutOutput;

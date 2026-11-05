@@ -148,7 +148,7 @@ static const NSUInteger MLMaxImeCommitLength = 4096;
 }
 
 - (void)refreshTextInputConfiguration {
-    BOOL enabled = [SettingsClass imeTextInputFor:self.app.host.uuid];
+    BOOL enabled = [SettingsClass imeTextInputFor:self.app.host.uuid] && !self.hidSupport.esp32Input.keyboardExclusive;
     if (enabled == self.imeTextInputEnabled && (!enabled || self.imeInputContext != nil)) {
         return;
     }
