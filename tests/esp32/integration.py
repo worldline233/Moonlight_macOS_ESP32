@@ -245,7 +245,7 @@ def main():
         subprocess.run(['xcrun','clang','-fobjc-arc','-I',str(ROOT/'Limelight/Utility'),'-c',str(logger_source),'-o',str(logger_object)],check=True)
         for name in ('native', 'transport'):
             binary = output/name
-            subprocess.run(['xcrun', 'clang++', '-std=c++14', '-include', str(ROOT/'Limelight/Utility/Logger.h'), '-fobjc-arc', '-fblocks', '-framework', 'Foundation', '-framework', 'CoreVideo', '-framework', 'VideoToolbox',
+            subprocess.run(['xcrun', 'clang++', '-std=c++14', '-include', str(ROOT/'Limelight/Utility/Logger.h'), '-fobjc-arc', '-fblocks', '-framework', 'Foundation', '-framework', 'CoreVideo', '-framework', 'VideoToolbox', '-framework', 'CoreMedia',
                             '-I', str(ROOT/'Limelight/Input/ESP32'), str(ROOT/f'tests/esp32/{name}.mm'),
                             str(ROOT/'Limelight/Input/ESP32/ESP32InputBridge.mm'), str(logger_object), '-o', str(binary)], check=True)
             if name == 'native':
