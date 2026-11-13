@@ -128,7 +128,17 @@ def check(binary, bad=False, lifecycle=False, macro=False, legacy=False):
     thread.start()
     try:
         mode = ('legacy_macro' if legacy else 'macro') if macro else ('lifecycle' if lifecycle else ('bad' if bad else 'good'))
-        subprocess.run([str(binary), str(server.server_address[1]), mode], check=True, timeout=20)
+        completed = subprocess.run([str(binary), str(server.server_address[1]), mode], capture_output=True, text=True, timeout=20)
+        if completed.returncode: print(completed.stdout, completed.stderr)
+        completed.check_returncode()
+        log = completed.stdout + completed.stderr
+        assert '[config]' in log and '[connection]' in log
+        if macro:
+            assert '[handshake]' in log and '[macro] requested' in log
+            if legacy: assert 'firmware_missing_configurable_key' in log
+            else: assert '[macro] queued' in log and '[macro] transport_sent' in log
+        assert 'ws://' not in log and 'key=123456' not in log
+
     finally:
         server.shutdown()
         server.server_close()
@@ -214,7 +224,7 @@ def main():
         output = Path(directory)
         for name in ('native', 'transport'):
             binary = output/name
-            subprocess.run(['xcrun', 'clang++', '-std=c++14', '-fobjc-arc', '-fblocks', '-framework', 'Foundation', '-framework', 'CoreVideo',
+            subprocess.run(['xcrun', 'clang++', '-std=c++14', '-DESP32_STANDALONE_TEST', '-fobjc-arc', '-fblocks', '-framework', 'Foundation', '-framework', 'CoreVideo',
                             '-I', str(ROOT/'Limelight/Input/ESP32'), str(ROOT/f'tests/esp32/{name}.mm'),
                             str(ROOT/'Limelight/Input/ESP32/ESP32InputBridge.mm'), '-o', str(binary)], check=True)
             if name == 'native':

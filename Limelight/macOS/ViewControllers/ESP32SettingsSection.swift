@@ -124,6 +124,8 @@ struct ESP32SettingsSection: View {
     macroShortcut = saved["shortcut_macro"] as? Int ?? 0
     visionEnabled = saved["vision_enabled"] as? Bool ?? false
     macroKey = saved["macro_key"] as? String ?? "E"
+    if macroKey.hasPrefix("Key") && macroKey.count == 4 { macroKey = String(macroKey.suffix(1)) }
+    if macroKey.hasPrefix("Digit") && macroKey.count == 6 { macroKey = String(macroKey.suffix(1)) }
     macroRepeats = saved["macro_repeats"] as? Int ?? 3
     macroHold = saved["macro_hold_ms"] as? Int ?? 2
     macroInterval = saved["macro_interval_ms"] as? Int ?? 2

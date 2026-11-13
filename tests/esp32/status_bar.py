@@ -40,11 +40,13 @@ __BAR_CLASS__
 @property(strong) NSTimer *esp32StatusTimer;
 @property(strong) NSView *esp32StatusContainer;
 @property(strong) NSTextField *esp32StatusLabel;
+- (void)logESP32VideoWatchdog;
 - (void)setupESP32StatusBar;
 - (void)updateESP32StatusBar;
 - (void)removeESP32StatusBar;
 @end
 @implementation Harness
+- (void)logESP32VideoWatchdog {}
 __METHODS__
 @end
 int main() {

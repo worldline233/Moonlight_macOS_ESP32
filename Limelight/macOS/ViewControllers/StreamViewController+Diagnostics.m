@@ -1785,6 +1785,28 @@ static NSString *MLDynamicHdrFallbackDisplayName(int fallback) {
     });
 }
 
+- (void)logESP32VideoWatchdog {
+    NSString *path=[NSString stringWithFormat:@"requested_renderer=%ld codec=0x%x",(long)self.streamMan.streamConfiguration.videoRendererMode,self.streamMan.connection.renderer.videoFormat];
+    [self.hidSupport.esp32Input noteVideoPath:path captureActive:self.hidSupport.shouldSendInputEvents];
+}
+- (void)logESP32DiagnosticsFromMenu:(id)sender {
+    LogTag(LOG_I,@"ESP32",@"[manual] diagnostic snapshot capture=%d window_key=%d",self.hidSupport.shouldSendInputEvents,self.view.window.isKeyWindow);
+    [self.hidSupport.esp32Input logDiagnostics];
+}
+- (void)testESP32MacroFromMenu:(id)sender {
+    ESP32InputBridge *bridge=self.hidSupport.esp32Input;
+    NSUInteger generation=self.activeStreamGeneration;
+    LogTag(LOG_I,@"ESP32",@"[manual] test scheduled delay_ms=3000; return focus to stream");
+    __weak typeof(self) weakSelf=self;
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW,3*NSEC_PER_SEC),dispatch_get_main_queue(),^{
+        __strong typeof(weakSelf) self=weakSelf;
+        if(!self)return;
+        if(self.activeStreamGeneration!=generation || self.hidSupport.esp32Input!=bridge || !self.view.window.isKeyWindow || !self.hidSupport.shouldSendInputEvents) {
+            LogTag(LOG_I,@"ESP32",@"[manual] test cancelled reason=stream_changed_or_not_captured");return;
+        }
+        LogTag(LOG_I,@"ESP32",@"[manual] executing configured macro");[bridge logDiagnostics];[bridge triggerExclusiveMacro];
+    });
+}
 - (void)removeESP32StatusBar {
     [self.esp32StatusTimer invalidate];
     self.esp32StatusTimer = nil;
@@ -1812,6 +1834,8 @@ static NSString *MLDynamicHdrFallbackDisplayName(int fallback) {
     __weak typeof(self) weakSelf = self;
     self.esp32StatusTimer = [NSTimer timerWithTimeInterval:0.5 repeats:YES block:^(NSTimer *timer) {
         [weakSelf updateESP32StatusBar];
+        // Runs every 0.5s even if the HUD is hidden; bridge throttles watchdog logs.
+        [weakSelf logESP32VideoWatchdog];
     }];
     self.esp32StatusTimer.tolerance = 0.1;
     [[NSRunLoop mainRunLoop] addTimer:self.esp32StatusTimer forMode:NSRunLoopCommonModes];

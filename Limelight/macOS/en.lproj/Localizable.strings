@@ -2062,3 +2062,6 @@
 
 "ESP32 Auto Five" = "Run macro when lower-left icon reaches 5";
 "ESP32 Auto Five Detail" = "Triggers once after two confirmations; rearms after the icon disappears or becomes 3. Uses the supplied HUD layout, scaled with the decoded video. Save and restart streaming to apply.";
+
+"ESP32 Test Macro After Delay" = "Test ESP32 macro in 3 seconds";
+"ESP32 Log Diagnostics" = "Record ESP32 diagnostics";

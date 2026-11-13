@@ -23,7 +23,7 @@ int main() {
             assert([ESP32InputBridge validationErrorForSettings:settings] != nil);
         }
         settings[@"shortcut_macro"] = @8;
-        assert([settings[@"macro_key"] isEqual:@"KeyE"]);
+        assert([settings[@"macro_key"] isEqual:@"E"]);
         for (id invalid in @[@"ControlLeft", @"F13", @"typo", @42, @""]) {
             settings[@"macro_key"] = invalid;
             assert([ESP32InputBridge validationErrorForSettings:settings] != nil);

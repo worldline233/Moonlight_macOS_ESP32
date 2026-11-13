@@ -42,6 +42,8 @@ inline Result detect(const Patch& p) {
 class Edge {
     bool latched=false;int positive=0,negative=0;uint64_t last=0;
 public:
+    bool isLatched() const { return latched; }
+    int positiveCount() const { return positive; }
     void reset(){latched=false;positive=negative=0;last=0;}
     bool update(int digit,uint64_t ms) {
         if(last && (ms<=last || ms-last>150)){positive=negative=0;}last=ms;

@@ -2163,6 +2163,7 @@ highFreqMotor:(unsigned short)highFreqMotor {
 
         // Install the independent HUD after the renderer has inserted its video view.
         [self setupESP32StatusBar];
+        [self logESP32DiagnosticsFromMenu:nil];
 
         // Create overlay after streaming starts so it stays on top of the video view.
         if ([SettingsClass showPerformanceOverlayFor:self.app.host.uuid] && !self.overlayContainer) {

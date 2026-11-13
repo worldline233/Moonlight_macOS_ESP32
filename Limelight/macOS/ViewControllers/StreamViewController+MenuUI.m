@@ -1486,6 +1486,12 @@ static BOOL MLSyncMenuItems(NSMenu *menu, NSArray<NSDictionary<NSString *, id> *
     setSymbol(reconnectItem, @"arrow.triangle.2.circlepath");
     [self.streamMenu addItem:reconnectItem];
 
+    if (self.hidSupport.esp32Input.enabled) {
+        NSMenuItem *test = [[NSMenuItem alloc] initWithTitle:MLString(@"ESP32 Test Macro After Delay",nil) action:@selector(testESP32MacroFromMenu:) keyEquivalent:@""];
+        test.target=self; [self.streamMenu addItem:test];
+        NSMenuItem *diagnose = [[NSMenuItem alloc] initWithTitle:MLString(@"ESP32 Log Diagnostics",nil) action:@selector(logESP32DiagnosticsFromMenu:) keyEquivalent:@""];
+        diagnose.target=self; [self.streamMenu addItem:diagnose];
+    }
     NSMenuItem *typeClipboardItem = [[NSMenuItem alloc] initWithTitle:MLString(@"Type Clipboard Text", nil) action:@selector(typeClipboardTextFromMenu:) keyEquivalent:@""];
     [self applyShortcut:[self streamShortcutForAction:MLShortcutActionTypeClipboardText] toMenuItem:typeClipboardItem];
     typeClipboardItem.target = self;
