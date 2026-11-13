@@ -24,6 +24,10 @@ typedef enum {
 #define PRFX_WARN @"<WARN>"
 #define PRFX_ERROR @"<ERROR>"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void Log(LogLevel level, NSString* fmt, ...);
 void LogTag(LogLevel level, NSString* tag, NSString* fmt, ...);
 void LogMessage(LogLevel level, NSString* message);
@@ -42,5 +46,9 @@ BOOL LoggerWouldLog(LogLevel level);
 // goes away on purpose (termination, deliberate aborts). Lines at LOG_E are flushed this way
 // automatically. Safe to call from any thread, including the logging queue (then it is a no-op).
 void LoggerFlush(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
