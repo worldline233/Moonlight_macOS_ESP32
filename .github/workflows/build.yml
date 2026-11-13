@@ -76,6 +76,7 @@ jobs:
           mkdir -p dist
           ditto -c -k --sequesterRsrc --keepParent "$app" dist/MoonlightESP32-macOS-arm64.zip
           cp docs/ESP32.md dist/ESP32.md
+          cp build/esp32-pixel-format-validation.json dist/esp32-pixel-format-validation.json
           mkdir -p dist/USB-Upgrade
           cp build/usb-update/esp32-usb-helper scripts/esp32-usb-update.py scripts/esp32-usb-update.command dist/USB-Upgrade/
           chmod +x dist/USB-Upgrade/esp32-usb-helper dist/USB-Upgrade/esp32-usb-update.command

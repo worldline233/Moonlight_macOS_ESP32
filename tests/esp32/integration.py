@@ -154,7 +154,10 @@ def check(binary, bad=False, lifecycle=False, macro=False, legacy=False, vision=
         assert len(commands)<=1, connections
         assert all(m['key']=='KeyG' for m in commands), commands
         assert 'COMPRESSED_FIXTURE_' in log, log
-        print(next(line for line in log.splitlines() if 'COMPRESSED_FIXTURE_' in line))
+        result=next(line for line in log.splitlines() if 'COMPRESSED_FIXTURE_' in line)
+        print(result)
+        output=ROOT/'build';output.mkdir(exist_ok=True)
+        (output/'esp32-pixel-format-validation.json').write_text(json.dumps({'compressed_fixture_exercised':'COMPRESSED_FIXTURE_PASSED' in result,'result':result,'macro_commands':len(commands),'native_conversion_and_recognition_passed':True},indent=2)+'\n')
         print('Native vision diagnostics: passed (frames, scores, unsupported formats, dimensions, pause, focus, no false macro)')
         return
     if macro:

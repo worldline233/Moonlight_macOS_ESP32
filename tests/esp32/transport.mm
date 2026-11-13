@@ -10,6 +10,45 @@ static void waitReady(ESP32InputBridge *bridge) {
     for (int i = 0; i < 250 && !bridge.ready; ++i) usleep(20000);
     assert(bridge.ready);
 }
+struct EncodedPixelFixture { CMSampleBufferRef sample=nullptr;CVPixelBufferRef frame=nullptr; };
+static void pixelFixtureEncoded(void *ref,void *,OSStatus status,VTEncodeInfoFlags,CMSampleBufferRef sample) {
+    auto *fixture=static_cast<EncodedPixelFixture*>(ref);
+    if(status==noErr && sample && !fixture->sample)fixture->sample=(CMSampleBufferRef)CFRetain(sample);
+}
+static void pixelFixtureDecoded(void *ref,void *,OSStatus status,VTDecodeInfoFlags,CVImageBufferRef image,CMTime,CMTime) {
+    auto *fixture=static_cast<EncodedPixelFixture*>(ref);
+    if(status==noErr && image && !fixture->frame)fixture->frame=CVPixelBufferRetain(image);
+}
+static CVPixelBufferRef decodeCompressedFixture(CVPixelBufferRef source,OSStatus& status) {
+    EncodedPixelFixture fixture;VTCompressionSessionRef encoder=nullptr;
+    status=VTCompressionSessionCreate(kCFAllocatorDefault,2560,1440,kCMVideoCodecType_H264,nullptr,nullptr,nullptr,pixelFixtureEncoded,&fixture,&encoder);
+    if(status!=noErr)return nullptr;
+    VTSessionSetProperty(encoder,kVTCompressionPropertyKey_RealTime,kCFBooleanTrue);
+    int rate=80000000;CFNumberRef number=CFNumberCreate(kCFAllocatorDefault,kCFNumberIntType,&rate);
+    VTSessionSetProperty(encoder,kVTCompressionPropertyKey_AverageBitRate,number);CFRelease(number);
+    status=VTCompressionSessionEncodeFrame(encoder,source,CMTimeMake(0,60),CMTimeMake(1,60),nullptr,nullptr,nullptr);
+    if(status==noErr)status=VTCompressionSessionCompleteFrames(encoder,kCMTimeInvalid);
+    VTCompressionSessionInvalidate(encoder);CFRelease(encoder);
+    if(!fixture.sample)return nullptr;
+    for(int requested=1;requested>=0 && !fixture.frame;--requested) {
+        NSMutableDictionary *attributes=[@{(id)kCVPixelBufferIOSurfacePropertiesKey:@{},(id)kCVPixelBufferMetalCompatibilityKey:@YES} mutableCopy];
+        if(requested)attributes[(id)kCVPixelBufferPixelFormatTypeKey]=@((OSType)0x26387630);
+        VTDecompressionSessionRef decoder=nullptr;
+        VTDecompressionOutputCallbackRecord callback={pixelFixtureDecoded,&fixture};
+        status=VTDecompressionSessionCreate(kCFAllocatorDefault,CMSampleBufferGetFormatDescription(fixture.sample),nullptr,(__bridge CFDictionaryRef)attributes,&callback,&decoder);
+        if(status!=noErr)continue;
+        status=VTDecompressionSessionDecodeFrame(decoder,fixture.sample,0,nullptr,nullptr);
+        VTDecompressionSessionWaitForAsynchronousFrames(decoder);
+        VTDecompressionSessionInvalidate(decoder);CFRelease(decoder);
+        if(fixture.frame && !ESP32PixelBufferReader::compressed420(CVPixelBufferGetPixelFormatType(fixture.frame))) {
+            NSLog(@"Compression fixture decode delivered linear format=0x%08x",(unsigned)CVPixelBufferGetPixelFormatType(fixture.frame));
+            CVPixelBufferRelease(fixture.frame);fixture.frame=nullptr;
+        }
+    }
+    CFRelease(fixture.sample);
+    if(fixture.frame)status=noErr;
+    return fixture.frame;
+}
 static void testPixelReader(ESP32InputBridge *bridge) {
     assert(ESP32PixelBufferReader::compressed420(0x26387630));
     assert(ESP32PixelBufferReader::compressed420(0x26386630));
@@ -36,6 +75,10 @@ static void testPixelReader(ESP32InputBridge *bridge) {
     CVReturn allocation=CVPixelBufferCreate(kCFAllocatorDefault,2560,1440,(OSType)0x26387630,(__bridge CFDictionaryRef)attrs,&compressed);
     OSStatus compression=allocation;
     if(compressed && VTPixelTransferSessionCreate(kCFAllocatorDefault,&encoder)==noErr)compression=VTPixelTransferSessionTransferImage(encoder,linear,compressed);
+    if(!compressed || compression!=noErr) {
+        if(compressed){CVPixelBufferRelease(compressed);compressed=nullptr;}
+        compressed=decodeCompressedFixture(linear,compression);
+    }
     if(compressed && compression==noErr) {
         auto *decompressed=reader.convert(compressed,status);assert(status==noErr && decompressed);
         assert(CVPixelBufferLockBaseAddress(decompressed,kCVPixelBufferLock_ReadOnly)==kCVReturnSuccess);
