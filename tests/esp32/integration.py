@@ -230,11 +230,17 @@ def main():
         raise SystemExit('This test requires macOS Foundation / NSURLSession.')
     with tempfile.TemporaryDirectory(prefix='esp32-native-') as directory:
         output = Path(directory)
+        # Use the production Logger.h and a C/Objective-C implementation, so the
+        # test catches Objective-C++ name-mangling regressions before Xcode link.
+        logger_source=output/'logger.m'
+        logger_source.write_text('#import "Logger.h"\nvoid LogTag(LogLevel level, NSString *tag, NSString *fmt, ...) {\n va_list args; va_start(args,fmt); NSString *line=[[NSString alloc] initWithFormat:fmt arguments:args]; va_end(args); NSLog(@"(%@) %@",tag,line); (void)level;\n}\n')
+        logger_object=output/'logger.o'
+        subprocess.run(['xcrun','clang','-fobjc-arc','-I',str(ROOT/'Limelight/Utility'),'-c',str(logger_source),'-o',str(logger_object)],check=True)
         for name in ('native', 'transport'):
             binary = output/name
-            subprocess.run(['xcrun', 'clang++', '-std=c++14', '-DESP32_STANDALONE_TEST', '-fobjc-arc', '-fblocks', '-framework', 'Foundation', '-framework', 'CoreVideo',
+            subprocess.run(['xcrun', 'clang++', '-std=c++14', '-fobjc-arc', '-fblocks', '-framework', 'Foundation', '-framework', 'CoreVideo',
                             '-I', str(ROOT/'Limelight/Input/ESP32'), str(ROOT/f'tests/esp32/{name}.mm'),
-                            str(ROOT/'Limelight/Input/ESP32/ESP32InputBridge.mm'), '-o', str(binary)], check=True)
+                            str(ROOT/'Limelight/Input/ESP32/ESP32InputBridge.mm'), str(logger_object), '-o', str(binary)], check=True)
             if name == 'native':
                 subprocess.run([str(binary)], check=True, timeout=10)
             else:

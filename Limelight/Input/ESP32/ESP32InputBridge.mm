@@ -7,7 +7,9 @@
 #ifdef ESP32_STANDALONE_TEST
 #define ESP32Log(...) NSLog(__VA_ARGS__)
 #else
+extern "C" {
 #import "../../Utility/Logger.h"
+}
 #define ESP32Log(...) LogTag(LOG_I, @"ESP32", __VA_ARGS__)
 #endif
 #import <dispatch/dispatch.h>
