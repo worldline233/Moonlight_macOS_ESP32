@@ -477,6 +477,7 @@ static short HIDVirtualKeyForTypedCharacter(UniChar character) {
             [self.precisionTouchpad reset];
             [self releaseAllPressedMouseButtons];
             [self releaseAllModifierKeys];
+            [self.esp32Input releaseAll]; // Also cancel an exclusive macro when capture ends.
             if (self.controllerDriver == 0) {
                 PML_INPUT_STREAM_CONTEXT input = HIDInputContext(self);
                 if (HIDValidateInputContext(input, "pause-controller-input")) {
@@ -1336,8 +1337,16 @@ static unsigned short HIDPositionalKeyCode(unsigned short macKeyCode) {
     NSEventModifierFlags actual = event.modifierFlags & (wanted | NSEventModifierFlagCommand);
     if (!pressed || !self.shouldSendInputEvents || actual != wanted ||
         !self.esp32Input.enabled) return NO;
-    if (event.keyCode != kVK_F9 && event.keyCode != kVK_F10 && event.keyCode != kVK_F11) return NO;
+    BOOL macro = [self.esp32Input isExclusiveMacroKeyCode:event.keyCode];
+    if (!macro && event.keyCode != kVK_F9 && event.keyCode != kVK_F10 && event.keyCode != kVK_F11) return NO;
+    if (macro && event.isARepeat) return YES;
     [_esp32LocalShortcutKeys addObject:key];
+    if (macro) {
+        // Preserve the live held-state snapshot for B recovery; suppress only
+        // this function key, leaving ordinary state forwarding active.
+        [self.esp32Input triggerExclusiveMacro];
+        return YES;
+    }
     @synchronized (self.mouseButtonDispatchLock) {
         [self releaseAllPressedMouseButtons];
         [self releaseAllModifierKeys];

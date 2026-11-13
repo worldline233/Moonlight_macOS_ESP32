@@ -23,6 +23,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (uint8_t)releaseMouseButtons;
 - (void)releaseKeyboard;
 - (void)releaseAll;
+- (BOOL)isExclusiveMacroKeyCode:(unsigned short)keyCode;
+- (void)triggerExclusiveMacro;
 - (void)togglePaused;
 - (void)reconnect;
 // Coherent, thread-safe snapshot of basic input connection state.

@@ -70,7 +70,7 @@ static NSURL *ESP32Endpoint(NSDictionary *settings) {
     dispatch_source_t _timer;
     NSURLSessionWebSocketTask *_task;
     NSMutableArray<NSDictionary *> *_outbox;
-    BOOL _sending, _awaitingHello;
+    BOOL _sending, _awaitingHello, _exclusiveSupported;
     uint32_t _sequence;
     NSTimeInterval _openedAt, _lastPong, _retryAt;
     unsigned _pingTicks;
@@ -79,7 +79,8 @@ static NSURL *ESP32Endpoint(NSDictionary *settings) {
 + (NSDictionary *)settingsForHost:(NSString *)hostUUID {
     NSDictionary *defaults = @{@"enabled": @NO, @"keyboard_enabled": @YES,
         @"mouse_enabled": @YES, @"mouse_buttons": @31, @"address": @"",
-        @"port": @80, @"access_key": @"", @"excluded_keys": @""};
+        @"port": @80, @"access_key": @"", @"excluded_keys": @"",
+        @"shortcut_macro": @0, @"macro_repeats": @3, @"macro_hold_ms": @2, @"macro_interval_ms": @2};
     NSMutableDictionary *result = defaults.mutableCopy;
     if (hostUUID.length) {
         NSDictionary *saved = [NSUserDefaults.standardUserDefaults dictionaryForKey:[ESP32SettingsPrefix stringByAppendingString:hostUUID]];
@@ -97,6 +98,17 @@ static NSURL *ESP32Endpoint(NSDictionary *settings) {
         (![settings[@"keyboard_enabled"] boolValue] &&
          (![settings[@"mouse_enabled"] boolValue] || buttons.integerValue == 0))) return @"ESP32 select input";
     if (![settings[@"excluded_keys"] isKindOfClass:NSString.class]) return @"ESP32 invalid excluded keys";
+    NSDictionary *ranges = @{@"shortcut_macro": @[@0, @12, @0], @"macro_repeats": @[@3, @5, @3],
+                              @"macro_hold_ms": @[@1, @2000, @2], @"macro_interval_ms": @[@1, @60000, @2]};
+    for (NSString *field in ranges) {
+        NSArray *range = ranges[field];
+        NSNumber *value = settings[field] ?: range[2];
+        if (![value isKindOfClass:NSNumber.class] || value.doubleValue != value.integerValue ||
+            value.integerValue < [range[0] integerValue] || value.integerValue > [range[1] integerValue])
+            return @"ESP32 invalid macro settings";
+        if ([field isEqualToString:@"shortcut_macro"] && value.integerValue >= 9 && value.integerValue <= 11)
+            return @"ESP32 macro shortcut reserved";
+    }
     NSMutableSet *valid = [NSMutableSet set];
     for (unsigned i = 0; i < 232; ++i) if (ESP32Code(i)) [valid addObject:ESP32Code(i)];
     for (NSString *raw in [settings[@"excluded_keys"] componentsSeparatedByString:@","]) {
@@ -177,6 +189,7 @@ static NSURL *ESP32Endpoint(NSDictionary *settings) {
     _sending = NO;
     [_outbox removeAllObjects];
     _awaitingHello = YES;
+    _exclusiveSupported = NO;
     _openedAt = NSProcessInfo.processInfo.systemUptime;
     _task = [NSURLSession.sharedSession webSocketTaskWithURL:_endpoint];
     _task.maximumMessageSize = 4096;
@@ -208,6 +221,7 @@ static NSURL *ESP32Endpoint(NSDictionary *settings) {
                     ![decoded[@"keyboard_max_keys"] isEqual:@16]) {
                     [bridge failOnQueue:@"ESP32 incompatible firmware"]; return;
                 }
+                bridge->_exclusiveSupported = [decoded[@"exclusive_latest_state"] isEqual:@YES];
                 bridge->_awaitingHello = NO;
                 bridge->_lastPong = NSProcessInfo.processInfo.systemUptime;
                 bridge->_pingTicks = 0;
@@ -264,12 +278,17 @@ static NSURL *ESP32Endpoint(NSDictionary *settings) {
     if (_outbox.count >= 256 || _sequence == std::numeric_limits<uint32_t>::max()) {
         [self failOnQueue:@"ESP32 input queue full"]; return;
     }
+    if ([type isEqualToString:@"exclusive_f"] && !_exclusiveSupported) {
+        [self setStatusOnQueue:@"ESP32 firmware needs macro update"];
+        return;
+    }
     NSMutableDictionary *message = fields.mutableCopy;
     message[@"type"] = type;
     message[@"seq"] = @(++_sequence);
-    NSUInteger kind = [type isEqualToString:@"state"] ? 1 : ([type isEqualToString:@"mouse_state"] ? 2 : 0);
+    NSUInteger kind = [type isEqualToString:@"state"] ? 1 :
+        ([type isEqualToString:@"mouse_state"] ? 2 : ([type isEqualToString:@"exclusive_f"] ? 3 : 0));
     @synchronized (self) {
-        uint64_t generation = kind == 1 ? _keyboardGeneration : _mouseGeneration;
+        uint64_t generation = kind == 2 ? _mouseGeneration : _keyboardGeneration;
         [_outbox addObject:@{@"payload": message, @"kind": @(kind), @"epoch": @(_epoch), @"generation": @(generation)}];
     }
     [self pumpOnQueue];
@@ -283,8 +302,9 @@ static NSURL *ESP32Endpoint(NSDictionary *settings) {
         [_outbox removeObjectAtIndex:0];
         NSUInteger kind = [entry[@"kind"] unsignedIntegerValue];
         @synchronized (self) {
+            if (kind == 3 && _paused) continue;
             if (kind && (_stopped || !_epoch || [entry[@"epoch"] unsignedLongLongValue] != _epoch ||
-                [entry[@"generation"] unsignedLongLongValue] != (kind == 1 ? _keyboardGeneration : _mouseGeneration))) continue;
+                [entry[@"generation"] unsignedLongLongValue] != (kind == 2 ? _mouseGeneration : _keyboardGeneration))) continue;
         }
         fields = entry[@"payload"];
         break;
@@ -392,7 +412,36 @@ static NSURL *ESP32Endpoint(NSDictionary *settings) {
         if (_exclusive && _endpoint) [self enqueueInput:@"state" fields:@{@"keys": @[], @"modifiers": @[]} keyboard:YES];
     }
 }
-- (void)releaseAll { [self releaseKeyboard]; [self releaseMouseButtons]; }
+- (void)releaseAll {
+    @synchronized (self) {
+        _keyboard.cancel(); _mouse.cancel();
+        ++_keyboardGeneration; ++_mouseGeneration;
+        if (_epoch && !_stopped) {
+            const uint64_t epoch = _epoch;
+            dispatch_async(_queue, ^{
+                @synchronized (self) {
+                    if (self->_epoch == epoch && !self->_stopped)
+                        [self appendOnQueue:@"release_all" fields:@{}];
+                }
+            });
+        }
+    }
+}
+- (BOOL)isExclusiveMacroKeyCode:(unsigned short)keyCode {
+    unsigned function = [_settings[@"shortcut_macro"] unsignedIntValue];
+    return _exclusive && function >= 1 && function <= 12 &&
+           !(function >= 9 && function <= 11) && esp32MacKeyUsage(keyCode) == 57 + function;
+}
+- (void)triggerExclusiveMacro {
+    @synchronized (self) {
+        if (!_exclusive || _paused || !_epoch || _stopped) return;
+        [self enqueueInput:@"exclusive_f" fields:@{
+            @"repeats": _settings[@"macro_repeats"] ?: @3,
+            @"hold_ms": _settings[@"macro_hold_ms"] ?: @2,
+            @"interval_ms": _settings[@"macro_interval_ms"] ?: @2
+        } keyboard:YES];
+    }
+}
 - (void)togglePaused {
     @synchronized (self) { _paused = !_paused; [self releaseAll]; }
 }

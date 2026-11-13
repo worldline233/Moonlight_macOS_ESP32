@@ -16,6 +16,10 @@ struct ESP32SettingsSection: View {
   @SwiftUI.State private var accessKey = ""
   @SwiftUI.State private var excluded = ""
   @SwiftUI.State private var message = ""
+  @SwiftUI.State private var macroShortcut = 0
+  @SwiftUI.State private var macroRepeats = 3
+  @SwiftUI.State private var macroHold = 2
+  @SwiftUI.State private var macroInterval = 2
 
   private var hostID: String { settingsModel.selectedHost?.id ?? SettingsModel.globalHostId }
   private var hasHost: Bool { hostID != SettingsModel.globalHostId && !hostID.isEmpty }
@@ -24,7 +28,9 @@ struct ESP32SettingsSection: View {
   private var values: [String: Any] {
     ["enabled": enabled, "keyboard_enabled": keyboard, "mouse_enabled": mouse,
      "mouse_buttons": buttons, "address": address, "port": Int(port) ?? 0,
-     "access_key": accessKey, "excluded_keys": excluded]
+     "access_key": accessKey, "excluded_keys": excluded,
+     "shortcut_macro": macroShortcut, "macro_repeats": macroRepeats,
+     "macro_hold_ms": macroHold, "macro_interval_ms": macroInterval]
   }
 
   var body: some View {
@@ -54,6 +60,28 @@ struct ESP32SettingsSection: View {
               ))
             }
           }
+          Group {
+            SettingsRow(title: "ESP32 F Macro Shortcut") {
+              Picker("", selection: $macroShortcut) {
+                Text(tr("ESP32 Macro Off")).tag(0)
+                ForEach([1, 2, 3, 4, 5, 6, 7, 8, 12], id: \.self) { function in
+                  Text("F\(function)").tag(function)
+                }
+              }.labelsHidden().frame(width: 120)
+            }
+            SettingsRow(title: "ESP32 F Macro Repeats") {
+              Picker("", selection: $macroRepeats) {
+                ForEach(3...5, id: \.self) { count in Text("\(count)").tag(count) }
+              }.labelsHidden().frame(width: 120)
+            }
+            SettingsRow(title: "ESP32 F Hold ms") {
+              Stepper(value: $macroHold, in: 1...2000) { Text("\(macroHold)") }.frame(width: 160)
+            }
+            SettingsRow(title: "ESP32 F Release ms") {
+              Stepper(value: $macroInterval, in: 1...60000) { Text("\(macroInterval)") }.frame(width: 160)
+            }
+            Text(tr("ESP32 macro detail")).font(.caption).foregroundStyle(.secondary)
+          }.disabled(!keyboard)
           SettingsRow(title: "ESP32 Excluded Keys") {
             TextField("MetaLeft,MetaRight", text: $excluded).frame(width: 230)
           }
@@ -86,6 +114,10 @@ struct ESP32SettingsSection: View {
     port = String(saved["port"] as? Int ?? 80)
     accessKey = saved["access_key"] as? String ?? ""
     excluded = saved["excluded_keys"] as? String ?? ""
+    macroShortcut = saved["shortcut_macro"] as? Int ?? 0
+    macroRepeats = saved["macro_repeats"] as? Int ?? 3
+    macroHold = saved["macro_hold_ms"] as? Int ?? 2
+    macroInterval = saved["macro_interval_ms"] as? Int ?? 2
     message = ""
   }
 }

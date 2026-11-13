@@ -19,9 +19,24 @@ int main(int argc, const char **argv) {
         settings[@"port"] = @([[NSString stringWithUTF8String:argv[1]] intValue]);
         settings[@"access_key"] = @"123456"; // synthetic loopback key only
         settings[@"excluded_keys"] = @"KeyQ";
+        settings[@"shortcut_macro"] = @8;
+        settings[@"macro_repeats"] = @5;
         assert([ESP32InputBridge saveSettings:settings forHost:host]);
         ESP32InputBridge *bridge = [[ESP32InputBridge alloc] initWithHostUUID:host];
-        if (strcmp(argv[2], "lifecycle") == 0) {
+        if (strcmp(argv[2], "macro") == 0 || strcmp(argv[2], "legacy_macro") == 0) {
+            waitReady(bridge);
+            assert([bridge handleMacKeyCode:13 pressed:YES]); // W held.
+            settle();
+            [bridge triggerExclusiveMacro];
+            settle();
+            assert([bridge handleMacKeyCode:13 pressed:NO]);
+            assert([bridge handleMacKeyCode:0 pressed:YES]); // Latest A.
+            assert([bridge handleMouseButton:1 pressed:YES]);
+            assert([bridge handleMouseButton:1 pressed:NO]);
+            settle(); // No macro completion notification from the fake ESP.
+            [bridge releaseAll]; // Explicit stop must send the cancel command.
+            settle();
+        } else if (strcmp(argv[2], "lifecycle") == 0) {
             // Keep every old bridge alive, as AppKit/input callbacks can do.
             // The firmware-like server admits only one control connection.
             NSMutableArray<ESP32InputBridge *> *retained = [NSMutableArray array];

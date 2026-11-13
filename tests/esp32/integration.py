@@ -30,15 +30,17 @@ def exact(stream, size):
     return result
 
 def send_frame(stream, opcode, payload):
-    assert len(payload) < 126
-    stream.write(bytes([0x80 | opcode, len(payload)]) + payload)
+    assert len(payload) < 65536
+    header = bytes([0x80 | opcode, len(payload)]) if len(payload) < 126 else bytes([0x80 | opcode, 126]) + struct.pack('!H', len(payload))
+    stream.write(header + payload)
     stream.flush()
 
 class Server(socketserver.ThreadingTCPServer):
     allow_reuse_address = True
     daemon_threads = True
-    def __init__(self, bad=False):
+    def __init__(self, bad=False, exclusive=True):
         self.bad = bad
+        self.exclusive = exclusive
         self.connections = []
         self.errors = []
         self.lock = threading.Lock()
@@ -110,7 +112,8 @@ class Handler(socketserver.StreamRequestHandler):
                 if message['type'] == 'hello':
                     assert message['protocol'] == 2
                     reply = {'type': 'macro_status', 'running': False, 'protocol': 2,
-                             'keyboard_nkro': True, 'keyboard_max_keys': 6 if self.server.bad else 16}
+                             'keyboard_nkro': True, 'keyboard_max_keys': 6 if self.server.bad else 16,
+                             'exclusive_latest_state': self.server.exclusive}
                     encoded = json.dumps(reply, separators=(',', ':')).encode()
                     send_frame(self.wfile, 1, encoded)
         except (EOFError, BrokenPipeError, ConnectionResetError):
@@ -119,12 +122,12 @@ class Handler(socketserver.StreamRequestHandler):
             with self.server.lock:
                 self.server.errors.append(repr(error))
 
-def check(binary, bad=False, lifecycle=False):
-    server = Server(bad)
+def check(binary, bad=False, lifecycle=False, macro=False, legacy=False):
+    server = Server(bad, exclusive=not legacy)
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()
     try:
-        mode = 'lifecycle' if lifecycle else ('bad' if bad else 'good')
+        mode = ('legacy_macro' if legacy else 'macro') if macro else ('lifecycle' if lifecycle else ('bad' if bad else 'good'))
         subprocess.run([str(binary), str(server.server_address[1]), mode], check=True, timeout=20)
     finally:
         server.shutdown()
@@ -132,6 +135,25 @@ def check(binary, bad=False, lifecycle=False):
         thread.join(2)
     assert not server.errors, server.errors
     connections = [records for records in server.connections if records]
+    if macro:
+        assert len(connections) == 1, connections
+        records = connections[0]
+        commands = [m for m in records if m['type'] == 'exclusive_f']
+        assert len(commands) == (0 if legacy else 1), records
+        if commands:
+            command = commands[0]
+            assert command['repeats'] == 5 and command['hold_ms'] == 2 and command['interval_ms'] == 2
+            trigger = records.index(command)
+            assert any(m.get('keys') == ['KeyW'] for m in records[:trigger])
+            latest = next(i for i,m in enumerate(records) if m.get('keys') == ['KeyA'])
+            assert trigger < latest
+            assert not any(m['type'] == 'release_all' for m in records[trigger:latest])
+        assert any(m.get('keys') == ['KeyA'] for m in records)
+        assert any(m.get('buttons') == ['left'] for m in records)
+        assert any(m.get('buttons') == [] for m in records)
+        assert sum(m['type'] == 'release_all' for m in records) >= 3
+        print('Exclusive macro: passed (' + ('legacy firmware blocked' if legacy else '5 presses, 2/2 ms, live states and cancellation') + ')')
+        return
     if lifecycle:
         assert len(connections) == 3, (len(connections), server.rejected)
         for connection in connections:
@@ -157,7 +179,7 @@ def check(binary, bad=False, lifecycle=False):
     assert sum('KeyB' in m['keys'] for m in states) == 1, states
     assert all('KeyQ' not in m['keys'] for m in states)
     assert any(m.get('buttons') == ['left'] for m in first)
-    assert any(m.get('buttons') == [] for m in first)
+    assert any(m['type'] == 'release_all' for m in first)
     assert all('KeyA' not in m.get('keys', []) for m in second)
     assert any(m.get('keys') == ['KeyC'] for m in second)
     assert second[-1]['type'] == 'release_all'
@@ -200,6 +222,8 @@ def main():
                 check(binary, False)
                 check(binary, True)
                 check(binary, lifecycle=True)
+                check(binary, macro=True)
+                check(binary, macro=True, legacy=True)
     print('ESP32 native configuration and loopback WebSocket tests: passed')
 
 if __name__ == '__main__':

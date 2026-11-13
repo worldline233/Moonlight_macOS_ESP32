@@ -7,8 +7,22 @@ int main() {
         NSMutableDictionary *settings = [[ESP32InputBridge settingsForHost:host] mutableCopy];
         assert(![settings[@"enabled"] boolValue]);
         settings[@"enabled"] = @YES;
+        assert([settings[@"macro_repeats"] isEqual:@3]);
+        assert([settings[@"macro_hold_ms"] isEqual:@2] && [settings[@"macro_interval_ms"] isEqual:@2]);
         settings[@"address"] = @"127.0.0.1";
         settings[@"access_key"] = @"123456";
+        assert([ESP32InputBridge validationErrorForSettings:settings] == nil);
+        for (NSString *field in @[@"macro_repeats", @"macro_hold_ms", @"macro_interval_ms", @"shortcut_macro"]) {
+            id original = settings[field];
+            settings[field] = @3.5;
+            assert([ESP32InputBridge validationErrorForSettings:settings] != nil);
+            settings[field] = original;
+        }
+        for (NSNumber *reserved in @[@9, @10, @11]) {
+            settings[@"shortcut_macro"] = reserved;
+            assert([ESP32InputBridge validationErrorForSettings:settings] != nil);
+        }
+        settings[@"shortcut_macro"] = @8;
         assert([ESP32InputBridge validationErrorForSettings:settings] == nil);
         settings[@"address"] = @"ws://user:pass@127.0.0.1";
         assert([ESP32InputBridge validationErrorForSettings:settings] != nil);
@@ -42,6 +56,9 @@ int main() {
         [NSUserDefaults.standardUserDefaults setObject:settings forKey:store];
         ESP32InputBridge *bridge = [[ESP32InputBridge alloc] initWithHostUUID:host];
         assert(bridge.keyboardExclusive && !bridge.ready && !bridge.configured);
+        assert([bridge isExclusiveMacroKeyCode:100]); // F8 physical position.
+        assert(![bridge isExclusiveMacroKeyCode:101]);
+        [bridge triggerExclusiveMacro]; // Offline must not activate an input route.
         assert([bridge handleMacKeyCode:0 pressed:YES]);
         assert([bridge handleMacKeyCode:999 pressed:YES]);
         assert(![bridge handleMouseButton:1 pressed:YES]);

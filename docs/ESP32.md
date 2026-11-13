@@ -68,3 +68,30 @@ python3 tests/esp32/integration.py
 在具体主机的「键盘与鼠标 → ESP32 USB 输入」中切换「显示独立 ESP32 状态条」，立即生效，无需重新串流。该显示开关独立于原性能监控；两者同时开启时 ESP32 条放在性能条下方。状态条不拦截鼠标点击，退出时停止刷新并移除。
 
 状态条在视频视图就位、串流建立后创建，避免被视频遮挡；视频视图替换后刷新会恢复层级。Mac Action 的 `python3 tests/esp32/status_bar.py` 使用实际生产 AppKit 方法验证独立显示、层级恢复、双条堆叠、开关和清理。
+
+
+## F 抢占宏
+
+在具体主机的 ESP32 设置中选择 F 抢占宏功能键（默认关闭）。串流捕获期间用
+Control+Option+Shift 加所选键触发；F9/F10/F11 保留暂停、重连、释放用途。
+重复次数默认 3，可选 3–5；按住和松开间隔默认各 2 ms，可调整。
+如果功能键作为媒体键使用，需要同时按 Fn。保存后重新串流生效。
+
+需要握手支持 `exclusive_latest_state` 的新固件。旧固件仍可正常传普通键鼠，触发宏时提示升级。
+Mac 继续按变化发送完整键盘和按钮状态；ESP 期间只记录，不输出普通 HID。
+宏结束由 ESP 直接恢复最新状态（方案 B），期间完整发生的短按和短点击不补发。
+鼠标移动与滚轮仍使用上游原生路径，未接管按钮不受 ESP 独占控制。
+暂停、释放全部、解除捕获和退出会取消宏并清空状态，不恢复旧按住状态。
+
+## Mac 原生 USB 升级工具
+
+云端包附带 `USB-Upgrade/`。将应用固件 `lan_usb_keyboard.bin` 和对应的 `sha256.json`
+放在该目录，双击 `esp32-usb-update.command`。工具在 USB 实际连接的 Mac 上运行，
+使用系统 IOKit 的独立厂商 Feature 接口，不安装 HID 驱动，不占用键盘和鼠标接口。
+升级时停止输入，进入 ROM 下载模式，核对芯片 MAC 和分区后只更新应用，保留 Wi-Fi 配置。
+
+首次使用按启动器提示创建 `.venv` 并安装 `esptool>=5.6,<6`。源码目录可用
+`python3 scripts/esp32-usb-update.py <应用固件.bin>`，会用 Xcode Swift 执行 IOKit helper。
+发布包带已编译 ARM64 helper，无需为了运行 helper 安装 Xcode。
+`--list` 只读列出支持设备，`--mac` 选择设备；中断后可用 `--port /dev/cu.usbmodem... --mac ...` 继续。
+USB 升级依赖支持此功能的固件；本项目不改变 ESP 固件的 USB 升级协议。

@@ -2,6 +2,8 @@ name: Build macOS ESP32
 
 on:
   workflow_dispatch:
+  push:
+    branches: [codex/esp32-exclusive-usb]
 
 permissions:
   contents: read
@@ -36,6 +38,15 @@ jobs:
         run: python3 tests/esp32/integration.py
       - name: Native ESP32 status bar regression
         run: python3 tests/esp32/status_bar.py
+      - name: Build and check native USB upgrade helper
+        run: |
+          mkdir -p build/usb-update
+          xcrun swiftc -O -framework IOKit -framework Foundation scripts/esp32-usb-helper.swift -o build/usb-update/esp32-usb-helper
+          codesign --force --sign - build/usb-update/esp32-usb-helper
+          build/usb-update/esp32-usb-helper --list
+          python3 -m py_compile scripts/esp32-usb-update.py
+          python3 -m unittest discover -s tests/esp32_usb_update -p 'test_*.py'
+          python3 scripts/esp32-usb-update.py --list
       - name: Download upstream XCFrameworks
         run: |
           curl --fail --location --retry 3 --output /tmp/xcframeworks.zip \
@@ -65,6 +76,9 @@ jobs:
           mkdir -p dist
           ditto -c -k --sequesterRsrc --keepParent "$app" dist/MoonlightESP32-macOS-arm64.zip
           cp docs/ESP32.md dist/ESP32.md
+          mkdir -p dist/USB-Upgrade
+          cp build/usb-update/esp32-usb-helper scripts/esp32-usb-update.py scripts/esp32-usb-update.command dist/USB-Upgrade/
+          chmod +x dist/USB-Upgrade/esp32-usb-helper dist/USB-Upgrade/esp32-usb-update.command
           git rev-parse HEAD > dist/source-commit.txt
       - uses: actions/upload-artifact@v4
         with:

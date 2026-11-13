@@ -71,6 +71,7 @@ static bool hostButtons[5];
 @property NSUInteger usbReports;
 - (BOOL)handleMouseButton:(int)button pressed:(BOOL)pressed;
 - (uint8_t)releaseMouseButtons;
+- (void)releaseAll;
 @end
 @implementation FakeBridge { Esp32MouseRouter _router; }
 - (instancetype)init {
@@ -85,6 +86,7 @@ static bool hostButtons[5];
     return decision.consume;
 }
 - (uint8_t)releaseMouseButtons { return _router.cancel(); }
+- (void)releaseAll { _router.cancel(); }
 @end
 @interface FakeTouchpad : NSObject
 - (void)reset;
