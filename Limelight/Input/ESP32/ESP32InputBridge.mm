@@ -552,7 +552,7 @@ static NSURL *ESP32Endpoint(NSDictionary *settings) {
         }
         if (![reason isEqual:@"sampling"]) {if(_visionWasActive)++_visionGeneration;_visionWasActive=NO;return;}
         _visionWasActive=YES;
-        if (_visionBusy || now-_visionSampled<0.025) {++_visionSkipped;return;}
+        if (_visionBusy || now-_visionSampled<0.010) {++_visionSkipped;return;}
         _visionBusy=YES;_visionSampled=now;generation=_visionGeneration;epoch=_epoch;
     }
     CVPixelBufferRetain(frame);
