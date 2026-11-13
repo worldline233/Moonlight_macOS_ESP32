@@ -122,12 +122,13 @@ class Handler(socketserver.StreamRequestHandler):
             with self.server.lock:
                 self.server.errors.append(repr(error))
 
-def check(binary, bad=False, lifecycle=False, macro=False, legacy=False):
+def check(binary, bad=False, lifecycle=False, macro=False, legacy=False, vision=False):
     server = Server(bad, exclusive=not legacy)
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()
     try:
         mode = ('legacy_macro' if legacy else 'macro') if macro else ('lifecycle' if lifecycle else ('bad' if bad else 'good'))
+        if vision: mode='vision'
         completed = subprocess.run([str(binary), str(server.server_address[1]), mode], capture_output=True, text=True, timeout=20)
         if completed.returncode: print(completed.stdout, completed.stderr)
         completed.check_returncode()
@@ -137,6 +138,9 @@ def check(binary, bad=False, lifecycle=False, macro=False, legacy=False):
             assert '[handshake]' in log and '[macro] requested' in log
             if legacy: assert 'firmware_missing_configurable_key' in log
             else: assert '[macro] queued' in log and '[macro] transport_sent' in log
+        if vision:
+            for marker in ['[video-path]', '[frame]', 'reason=icon_absent', 'unsupported_pixel_format', 'unsupported_resolution_or_aspect', 'reason=paused', 'reason=input_not_captured', '[snapshot]']:
+                assert marker in log, (marker, log)
         assert 'ws://' not in log and 'key=123456' not in log
 
     finally:
@@ -145,6 +149,10 @@ def check(binary, bad=False, lifecycle=False, macro=False, legacy=False):
         thread.join(2)
     assert not server.errors, server.errors
     connections = [records for records in server.connections if records]
+    if vision:
+        assert not any(m['type']=='exclusive_macro' for c in connections for m in c), connections
+        print('Native vision diagnostics: passed (frames, scores, unsupported formats, dimensions, pause, focus, no false macro)')
+        return
     if macro:
         assert len(connections) == 1, connections
         records = connections[0]
@@ -235,6 +243,7 @@ def main():
                 check(binary, lifecycle=True)
                 check(binary, macro=True)
                 check(binary, macro=True, legacy=True)
+                check(binary, vision=True)
     print('ESP32 native configuration and loopback WebSocket tests: passed')
 
 if __name__ == '__main__':

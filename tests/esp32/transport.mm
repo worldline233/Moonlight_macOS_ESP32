@@ -1,12 +1,24 @@
 #import "ESP32InputBridge.h"
 #include <cassert>
 #include <cstring>
+#include <cstring>
 #include <unistd.h>
 
 static void settle(void) { usleep(150000); }
 static void waitReady(ESP32InputBridge *bridge) {
     for (int i = 0; i < 250 && !bridge.ready; ++i) usleep(20000);
     assert(bridge.ready);
+}
+static void observeTestFrame(ESP32InputBridge *bridge, OSType format, size_t w, size_t h, BOOL active) {
+    CVPixelBufferRef frame=nullptr;
+    assert(CVPixelBufferCreate(kCFAllocatorDefault,w,h,format,nullptr,&frame)==kCVReturnSuccess);
+    assert(CVPixelBufferLockBaseAddress(frame,0)==kCVReturnSuccess);
+    if(CVPixelBufferIsPlanar(frame)) {
+        for(size_t i=0;i<CVPixelBufferGetPlaneCount(frame);++i)
+            memset(CVPixelBufferGetBaseAddressOfPlane(frame,i),0,CVPixelBufferGetBytesPerRowOfPlane(frame,i)*CVPixelBufferGetHeightOfPlane(frame,i));
+    } else memset(CVPixelBufferGetBaseAddress(frame),0,CVPixelBufferGetBytesPerRow(frame)*h);
+    CVPixelBufferUnlockBaseAddress(frame,0);
+    [bridge observeVideoFrame:frame active:active];CVPixelBufferRelease(frame);settle();
 }
 int main(int argc, const char **argv) {
     assert(argc == 3);
@@ -22,9 +34,21 @@ int main(int argc, const char **argv) {
         settings[@"shortcut_macro"] = @8;
         settings[@"macro_repeats"] = @5;
         settings[@"macro_key"] = @"g";
+        if(strcmp(argv[2],"vision")==0)settings[@"vision_enabled"]=@YES;
         assert([ESP32InputBridge saveSettings:settings forHost:host]);
         ESP32InputBridge *bridge = [[ESP32InputBridge alloc] initWithHostUUID:host];
-        if (strcmp(argv[2], "macro") == 0 || strcmp(argv[2], "legacy_macro") == 0) {
+        if(strcmp(argv[2],"vision")==0) {
+            waitReady(bridge);
+            [bridge noteVideoPath:@"test_native" captureActive:YES];
+            observeTestFrame(bridge,kCVPixelFormatType_420YpCbCr8BiPlanarFullRange,2560,1440,YES);
+            observeTestFrame(bridge,kCVPixelFormatType_32BGRA,1920,1080,YES);
+            observeTestFrame(bridge,kCVPixelFormatType_420YpCbCr8BiPlanarFullRange,1920,1200,YES);
+            [bridge togglePaused];
+            observeTestFrame(bridge,kCVPixelFormatType_420YpCbCr8BiPlanarFullRange,2560,1440,YES);
+            [bridge togglePaused];
+            observeTestFrame(bridge,kCVPixelFormatType_420YpCbCr8BiPlanarFullRange,2560,1440,NO);
+            [bridge logDiagnostics];
+        } else if (strcmp(argv[2], "macro") == 0 || strcmp(argv[2], "legacy_macro") == 0) {
             waitReady(bridge);
             assert([bridge handleMacKeyCode:13 pressed:YES]); // W held.
             settle();
