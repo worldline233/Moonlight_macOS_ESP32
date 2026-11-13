@@ -150,7 +150,11 @@ def check(binary, bad=False, lifecycle=False, macro=False, legacy=False, vision=
     assert not server.errors, server.errors
     connections = [records for records in server.connections if records]
     if vision:
-        assert not any(m['type']=='exclusive_macro' for c in connections for m in c), connections
+        commands=[m for c in connections for m in c if m['type']=='exclusive_macro']
+        assert len(commands)<=1, connections
+        assert all(m['key']=='KeyG' for m in commands), commands
+        assert 'COMPRESSED_FIXTURE_' in log, log
+        print(next(line for line in log.splitlines() if 'COMPRESSED_FIXTURE_' in line))
         print('Native vision diagnostics: passed (frames, scores, unsupported formats, dimensions, pause, focus, no false macro)')
         return
     if macro:
@@ -238,7 +242,7 @@ def main():
         subprocess.run(['xcrun','clang','-fobjc-arc','-I',str(ROOT/'Limelight/Utility'),'-c',str(logger_source),'-o',str(logger_object)],check=True)
         for name in ('native', 'transport'):
             binary = output/name
-            subprocess.run(['xcrun', 'clang++', '-std=c++14', '-include', str(ROOT/'Limelight/Utility/Logger.h'), '-fobjc-arc', '-fblocks', '-framework', 'Foundation', '-framework', 'CoreVideo',
+            subprocess.run(['xcrun', 'clang++', '-std=c++14', '-include', str(ROOT/'Limelight/Utility/Logger.h'), '-fobjc-arc', '-fblocks', '-framework', 'Foundation', '-framework', 'CoreVideo', '-framework', 'VideoToolbox',
                             '-I', str(ROOT/'Limelight/Input/ESP32'), str(ROOT/f'tests/esp32/{name}.mm'),
                             str(ROOT/'Limelight/Input/ESP32/ESP32InputBridge.mm'), str(logger_object), '-o', str(binary)], check=True)
             if name == 'native':

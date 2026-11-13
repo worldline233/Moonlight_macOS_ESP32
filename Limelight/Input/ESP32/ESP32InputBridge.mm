@@ -4,6 +4,7 @@
 #include "ESP32MouseRouter.h"
 #include <limits>
 #include "fivedetector.h"
+#include "ESP32PixelBufferReader.h"
 #ifdef ESP32_STANDALONE_TEST
 #define ESP32Log(...) NSLog(__VA_ARGS__)
 #else
@@ -82,6 +83,7 @@ static NSURL *ESP32Endpoint(NSDictionary *settings) {
     uint64_t _visionGeneration;
     NSTimeInterval _visionSampled;
     FiveVision::Edge _visionEdge;
+    ESP32PixelBufferReader _pixelReader;
     NSString *_visionReason;
     NSString *_videoPath;
     NSString *_visionFailure;
@@ -556,18 +558,24 @@ static NSURL *ESP32Endpoint(NSDictionary *settings) {
     dispatch_async(_visionQueue, ^{
         FiveVision::Patch patch;bool valid=false;
         NSString *failure=@"unsupported_pixel_format";
-        bool ten = format==kCVPixelFormatType_420YpCbCr10BiPlanarVideoRange || format==kCVPixelFormatType_420YpCbCr10BiPlanarFullRange;
-        bool eight = format==kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange || format==kCVPixelFormatType_420YpCbCr8BiPlanarFullRange;
+        OSStatus conversionStatus=noErr;
+        BOOL compressed=ESP32PixelBufferReader::compressed420(format);
+        CVPixelBufferRef readable=compressed ? self->_pixelReader.convert(frame,conversionStatus) : frame;
+        OSType readableFormat=readable ? CVPixelBufferGetPixelFormatType(readable) : 0;
+        if(compressed && (!readable || summary)) ESP32Log(@"[pixel-convert] source=0x%08x output=0x%08x status=%d elapsed_ms=%.2f",(unsigned)format,(unsigned)readableFormat,(int)conversionStatus,(NSProcessInfo.processInfo.systemUptime-now)*1000);
+        if(compressed && !readable)failure=@"pixel_format_conversion_failed";
+        bool ten = readableFormat==kCVPixelFormatType_420YpCbCr10BiPlanarVideoRange || readableFormat==kCVPixelFormatType_420YpCbCr10BiPlanarFullRange;
+        bool eight = readableFormat==kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange || readableFormat==kCVPixelFormatType_420YpCbCr8BiPlanarFullRange;
         if(eight || ten) {
-            CVReturn lock=CVPixelBufferLockBaseAddress(frame,kCVPixelBufferLock_ReadOnly);
+            CVReturn lock=CVPixelBufferLockBaseAddress(readable,kCVPixelBufferLock_ReadOnly);
             if(lock==kCVReturnSuccess) {
-                const uint8_t *base=(const uint8_t*)CVPixelBufferGetBaseAddressOfPlane(frame,0);
-                size_t stride=CVPixelBufferGetBytesPerRowOfPlane(frame,0);
+                const uint8_t *base=(const uint8_t*)CVPixelBufferGetBaseAddressOfPlane(readable,0);
+                size_t stride=CVPixelBufferGetBytesPerRowOfPlane(readable,0);
                 failure=base ? @"unsupported_resolution_or_aspect" : @"missing_luma_plane";
                 if(base)valid=FiveVision::extract((int)width,(int)height,[&](int x,int y){
                     const uint8_t *p=base+y*stride+x*(ten?2:1);return ten ? int((p[0]|(p[1]<<8))>>8) : int(*p);
                 },patch);
-                CVPixelBufferUnlockBaseAddress(frame,kCVPixelBufferLock_ReadOnly);
+                CVPixelBufferUnlockBaseAddress(readable,kCVPixelBufferLock_ReadOnly);
             } else failure=@"pixel_buffer_lock_failed";
         }
         CVPixelBufferRelease(frame);
