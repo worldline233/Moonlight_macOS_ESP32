@@ -201,6 +201,7 @@ static NSURL *ESP32Endpoint(NSDictionary *settings) {
 }
 
 - (BOOL)enabled { return _enabled; }
+- (BOOL)visionEnabled { return _exclusive && [_settings[@"vision_enabled"] boolValue]; }
 - (BOOL)configured { return _endpoint != nil; }
 - (BOOL)keyboardExclusive { return _exclusive; }
 - (BOOL)ready { @synchronized (self) { return !_stopped && _epoch != 0; } }

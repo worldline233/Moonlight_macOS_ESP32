@@ -19,7 +19,7 @@ static void pixelFixtureDecoded(void *ref,void *,OSStatus status,VTDecodeInfoFla
     auto *fixture=static_cast<EncodedPixelFixture*>(ref);
     if(status==noErr && image && !fixture->frame)fixture->frame=CVPixelBufferRetain(image);
 }
-static CVPixelBufferRef decodeCompressedFixture(CVPixelBufferRef source,OSStatus& status) {
+static CVPixelBufferRef decodeCompressedFixture(CVPixelBufferRef source,OSStatus& status,bool wantCompressed=true) {
     EncodedPixelFixture fixture;VTCompressionSessionRef encoder=nullptr;
     status=VTCompressionSessionCreate(kCFAllocatorDefault,2560,1440,kCMVideoCodecType_H264,nullptr,nullptr,nullptr,pixelFixtureEncoded,&fixture,&encoder);
     if(status!=noErr)return nullptr;
@@ -32,7 +32,7 @@ static CVPixelBufferRef decodeCompressedFixture(CVPixelBufferRef source,OSStatus
     if(!fixture.sample)return nullptr;
     for(int requested=1;requested>=0 && !fixture.frame;--requested) {
         NSMutableDictionary *attributes=[@{(id)kCVPixelBufferIOSurfacePropertiesKey:@{},(id)kCVPixelBufferMetalCompatibilityKey:@YES} mutableCopy];
-        if(requested)attributes[(id)kCVPixelBufferPixelFormatTypeKey]=@((OSType)0x26387630);
+        if(requested || !wantCompressed)attributes[(id)kCVPixelBufferPixelFormatTypeKey]=@(wantCompressed ? (OSType)0x26387630 : kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange);
         VTDecompressionSessionRef decoder=nullptr;
         VTDecompressionOutputCallbackRecord callback={pixelFixtureDecoded,&fixture};
         status=VTDecompressionSessionCreate(kCFAllocatorDefault,CMSampleBufferGetFormatDescription(fixture.sample),nullptr,(__bridge CFDictionaryRef)attributes,&callback,&decoder);
@@ -40,7 +40,7 @@ static CVPixelBufferRef decodeCompressedFixture(CVPixelBufferRef source,OSStatus
         status=VTDecompressionSessionDecodeFrame(decoder,fixture.sample,0,nullptr,nullptr);
         VTDecompressionSessionWaitForAsynchronousFrames(decoder);
         VTDecompressionSessionInvalidate(decoder);CFRelease(decoder);
-        if(fixture.frame && !ESP32PixelBufferReader::compressed420(CVPixelBufferGetPixelFormatType(fixture.frame))) {
+        if(wantCompressed && fixture.frame && !ESP32PixelBufferReader::compressed420(CVPixelBufferGetPixelFormatType(fixture.frame))) {
             NSLog(@"Compression fixture decode delivered linear format=0x%08x",(unsigned)CVPixelBufferGetPixelFormatType(fixture.frame));
             CVPixelBufferRelease(fixture.frame);fixture.frame=nullptr;
         }
@@ -87,8 +87,19 @@ static void testPixelReader(ESP32InputBridge *bridge) {
         CVPixelBufferUnlockBaseAddress(decompressed,kCVPixelBufferLock_ReadOnly);
         assert(FiveVision::detect(patch).digit==5);
         NSLog(@"COMPRESSED_FIXTURE_PASSED source=0x26387630");
-        for(int i=0;i<5;++i){[bridge observeVideoFrame:compressed active:YES];usleep(60000);}
+        // Compressed conversion is optional fallback; the production decoder now explicitly requests linear output.
     } else NSLog(@"COMPRESSED_FIXTURE_UNAVAILABLE allocation=%d transfer=%d; linear conversion and recognition passed",(int)allocation,(int)compression);
+    CVPixelBufferRef decodedLinear=decodeCompressedFixture(linear,status,false);
+    assert(status==noErr && decodedLinear);
+    assert(CVPixelBufferGetPixelFormatType(decodedLinear)==kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange);
+    assert(CVPixelBufferLockBaseAddress(decodedLinear,kCVPixelBufferLock_ReadOnly)==kCVReturnSuccess);
+    base=(const uint8_t*)CVPixelBufferGetBaseAddressOfPlane(decodedLinear,0);pitch=CVPixelBufferGetBytesPerRowOfPlane(decodedLinear,0);
+    assert(FiveVision::extract(2560,1440,[&](int x,int y){return int(base[y*pitch+x]);},patch));
+    CVPixelBufferUnlockBaseAddress(decodedLinear,kCVPixelBufferLock_ReadOnly);
+    assert(FiveVision::detect(patch).digit==5);
+    for(int i=0;i<6;++i){[bridge observeVideoFrame:decodedLinear active:YES];usleep(60000);}
+    CVPixelBufferRelease(decodedLinear);
+    NSLog(@"LINEAR_DECODE_FIXTURE_PASSED output=420v digit=5");
     if(encoder){VTPixelTransferSessionInvalidate(encoder);CFRelease(encoder);}
     if(compressed)CVPixelBufferRelease(compressed);CVPixelBufferRelease(linear);
 }

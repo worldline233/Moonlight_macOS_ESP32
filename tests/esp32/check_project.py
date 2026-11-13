@@ -95,6 +95,10 @@ def main():
                         '    if (observer) observer(imageBuffer);\n')
             assert actual.count(observer) == 1, 'Only one observer hook is permitted'
             actual = actual.replace(observer, '')
+            actual = actual.replace('    BOOL _esp32VisionLinearFrames;\n', '')
+            actual = actual.replace('    _esp32VisionLinearFrames = streamConfig.esp32VisionLinearFrames;\n', '')
+            actual = actual.replace('if (_activeRendererMode == MLActiveVideoRendererModeEnhanced || _esp32VisionLinearFrames)', 'if (_activeRendererMode == MLActiveVideoRendererModeEnhanced)')
+            actual = actual.replace('        if (_esp32VisionLinearFrames) LogTag(LOG_I,@"ESP32",@"[pixel-output] requested_linear=0x%08x renderer=%@",(unsigned)requestedFormat,[self activeRendererModeName:_activeRendererMode]);\n', '')
         assert actual == upstream, ('upstream implementation changed beyond observer', path)
     print(f'Project graph: passed ({len(sources)} sources, {len(resources)} resources; separate identity; upstream CoreHID/video retained)')
 

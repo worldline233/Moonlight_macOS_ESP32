@@ -7,6 +7,7 @@ NS_ASSUME_NONNULL_BEGIN
 // on the caller's input thread. Mouse movement and scrolling do not enter here.
 @interface ESP32InputBridge : NSObject
 @property(nonatomic, readonly) BOOL enabled;
+@property(nonatomic, readonly) BOOL visionEnabled;
 @property(nonatomic, readonly) BOOL configured;
 @property(nonatomic, readonly) BOOL keyboardExclusive;
 @property(nonatomic, readonly) BOOL ready;

@@ -1520,6 +1520,7 @@ static BOOL MLGetSharedMetalPipelines(MTLPixelFormat pixelFormat,
     size_t _lastDecodedHeight;
     // Kept for the next stream's loading backdrop; both guarded by _frameStoreLock.
     CVPixelBufferRef _lastDecodedImageBuffer;
+    BOOL _esp32VisionLinearFrames;
     BOOL _stretchToFillValue;
     os_unfair_lock _frameStoreLock;
 }
@@ -3030,6 +3031,7 @@ static CGDirectDisplayID getDisplayID(NSScreen* screen)
     _streamWidth = streamConfig ? streamConfig.width : 0;
     _streamHeight = streamConfig ? streamConfig.height : 0;
     _streamBitrateKbps = streamConfig ? streamConfig.bitRate : 0;
+    _esp32VisionLinearFrames = streamConfig.esp32VisionLinearFrames;
     _loggedNativeColorTags = NO;
     _loggedMetalColorTags = NO;
     _loggedDecodedBufferAttachments = NO;
@@ -3814,7 +3816,7 @@ void decompressionOutputCallback(void *decompressionOutputRefCon, void *sourceFr
         (id)kCVPixelBufferIOSurfacePropertiesKey: @{},
     } mutableCopy];
 
-    if (_activeRendererMode == MLActiveVideoRendererModeEnhanced) {
+    if (_activeRendererMode == MLActiveVideoRendererModeEnhanced || _esp32VisionLinearFrames) {
         // Ask for the range the bitstream signals so VT does not rescale it;
         // the Metal shader derives offsets from the delivered pixel format.
         CFTypeRef fullRangeExtension = formatDesc != NULL
@@ -3838,6 +3840,7 @@ void decompressionOutputCallback(void *decompressionOutputRefCon, void *sourceFr
                                                : kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange;
         }
         destinationImageBufferAttributes[(id)kCVPixelBufferPixelFormatTypeKey] = @(requestedFormat);
+        if (_esp32VisionLinearFrames) LogTag(LOG_I,@"ESP32",@"[pixel-output] requested_linear=0x%08x renderer=%@",(unsigned)requestedFormat,[self activeRendererModeName:_activeRendererMode]);
     }
 
     OSStatus status = VTDecompressionSessionCreate(kCFAllocatorDefault,

@@ -55,6 +55,8 @@
 @property(nonatomic) BOOL enableHdr;
 @property(nonatomic) BOOL enable10BitSdr;
 @property(nonatomic) int videoRendererMode;
+// Only auto recognition needs a CPU-readable decoder output.
+@property(nonatomic) BOOL esp32VisionLinearFrames;
 @property(nonatomic) int hdrTransferFunction;
 @property(nonatomic) int hdrMetadataSource;
 @property(nonatomic) int hdrClientDisplayProfile;

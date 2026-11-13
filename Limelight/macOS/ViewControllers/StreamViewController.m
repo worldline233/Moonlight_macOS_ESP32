@@ -1846,6 +1846,7 @@ highFreqMotor:(unsigned short)highFreqMotor {
     [self refreshInputDiagnosticsPreference];
     
     id<ConnectionCallbacks> scopedCallbacks = [[MLStreamScopedConnectionCallbacks alloc] initWithOwner:self generation:streamGeneration];
+    streamConfig.esp32VisionLinearFrames = self.hidSupport.esp32Input.visionEnabled;
     self.streamMan = [[StreamManager alloc] initWithConfig:streamConfig renderView:self.view connectionCallbacks:scopedCallbacks];
     if (!self.streamOpQueue) {
         self.streamOpQueue = [[NSOperationQueue alloc] init];
