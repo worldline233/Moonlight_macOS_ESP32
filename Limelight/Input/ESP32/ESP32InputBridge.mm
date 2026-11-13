@@ -5,6 +5,22 @@
 #include <limits>
 #import <dispatch/dispatch.h>
 
+static NSString *ESP32MacroCode(id value) {
+    if (![value isKindOfClass:NSString.class]) return nil;
+    NSString *name = [value stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet];
+    if (name.length == 1) {
+        unichar c = [name.uppercaseString characterAtIndex:0];
+        if (c >= 'A' && c <= 'Z') name = [@"Key" stringByAppendingString:name.uppercaseString];
+        else if (c >= '0' && c <= '9') name = [@"Digit" stringByAppendingString:name];
+    }
+    for (unsigned usage = 4; usage <= 99; ++usage) {
+        const char *code = esp32KeyboardCode(usage);
+        if (code && [name caseInsensitiveCompare:[NSString stringWithUTF8String:code]] == NSOrderedSame)
+            return [NSString stringWithUTF8String:code];
+    }
+    return nil;
+}
+
 static NSString *const ESP32SettingsPrefix = @"esp32.input.host.";
 static NSArray<NSString *> *ESP32ButtonNames(void) {
     return @[@"left", @"right", @"middle", @"back", @"forward"];
@@ -80,7 +96,7 @@ static NSURL *ESP32Endpoint(NSDictionary *settings) {
     NSDictionary *defaults = @{@"enabled": @NO, @"keyboard_enabled": @YES,
         @"mouse_enabled": @YES, @"mouse_buttons": @31, @"address": @"",
         @"port": @80, @"access_key": @"", @"excluded_keys": @"",
-        @"shortcut_macro": @0, @"macro_repeats": @3, @"macro_hold_ms": @2, @"macro_interval_ms": @2};
+        @"shortcut_macro": @0, @"macro_key": @"KeyE", @"macro_repeats": @3, @"macro_hold_ms": @2, @"macro_interval_ms": @2};
     NSMutableDictionary *result = defaults.mutableCopy;
     if (hostUUID.length) {
         NSDictionary *saved = [NSUserDefaults.standardUserDefaults dictionaryForKey:[ESP32SettingsPrefix stringByAppendingString:hostUUID]];
@@ -98,6 +114,7 @@ static NSURL *ESP32Endpoint(NSDictionary *settings) {
         (![settings[@"keyboard_enabled"] boolValue] &&
          (![settings[@"mouse_enabled"] boolValue] || buttons.integerValue == 0))) return @"ESP32 select input";
     if (![settings[@"excluded_keys"] isKindOfClass:NSString.class]) return @"ESP32 invalid excluded keys";
+    if (!ESP32MacroCode(settings[@"macro_key"] ?: @"KeyE")) return @"ESP32 invalid macro key";
     NSDictionary *ranges = @{@"shortcut_macro": @[@0, @12, @0], @"macro_repeats": @[@3, @5, @3],
                               @"macro_hold_ms": @[@1, @2000, @2], @"macro_interval_ms": @[@1, @60000, @2]};
     for (NSString *field in ranges) {
@@ -221,7 +238,8 @@ static NSURL *ESP32Endpoint(NSDictionary *settings) {
                     ![decoded[@"keyboard_max_keys"] isEqual:@16]) {
                     [bridge failOnQueue:@"ESP32 incompatible firmware"]; return;
                 }
-                bridge->_exclusiveSupported = [decoded[@"exclusive_latest_state"] isEqual:@YES];
+                bridge->_exclusiveSupported = [decoded[@"exclusive_latest_state"] isEqual:@YES] &&
+                    [decoded[@"exclusive_configurable_key"] isEqual:@YES];
                 bridge->_awaitingHello = NO;
                 bridge->_lastPong = NSProcessInfo.processInfo.systemUptime;
                 bridge->_pingTicks = 0;
@@ -278,7 +296,7 @@ static NSURL *ESP32Endpoint(NSDictionary *settings) {
     if (_outbox.count >= 256 || _sequence == std::numeric_limits<uint32_t>::max()) {
         [self failOnQueue:@"ESP32 input queue full"]; return;
     }
-    if ([type isEqualToString:@"exclusive_f"] && !_exclusiveSupported) {
+    if ([type isEqualToString:@"exclusive_macro"] && !_exclusiveSupported) {
         [self setStatusOnQueue:@"ESP32 firmware needs macro update"];
         return;
     }
@@ -286,7 +304,7 @@ static NSURL *ESP32Endpoint(NSDictionary *settings) {
     message[@"type"] = type;
     message[@"seq"] = @(++_sequence);
     NSUInteger kind = [type isEqualToString:@"state"] ? 1 :
-        ([type isEqualToString:@"mouse_state"] ? 2 : ([type isEqualToString:@"exclusive_f"] ? 3 : 0));
+        ([type isEqualToString:@"mouse_state"] ? 2 : ([type isEqualToString:@"exclusive_macro"] ? 3 : 0));
     @synchronized (self) {
         uint64_t generation = kind == 2 ? _mouseGeneration : _keyboardGeneration;
         [_outbox addObject:@{@"payload": message, @"kind": @(kind), @"epoch": @(_epoch), @"generation": @(generation)}];
@@ -435,7 +453,8 @@ static NSURL *ESP32Endpoint(NSDictionary *settings) {
 - (void)triggerExclusiveMacro {
     @synchronized (self) {
         if (!_exclusive || _paused || !_epoch || _stopped) return;
-        [self enqueueInput:@"exclusive_f" fields:@{
+        [self enqueueInput:@"exclusive_macro" fields:@{
+            @"key": ESP32MacroCode(_settings[@"macro_key"] ?: @"KeyE"),
             @"repeats": _settings[@"macro_repeats"] ?: @3,
             @"hold_ms": _settings[@"macro_hold_ms"] ?: @2,
             @"interval_ms": _settings[@"macro_interval_ms"] ?: @2

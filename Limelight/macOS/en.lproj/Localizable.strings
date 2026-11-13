@@ -2048,11 +2048,14 @@
 /* Independent ESP32 status bar */
 "ESP32 Show Status Bar" = "Show independent ESP32 status bar";
 
-"ESP32 F Macro Shortcut" = "F macro shortcut";
+"ESP32 Macro Shortcut" = "Macro trigger shortcut";
 "ESP32 Macro Off" = "Off";
-"ESP32 F Macro Repeats" = "F repeat count";
-"ESP32 F Hold ms" = "F hold (ms)";
-"ESP32 F Release ms" = "F release interval (ms)";
-"ESP32 macro detail" = "Control+Option+Shift plus the selected function key triggers F. Default: 3 presses, 2 ms down and 2 ms up. Normal key/button state continues to update; the ESP restores the latest state afterward. Mouse movement is unchanged. Requires updated firmware. F9–F11 remain reserved.";
+"ESP32 Macro Repeats" = "Repeat count";
+"ESP32 Macro Hold ms" = "Hold (ms)";
+"ESP32 Macro Release ms" = "Release interval (ms)";
+"ESP32 macro detail" = "Control+Option+Shift plus the selected function key triggers the configured output key (E by default). Default: 3 presses, 2 ms down and 2 ms up. Normal key/button state continues to update; the ESP restores the latest state afterward. Mouse movement is unchanged. Requires updated firmware. F9–F11 remain reserved.";
 "ESP32 invalid macro settings" = "Choose 3–5 repeats, 1–2000 ms hold and 1–60000 ms release interval.";
 "ESP32 macro shortcut reserved" = "F9–F11 are reserved for pause, reconnect and release.";
+
+"ESP32 Macro Output Key" = "Macro output key (default E)";
+"ESP32 invalid macro key" = "Enter one ordinary key, such as E, F, 1, F1, Space or Enter.";

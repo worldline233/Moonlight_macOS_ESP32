@@ -23,6 +23,17 @@ int main() {
             assert([ESP32InputBridge validationErrorForSettings:settings] != nil);
         }
         settings[@"shortcut_macro"] = @8;
+        assert([settings[@"macro_key"] isEqual:@"KeyE"]);
+        for (id invalid in @[@"ControlLeft", @"F13", @"typo", @42, @""]) {
+            settings[@"macro_key"] = invalid;
+            assert([ESP32InputBridge validationErrorForSettings:settings] != nil);
+        }
+        for (NSString *valid in @[@"E", @"g", @"1", @"F8", @"Space", @"Enter"]) {
+            settings[@"macro_key"] = valid;
+            assert([ESP32InputBridge validationErrorForSettings:settings] == nil);
+        }
+        settings[@"macro_key"] = @"KeyE";
+        settings[@"shortcut_macro"] = @8;
         assert([ESP32InputBridge validationErrorForSettings:settings] == nil);
         settings[@"address"] = @"ws://user:pass@127.0.0.1";
         assert([ESP32InputBridge validationErrorForSettings:settings] != nil);

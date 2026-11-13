@@ -113,7 +113,7 @@ class Handler(socketserver.StreamRequestHandler):
                     assert message['protocol'] == 2
                     reply = {'type': 'macro_status', 'running': False, 'protocol': 2,
                              'keyboard_nkro': True, 'keyboard_max_keys': 6 if self.server.bad else 16,
-                             'exclusive_latest_state': self.server.exclusive}
+                             'exclusive_latest_state': True, 'exclusive_configurable_key': self.server.exclusive}
                     encoded = json.dumps(reply, separators=(',', ':')).encode()
                     send_frame(self.wfile, 1, encoded)
         except (EOFError, BrokenPipeError, ConnectionResetError):
@@ -138,10 +138,11 @@ def check(binary, bad=False, lifecycle=False, macro=False, legacy=False):
     if macro:
         assert len(connections) == 1, connections
         records = connections[0]
-        commands = [m for m in records if m['type'] == 'exclusive_f']
+        commands = [m for m in records if m['type'] == 'exclusive_macro']
         assert len(commands) == (0 if legacy else 1), records
         if commands:
             command = commands[0]
+            assert command['key'] == 'KeyG'
             assert command['repeats'] == 5 and command['hold_ms'] == 2 and command['interval_ms'] == 2
             trigger = records.index(command)
             assert any(m.get('keys') == ['KeyW'] for m in records[:trigger])

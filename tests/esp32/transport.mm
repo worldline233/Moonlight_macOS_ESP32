@@ -21,6 +21,7 @@ int main(int argc, const char **argv) {
         settings[@"excluded_keys"] = @"KeyQ";
         settings[@"shortcut_macro"] = @8;
         settings[@"macro_repeats"] = @5;
+        settings[@"macro_key"] = @"g";
         assert([ESP32InputBridge saveSettings:settings forHost:host]);
         ESP32InputBridge *bridge = [[ESP32InputBridge alloc] initWithHostUUID:host];
         if (strcmp(argv[2], "macro") == 0 || strcmp(argv[2], "legacy_macro") == 0) {

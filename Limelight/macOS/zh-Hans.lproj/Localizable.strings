@@ -2098,11 +2098,14 @@
 /* Independent ESP32 status bar */
 "ESP32 Show Status Bar" = "显示独立 ESP32 状态条";
 
-"ESP32 F Macro Shortcut" = "F 抢占宏快捷键";
+"ESP32 Macro Shortcut" = "抢占宏触发快捷键";
 "ESP32 Macro Off" = "关闭";
-"ESP32 F Macro Repeats" = "F 重复次数";
-"ESP32 F Hold ms" = "F 按住时间（ms）";
-"ESP32 F Release ms" = "F 松开间隔（ms）";
-"ESP32 macro detail" = "Control+Option+Shift 加所选功能键触发 F 宏。默认 3 次，按住 2 ms、松开 2 ms。期间持续更新普通键盘和按钮状态，由 ESP 在结束后恢复最新状态；鼠标移动照常。需要新版固件，F9–F11 保留原用途。";
+"ESP32 Macro Repeats" = "重复次数";
+"ESP32 Macro Hold ms" = "按住时间（ms）";
+"ESP32 Macro Release ms" = "松开间隔（ms）";
+"ESP32 macro detail" = "Control+Option+Shift 加所选功能键触发抢占宏。输出按键可单独设置，默认 E，支持 E、F、1、F1、Space、Enter 等单个普通键。默认 3 次，按住 2 ms、松开 2 ms。期间持续更新普通键盘和按钮状态，由 ESP 在结束后恢复最新状态；鼠标移动照常。需要新版固件，F9–F11 保留原用途。";
 "ESP32 invalid macro settings" = "请选择 3–5 次、1–2000 ms 按住时间和 1–60000 ms 松开间隔。";
 "ESP32 macro shortcut reserved" = "F9–F11 已用于暂停、重连和释放，请选择其他功能键。";
+
+"ESP32 Macro Output Key" = "宏输出按键（默认 E）";
+"ESP32 invalid macro key" = "请输入 E、F、1、F1、Space、Enter 等单个普通键。";
