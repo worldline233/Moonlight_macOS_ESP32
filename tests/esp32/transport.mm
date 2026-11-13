@@ -3,7 +3,7 @@
 #include <cstring>
 #include <unistd.h>
 #include "ESP32PixelBufferReader.h"
-#include "fivetemplates.h"
+#include "fivedetector.h"
 
 static void settle(void) { usleep(150000); }
 static void waitReady(ESP32InputBridge *bridge) {

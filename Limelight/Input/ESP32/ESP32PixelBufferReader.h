@@ -1,4 +1,5 @@
 #pragma once
+#import <Foundation/Foundation.h>
 #import <CoreVideo/CoreVideo.h>
 #import <VideoToolbox/VideoToolbox.h>
 
