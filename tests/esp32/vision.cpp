@@ -1,6 +1,10 @@
 #include "fivedetector.h"
 #include <cassert>
 int main(){
+    FiveVision::Edge single(1);assert(single.update(5,1));assert(!single.update(5,12));
+    for(int i=0;i<3;++i)assert(!single.update(0,23+i*11));
+    assert(single.update(5,56));
+    FiveVision::Edge slow(2,1000);assert(!slow.update(5,1));assert(slow.update(5,1001));
     uint64_t t=1;FiveVision::Edge edge;
     assert(!edge.update(5,t+=30));assert(edge.update(5,t+=30));
     for(int i=0;i<200;++i)assert(!edge.update(5,t+=30));

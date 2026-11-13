@@ -2111,7 +2111,9 @@
 "ESP32 invalid macro key" = "请输入 E、F、1、F1、Space、Enter 等单个普通键。";
 
 "ESP32 Auto Five" = "检测到左下角图标数字 5 时自动执行宏";
-"ESP32 Auto Five Detail" = "连续确认后触发一次，图标消失或变为 3 后重新待命。使用提供的图标布局，随视频分辨率缩放定位；保存后重新串流生效。";
+"ESP32 Auto Five Detail" = "达到确认次数后触发一次；保持 5 或换位不重复，连续三次确认 0～4 后重新待命。确认 1 次更快，误触发风险更高；保存后重新串流生效。";
 
 "ESP32 Test Macro After Delay" = "测试 ESP32 宏（3 秒后执行）";
 "ESP32 Log Diagnostics" = "记录 ESP32 诊断信息";
+"ESP32 Vision Confirmations" = "连续确认次数（默认 2）";
+"ESP32 Vision Interval ms" = "最小采样间隔（ms，默认 10）";

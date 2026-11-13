@@ -2061,7 +2061,9 @@
 "ESP32 invalid macro key" = "Enter one ordinary key, such as E, F, 1, F1, Space or Enter.";
 
 "ESP32 Auto Five" = "Run macro when lower-left icon reaches 5";
-"ESP32 Auto Five Detail" = "Triggers once after two confirmations; rearms after the icon disappears or becomes 3. Uses the supplied HUD layout, scaled with the decoded video. Save and restart streaming to apply.";
+"ESP32 Auto Five Detail" = "Triggers after the selected number of confirmations. A persistent five stays latched across slots; three confirmed 0–4 samples rearm. One confirmation is faster but more prone to false triggers. Save and restart streaming to apply.";
 
 "ESP32 Test Macro After Delay" = "Test ESP32 macro in 3 seconds";
 "ESP32 Log Diagnostics" = "Record ESP32 diagnostics";
+"ESP32 Vision Confirmations" = "Consecutive confirmations (default 2)";
+"ESP32 Vision Interval ms" = "Minimum sample interval (ms, default 10)";

@@ -162,6 +162,8 @@ extension SettingsSearchIndex {
     SettingsSearchEntry(id: "keyboard/ESP32 USB Input/ESP32 Keyboard", pane: .keyboard, kind: .row, sectionKey: "ESP32 USB Input", titleKey: "ESP32 Keyboard", detailKey: nil, keywords: []),
     SettingsSearchEntry(id: "keyboard/ESP32 USB Input/ESP32 Mouse Buttons", pane: .keyboard, kind: .row, sectionKey: "ESP32 USB Input", titleKey: "ESP32 Mouse Buttons", detailKey: nil, keywords: []),
     SettingsSearchEntry(id: "keyboard/ESP32 USB Input/ESP32 Auto Five", pane: .keyboard, kind: .row, sectionKey: "ESP32 USB Input", titleKey: "ESP32 Auto Five", detailKey: nil, keywords: []),
+    SettingsSearchEntry(id: "keyboard/ESP32 USB Input/ESP32 Vision Confirmations", pane: .keyboard, kind: .row, sectionKey: "ESP32 USB Input", titleKey: "ESP32 Vision Confirmations", detailKey: nil, keywords: ["1", "2"]),
+    SettingsSearchEntry(id: "keyboard/ESP32 USB Input/ESP32 Vision Interval ms", pane: .keyboard, kind: .row, sectionKey: "ESP32 USB Input", titleKey: "ESP32 Vision Interval ms", detailKey: nil, keywords: []),
     SettingsSearchEntry(id: "keyboard/ESP32 USB Input/ESP32 Macro Shortcut", pane: .keyboard, kind: .row, sectionKey: "ESP32 USB Input", titleKey: "ESP32 Macro Shortcut", detailKey: nil, keywords: []),
     SettingsSearchEntry(id: "keyboard/ESP32 USB Input/ESP32 Macro Output Key", pane: .keyboard, kind: .row, sectionKey: "ESP32 USB Input", titleKey: "ESP32 Macro Output Key", detailKey: nil, keywords: []),
     SettingsSearchEntry(id: "keyboard/ESP32 USB Input/ESP32 Macro Repeats", pane: .keyboard, kind: .row, sectionKey: "ESP32 USB Input", titleKey: "ESP32 Macro Repeats", detailKey: nil, keywords: []),

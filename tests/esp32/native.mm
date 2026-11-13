@@ -10,13 +10,14 @@ int main() {
         [NSUserDefaults.standardUserDefaults setObject:@{@"macro_key":@"KeyE"} forKey:legacyStore];
         assert([[[ESP32InputBridge settingsForHost:host] objectForKey:@"macro_key"] isEqual:@"E"]);
         [NSUserDefaults.standardUserDefaults removeObjectForKey:legacyStore];
+        assert([settings[@"vision_confirmations"] isEqual:@2] && [settings[@"vision_interval_ms"] isEqual:@10]);
         settings[@"enabled"] = @YES;
         assert([settings[@"macro_repeats"] isEqual:@3]);
         assert([settings[@"macro_hold_ms"] isEqual:@2] && [settings[@"macro_interval_ms"] isEqual:@2]);
         settings[@"address"] = @"127.0.0.1";
         settings[@"access_key"] = @"123456";
         assert([ESP32InputBridge validationErrorForSettings:settings] == nil);
-        for (NSString *field in @[@"macro_repeats", @"macro_hold_ms", @"macro_interval_ms", @"shortcut_macro"]) {
+        for (NSString *field in @[@"macro_repeats", @"macro_hold_ms", @"macro_interval_ms", @"shortcut_macro", @"vision_confirmations", @"vision_interval_ms"]) {
             id original = settings[field];
             settings[field] = @3.5;
             assert([ESP32InputBridge validationErrorForSettings:settings] != nil);
@@ -26,6 +27,12 @@ int main() {
             settings[@"shortcut_macro"] = reserved;
             assert([ESP32InputBridge validationErrorForSettings:settings] != nil);
         }
+        settings[@"shortcut_macro"]=@8;
+        settings[@"vision_confirmations"]=@1;settings[@"vision_interval_ms"]=@1;
+        assert([ESP32InputBridge validationErrorForSettings:settings]==nil);
+        assert([ESP32InputBridge saveSettings:settings forHost:host]);
+        assert([[[ESP32InputBridge settingsForHost:host] objectForKey:@"vision_confirmations"] isEqual:@1]);
+        settings[@"vision_confirmations"]=@2;settings[@"vision_interval_ms"]=@10;
         settings[@"shortcut_macro"] = @8;
         assert([settings[@"macro_key"] isEqual:@"E"]);
         for (id invalid in @[@"ControlLeft", @"F13", @"typo", @42, @""]) {

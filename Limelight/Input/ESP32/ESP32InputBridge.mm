@@ -119,7 +119,7 @@ static NSURL *ESP32Endpoint(NSDictionary *settings) {
     NSDictionary *defaults = @{@"enabled": @NO, @"keyboard_enabled": @YES,
         @"mouse_enabled": @YES, @"mouse_buttons": @31, @"address": @"",
         @"port": @80, @"access_key": @"", @"excluded_keys": @"",
-        @"vision_enabled": @NO, @"shortcut_macro": @0, @"macro_key": @"E", @"macro_repeats": @3, @"macro_hold_ms": @2, @"macro_interval_ms": @2};
+        @"vision_enabled": @NO, @"vision_confirmations": @2, @"vision_interval_ms": @10, @"shortcut_macro": @0, @"macro_key": @"E", @"macro_repeats": @3, @"macro_hold_ms": @2, @"macro_interval_ms": @2};
     NSMutableDictionary *result = defaults.mutableCopy;
     if (hostUUID.length) {
         NSDictionary *saved = [NSUserDefaults.standardUserDefaults dictionaryForKey:[ESP32SettingsPrefix stringByAppendingString:hostUUID]];
@@ -142,7 +142,7 @@ static NSURL *ESP32Endpoint(NSDictionary *settings) {
          (![settings[@"mouse_enabled"] boolValue] || buttons.integerValue == 0))) return @"ESP32 select input";
     if (![settings[@"excluded_keys"] isKindOfClass:NSString.class]) return @"ESP32 invalid excluded keys";
     if (!ESP32MacroCode(settings[@"macro_key"] ?: @"KeyE")) return @"ESP32 invalid macro key";
-    NSDictionary *ranges = @{@"shortcut_macro": @[@0, @12, @0], @"macro_repeats": @[@3, @5, @3],
+    NSDictionary *ranges = @{@"vision_confirmations": @[@1,@2,@2], @"vision_interval_ms": @[@1,@1000,@10], @"shortcut_macro": @[@0, @12, @0], @"macro_repeats": @[@3, @5, @3],
                               @"macro_hold_ms": @[@1, @2000, @2], @"macro_interval_ms": @[@1, @60000, @2]};
     for (NSString *field in ranges) {
         NSArray *range = ranges[field];
@@ -184,6 +184,8 @@ static NSURL *ESP32Endpoint(NSDictionary *settings) {
         _statusText = @"ESP32 disabled";
         _queue = dispatch_queue_create("org.worldline233.moonlight.esp32", DISPATCH_QUEUE_SERIAL);
         _visionLastDigit = -99;
+        _visionEdge=FiveVision::Edge([_settings[@"vision_confirmations"] intValue],[_settings[@"vision_interval_ms"] intValue]);
+        ESP32Log(@"[vision-config] confirmations=%@ sample_interval_ms=%@ digit_alignment=+-1px",_settings[@"vision_confirmations"],_settings[@"vision_interval_ms"]);
         ESP32Log(@"[config] enabled=%d keyboard=%d vision=%d output=%@ repeats=%@ hold_ms=%@ interval_ms=%@ shortcut_F=%@", _enabled, _exclusive, [_settings[@"vision_enabled"] boolValue], _settings[@"macro_key"], _settings[@"macro_repeats"], _settings[@"macro_hold_ms"], _settings[@"macro_interval_ms"], _settings[@"shortcut_macro"]);
         _visionQueue = dispatch_queue_create("org.worldline233.esp32.vision", DISPATCH_QUEUE_SERIAL);
         _outbox = [NSMutableArray array];
@@ -373,7 +375,9 @@ static NSURL *ESP32Endpoint(NSDictionary *settings) {
     _sending = YES;
     NSURLSessionWebSocketTask *task = _task;
     __weak ESP32InputBridge *weakSelf = self;
+    NSTimeInterval sendStarted=NSProcessInfo.processInfo.systemUptime;
     [task sendMessage:[[NSURLSessionWebSocketMessage alloc] initWithString:text] completionHandler:^(NSError *error) {
+        if([fields[@"type"] isEqual:@"exclusive_macro"]) ESP32Log(@"[macro-performance] request=%@ send_completion_ms=%.3f success=%d usb_completion=unconfirmed",fields[@"request_id"],(NSProcessInfo.processInfo.systemUptime-sendStarted)*1000,error==nil);
         ESP32InputBridge *bridge = weakSelf;
         if (!bridge) return;
         dispatch_async(bridge->_queue, ^{
@@ -398,8 +402,10 @@ static NSURL *ESP32Endpoint(NSDictionary *settings) {
         return;
     }
     ++_pendingReports;
+    NSTimeInterval queuedAt=NSProcessInfo.processInfo.systemUptime;
     dispatch_async(_queue, ^{
         @synchronized (self) {
+            if([type isEqual:@"exclusive_macro"]) ESP32Log(@"[macro-performance] request=%@ worker_wait_ms=%.3f",fields[@"request_id"],(NSProcessInfo.processInfo.systemUptime-queuedAt)*1000);
             --self->_pendingReports;
             if (self->_stopped || self->_epoch != epoch ||
                 generation != (keyboard ? self->_keyboardGeneration : self->_mouseGeneration)) {
@@ -552,16 +558,18 @@ static NSURL *ESP32Endpoint(NSDictionary *settings) {
         }
         if (![reason isEqual:@"sampling"]) {if(_visionWasActive)++_visionGeneration;_visionWasActive=NO;return;}
         _visionWasActive=YES;
-        if (_visionBusy || now-_visionSampled<0.010) {++_visionSkipped;return;}
+        if (_visionBusy || now-_visionSampled<[_settings[@"vision_interval_ms"] doubleValue]/1000.0) {++_visionSkipped;return;}
         _visionBusy=YES;_visionSampled=now;generation=_visionGeneration;epoch=_epoch;
     }
     CVPixelBufferRetain(frame);
     dispatch_async(_visionQueue, ^{
+        NSTimeInterval workerStarted=NSProcessInfo.processInfo.systemUptime;
         FiveVision::Patch patch;bool valid=false;
         NSString *failure=@"unsupported_pixel_format";
         OSStatus conversionStatus=noErr;
         BOOL compressed=ESP32PixelBufferReader::compressed420(format);
         CVPixelBufferRef readable=compressed ? self->_pixelReader.convert(frame,conversionStatus) : frame;
+        NSTimeInterval readbackDone=NSProcessInfo.processInfo.systemUptime;
         OSType readableFormat=readable ? CVPixelBufferGetPixelFormatType(readable) : 0;
         if(compressed && (!readable || summary)) ESP32Log(@"[pixel-convert] source=0x%08x output=0x%08x status=%d elapsed_ms=%.2f",(unsigned)format,(unsigned)readableFormat,(int)conversionStatus,(NSProcessInfo.processInfo.systemUptime-now)*1000);
         if(compressed && !readable)failure=@"pixel_format_conversion_failed";
@@ -580,7 +588,9 @@ static NSURL *ESP32Endpoint(NSDictionary *settings) {
             } else failure=@"pixel_buffer_lock_failed";
         }
         CVPixelBufferRelease(frame);
+        NSTimeInterval extractDone=NSProcessInfo.processInfo.systemUptime;
         auto result=valid ? FiveVision::detect(patch) : FiveVision::Result{};
+        NSTimeInterval detectDone=NSProcessInfo.processInfo.systemUptime;
         @synchronized(self) {
             ++self->_visionSamples;
             NSTimeInterval finished=NSProcessInfo.processInfo.systemUptime;
@@ -593,6 +603,7 @@ static NSURL *ESP32Endpoint(NSDictionary *settings) {
             NSString *outcome=valid ? (result.digit==0 ? @"icon_absent" : result.digit==1 ? @"one_without_count" : result.digit==2 ? @"two" : result.digit==3 ? @"three" : result.digit==4 ? @"four" : result.digit==5 ? @"five" : @"below_threshold_or_unknown_digit") : failure;
             if(summary || result.digit!=self->_visionLastDigit || fire || ![self->_visionFailure isEqual:outcome]) {
                 ESP32Log(@"[recognition] valid=%d reason=%@ digit=%d slot=%d icon=%.4f one=%.4f two=%.4f three=%.4f four=%.4f five=%.4f margin=%.4f thresholds=(icon>=0.80 digit>=0.78 margin>=0.065) age_ms=%.2f current=%d fresh=%d trigger=%d confirmations=%d latched=%d",valid,outcome,result.digit,result.slot+1,result.icon,result.scores[1],result.scores[2],result.three,result.scores[4],result.five,result.margin,(finished-now)*1000,current,fresh,fire,self->_visionEdge.positiveCount(),self->_visionEdge.isLatched());
+                ESP32Log(@"[vision-performance] sample=%llu wait_ms=%.3f readback_ms=%.3f extract_ms=%.3f detect_ms=%.3f age_ms=%.3f confirmations_required=%@ sample_interval_ms=%@ digit_dx=%d digit_dy=%d frames=%llu samples=%llu skipped=%llu",self->_visionSamples,(workerStarted-now)*1000,(readbackDone-workerStarted)*1000,(extractDone-readbackDone)*1000,(detectDone-extractDone)*1000,(finished-now)*1000,self->_settings[@"vision_confirmations"],self->_settings[@"vision_interval_ms"],result.digitOffsetX,result.digitOffsetY,self->_visionFrames,self->_visionSamples,self->_visionSkipped);
                 self->_visionLastDigit=result.digit;self->_visionFailure=outcome;
             }
             if(fire) {ESP32Log(@"[vision-trigger] confirmed_five output=%@",self->_settings[@"macro_key"]);[self triggerExclusiveMacro];}

@@ -18,6 +18,8 @@ struct ESP32SettingsSection: View {
   @SwiftUI.State private var message = ""
   @SwiftUI.State private var macroShortcut = 0
   @SwiftUI.State private var visionEnabled = false
+  @SwiftUI.State private var visionConfirmations = 2
+  @SwiftUI.State private var visionInterval = 10
   @SwiftUI.State private var macroKey = "E"
   @SwiftUI.State private var macroRepeats = 3
   @SwiftUI.State private var macroHold = 2
@@ -31,7 +33,7 @@ struct ESP32SettingsSection: View {
     ["enabled": enabled, "keyboard_enabled": keyboard, "mouse_enabled": mouse,
      "mouse_buttons": buttons, "address": address, "port": Int(port) ?? 0,
      "access_key": accessKey, "excluded_keys": excluded,
-     "vision_enabled": visionEnabled, "shortcut_macro": macroShortcut, "macro_key": macroKey, "macro_repeats": macroRepeats,
+     "vision_enabled": visionEnabled, "vision_confirmations": visionConfirmations, "vision_interval_ms": visionInterval, "shortcut_macro": macroShortcut, "macro_key": macroKey, "macro_repeats": macroRepeats,
      "macro_hold_ms": macroHold, "macro_interval_ms": macroInterval]
   }
 
@@ -65,6 +67,18 @@ struct ESP32SettingsSection: View {
           Group {
             ToggleCell(title: "ESP32 Auto Five", boolBinding: $visionEnabled)
             Text(tr("ESP32 Auto Five Detail")).font(.caption).foregroundStyle(.secondary)
+            Group {
+              SettingsRow(title: "ESP32 Vision Confirmations") {
+                Picker("", selection: $visionConfirmations) {
+                  Text("1").tag(1)
+                  Text("2").tag(2)
+                }.labelsHidden().frame(width: 120)
+              }
+              SettingsRow(title: "ESP32 Vision Interval ms") {
+                Stepper(value: $visionInterval, in: 1...1000) { Text("\(visionInterval)") }.frame(width: 160)
+              }
+            }.disabled(!visionEnabled)
+
             SettingsRow(title: "ESP32 Macro Shortcut") {
               Picker("", selection: $macroShortcut) {
                 Text(tr("ESP32 Macro Off")).tag(0)
@@ -123,6 +137,8 @@ struct ESP32SettingsSection: View {
     excluded = saved["excluded_keys"] as? String ?? ""
     macroShortcut = saved["shortcut_macro"] as? Int ?? 0
     visionEnabled = saved["vision_enabled"] as? Bool ?? false
+    visionConfirmations = saved["vision_confirmations"] as? Int ?? 2
+    visionInterval = saved["vision_interval_ms"] as? Int ?? 10
     macroKey = saved["macro_key"] as? String ?? "E"
     if macroKey.hasPrefix("Key") && macroKey.count == 4 { macroKey = String(macroKey.suffix(1)) }
     if macroKey.hasPrefix("Digit") && macroKey.count == 6 { macroKey = String(macroKey.suffix(1)) }
