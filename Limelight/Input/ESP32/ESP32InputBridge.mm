@@ -541,7 +541,7 @@ static NSURL *ESP32Endpoint(NSDictionary *settings) {
         ++_visionFrames;_visionLastFrame=now;
         if (_visionFormat!=format || _visionWidth!=width || _visionHeight!=height) {
             _visionFormat=format;_visionWidth=width;_visionHeight=height;
-            ESP32Log(@"[frame] size=%zux%zu format=0x%08x planes=%zu reference=2560x1440 slots=3 search_roi=(800,1210,200,84) scaled_roi=(%.1f,%.1f,%.1f,%.1f)",width,height,(unsigned)format,CVPixelBufferGetPlaneCount(frame),800.0*width/2560,1210.0*height/1440,200.0*width/2560,84.0*height/1440);
+            ESP32Log(@"[frame] size=%zux%zu format=0x%08x planes=%zu reference=2560x1440 slots=3 search_roi=(684,1210,200,84) scaled_roi=(%.1f,%.1f,%.1f,%.1f)",width,height,(unsigned)format,CVPixelBufferGetPlaneCount(frame),684.0*width/2560,1210.0*height/1440,200.0*width/2560,84.0*height/1440);
         }
         NSString *reason=![_settings[@"vision_enabled"] boolValue] ? @"auto_disabled" : !_exclusive ? @"keyboard_not_owned" : !active ? @"input_not_captured" : _paused ? @"paused" : !_epoch ? @"esp_offline" : _stopped ? @"stopped" : @"sampling";
         summary=now-_visionLastSummary>=1;

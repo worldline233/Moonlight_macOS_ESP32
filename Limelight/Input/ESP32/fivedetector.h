@@ -8,11 +8,12 @@ namespace FiveVision {
 constexpr int Size=84;
 constexpr int SlotCount=3, SlotSpacing=58;
 constexpr int Width=Size+(SlotCount-1)*SlotSpacing, Height=Size;
-constexpr int OriginX=800, OriginY=1210;
+constexpr int OriginX=800-(SlotCount-1)*SlotSpacing, OriginY=1210;
 constexpr double IconThreshold=0.80, DigitThreshold=0.78, DigitMargin=0.065;
 using Patch=std::array<uint8_t,Width*Height>;
 // Pixel-centre coordinates in the decoded source, independent of window size.
-// The original first-slot ROI is extended by two equal toolbar slot spacings.
+// The original rightmost slot is retained; two equal slots extend to its left.
+// Slot indices increase from left to right.
 template<class Pixel> bool extract(int w,int h,Pixel pixel,Patch& out) {
     if(w<1280 || h<720 || w>7680 || h>4320 || std::abs(double(w)/h-16.0/9)>0.02) return false;
     for(int y=0;y<Height;++y) for(int x=0;x<Width;++x) {

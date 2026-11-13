@@ -56,9 +56,9 @@ static CVPixelBufferRef quantityFixture(int digit,int slot) {
     auto *base=(uint8_t*)CVPixelBufferGetBaseAddressOfPlane(frame,0);size_t pitch=CVPixelBufferGetBytesPerRowOfPlane(frame,0);
     memset(base,43,pitch*1440);memset(CVPixelBufferGetBaseAddressOfPlane(frame,1),128,CVPixelBufferGetBytesPerRowOfPlane(frame,1)*720);
     if(digit){
-        for(int y=0;y<43;++y)memcpy(base+(1226+y)*pitch+818+58*slot,FiveVision::Icon+48*y,48);
+        for(int y=0;y<43;++y)memcpy(base+(1226+y)*pitch+702+58*slot,FiveVision::Icon+48*y,48);
         const uint8_t (*templates[])[88]={FiveVision::Digits1,FiveVision::Digits2,FiveVision::Digits3,FiveVision::Digits4,FiveVision::Digits5};
-        for(int y=0;y<11;++y)memcpy(base+(1270+y)*pitch+842+58*slot,templates[digit-1][3]+8*y,8);
+        for(int y=0;y<11;++y)memcpy(base+(1270+y)*pitch+726+58*slot,templates[digit-1][3]+8*y,8);
     }
     FiveVision::Patch patch;assert(FiveVision::extract(2560,1440,[&](int x,int y){return int(base[y*pitch+x]);},patch));
     auto result=FiveVision::detect(patch);assert(result.digit==digit);if(digit)assert(result.slot==slot);
