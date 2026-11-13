@@ -16,3 +16,5 @@
 本项目使用 Xcode 原生工程。GitHub Actions 提供手动触发的 Apple Silicon 构建；项目仓库为 [worldline233/Moonlight_macOS_ESP32](https://github.com/worldline233/Moonlight_macOS_ESP32)。开发包停用上游自动更新。
 
 上游说明保存在 [README.upstream.md](README.upstream.md) 和 [README.en.md](README.en.md)，作者与依赖致谢见 [ACKNOWLEDGEMENTS.md](ACKNOWLEDGEMENTS.md)。GPLv3 授权沿用 [LICENSE.txt](LICENSE.txt)。
+
+数字识别使用解码源画面，与客户端窗口大小无关。720p–8K 的 16:9 缩放模拟已检查；原生不同 UI 比例或图标位置仍需实测。Windows 后台显卡读回仅保留一帧，Mac 后台读取亮度区域；暂停、失焦、断线时不执行自动宏。HDR、不同布局与 1/2/4 未提供样本。

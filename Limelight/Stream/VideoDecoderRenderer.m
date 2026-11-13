@@ -3652,6 +3652,8 @@ void decompressionOutputCallback(void *decompressionOutputRefCon, void *sourceFr
                           duration:(CMTime)duration
                       frameContext:(const MLDecodeFrameContext *)frameContext
 {
+    void (^observer)(CVPixelBufferRef) = self.decodedFrameObserver;
+    if (observer) observer(imageBuffer);
     OSType pixelFormat = CVPixelBufferGetPixelFormatType(imageBuffer);
     size_t planeCount = CVPixelBufferGetPlaneCount(imageBuffer);
     if (_lastLoggedDecodedPixelFormat != pixelFormat || _lastLoggedDecodedPlaneCount != planeCount) {

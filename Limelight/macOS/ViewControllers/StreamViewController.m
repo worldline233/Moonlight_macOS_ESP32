@@ -2125,6 +2125,11 @@ highFreqMotor:(unsigned short)highFreqMotor {
         [self refreshInputDiagnosticsPreference];
         NSUInteger startupGeneration = self.activeStreamGeneration;
         __weak typeof(self) weakStartupSelf = self;
+        __weak HIDSupport *visionInput = self.hidSupport;
+        self.streamMan.connection.renderer.decodedFrameObserver = ^(CVPixelBufferRef frame) {
+            HIDSupport *input = visionInput;
+            [input.esp32Input observeVideoFrame:frame active:input.shouldSendInputEvents];
+        };
         self.streamMan.connection.renderer.firstFramePresentedHandler = ^{
             // Called on the thread that counted the frame; the indicator is main-thread state.
             dispatch_async(dispatch_get_main_queue(), ^{

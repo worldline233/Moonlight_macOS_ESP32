@@ -2109,3 +2109,6 @@
 
 "ESP32 Macro Output Key" = "宏输出按键（默认 E）";
 "ESP32 invalid macro key" = "请输入 E、F、1、F1、Space、Enter 等单个普通键。";
+
+"ESP32 Auto Five" = "检测到左下角图标数字 5 时自动执行宏";
+"ESP32 Auto Five Detail" = "连续确认后触发一次，图标消失或变为 3 后重新待命。使用提供的图标布局，随视频分辨率缩放定位；保存后重新串流生效。";

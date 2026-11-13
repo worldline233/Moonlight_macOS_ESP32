@@ -2059,3 +2059,6 @@
 
 "ESP32 Macro Output Key" = "Macro output key (default E)";
 "ESP32 invalid macro key" = "Enter one ordinary key, such as E, F, 1, F1, Space or Enter.";
+
+"ESP32 Auto Five" = "Run macro when lower-left icon reaches 5";
+"ESP32 Auto Five Detail" = "Triggers once after two confirmations; rearms after the icon disappears or becomes 3. Uses the supplied HUD layout, scaled with the decoded video. Save and restart streaming to apply.";

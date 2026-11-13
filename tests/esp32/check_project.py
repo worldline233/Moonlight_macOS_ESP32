@@ -89,7 +89,13 @@ def main():
     ET.parse(ROOT/'Moonlight.xcodeproj/xcshareddata/xcschemes/Moonlight for macOS.xcscheme')
     for path in ('Limelight/Input/CoreHIDMouseDriver.swift', 'Limelight/Stream/VideoDecoderRenderer.m'):
         upstream = subprocess.check_output(['git', 'show', 'c4dd84daa6440468f4e9a2e48f8c482f24bec965:' + path], cwd=ROOT).decode().replace('\r\n', '\n')
-        assert (ROOT/path).read_text() == upstream, ('upstream implementation changed', path)
+        actual = (ROOT/path).read_text()
+        if path.endswith('VideoDecoderRenderer.m'):
+            observer = ('    void (^observer)(CVPixelBufferRef) = self.decodedFrameObserver;\n'
+                        '    if (observer) observer(imageBuffer);\n')
+            assert actual.count(observer) == 1, 'Only one observer hook is permitted'
+            actual = actual.replace(observer, '')
+        assert actual == upstream, ('upstream implementation changed beyond observer', path)
     print(f'Project graph: passed ({len(sources)} sources, {len(resources)} resources; separate identity; upstream CoreHID/video retained)')
 
 if __name__ == '__main__':

@@ -88,6 +88,8 @@ typedef struct {
 // Called on the main queue when a decoded frame has a different size than the one before
 // (the first frame included), with that size in pixels.
 @property(copy) void (^decodedSizeChangedHandler)(CGSize size);
+// Observer receives the decoded source before presentation scaling.
+@property(atomic, copy) void (^decodedFrameObserver)(CVPixelBufferRef frame);
 // The last decoded frame as an image no wider than maxWidth, or NULL before the first one.
 // Safe on any thread; the caller releases the image.
 - (CGImageRef)copyLastFrameImageWithMaxWidth:(CGFloat)maxWidth CF_RETURNS_RETAINED;

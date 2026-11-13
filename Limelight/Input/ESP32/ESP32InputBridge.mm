@@ -3,6 +3,7 @@
 #include "ESP32KeyboardRouter.h"
 #include "ESP32MouseRouter.h"
 #include <limits>
+#include "fivedetector.h"
 #import <dispatch/dispatch.h>
 
 static NSString *ESP32MacroCode(id value) {
@@ -70,6 +71,11 @@ static NSURL *ESP32Endpoint(NSDictionary *settings) {
 @end
 
 @implementation ESP32InputBridge {
+    dispatch_queue_t _visionQueue;
+    BOOL _visionBusy, _visionWasActive;
+    uint64_t _visionGeneration;
+    NSTimeInterval _visionSampled;
+    FiveVision::Edge _visionEdge;
     NSDictionary *_settings;
     NSURL *_endpoint;
     NSSet<NSString *> *_excluded;
@@ -96,7 +102,7 @@ static NSURL *ESP32Endpoint(NSDictionary *settings) {
     NSDictionary *defaults = @{@"enabled": @NO, @"keyboard_enabled": @YES,
         @"mouse_enabled": @YES, @"mouse_buttons": @31, @"address": @"",
         @"port": @80, @"access_key": @"", @"excluded_keys": @"",
-        @"shortcut_macro": @0, @"macro_key": @"KeyE", @"macro_repeats": @3, @"macro_hold_ms": @2, @"macro_interval_ms": @2};
+        @"vision_enabled": @NO, @"shortcut_macro": @0, @"macro_key": @"KeyE", @"macro_repeats": @3, @"macro_hold_ms": @2, @"macro_interval_ms": @2};
     NSMutableDictionary *result = defaults.mutableCopy;
     if (hostUUID.length) {
         NSDictionary *saved = [NSUserDefaults.standardUserDefaults dictionaryForKey:[ESP32SettingsPrefix stringByAppendingString:hostUUID]];
@@ -156,6 +162,7 @@ static NSURL *ESP32Endpoint(NSDictionary *settings) {
         _excluded = excluded.copy;
         _statusText = @"ESP32 disabled";
         _queue = dispatch_queue_create("org.worldline233.moonlight.esp32", DISPATCH_QUEUE_SERIAL);
+        _visionQueue = dispatch_queue_create("org.worldline233.esp32.vision", DISPATCH_QUEUE_SERIAL);
         _outbox = [NSMutableArray array];
         if (_enabled) {
             if ([self.class validationErrorForSettings:_settings]) {
@@ -431,6 +438,7 @@ static NSURL *ESP32Endpoint(NSDictionary *settings) {
     }
 }
 - (void)releaseAll {
+    @synchronized(self) { ++_visionGeneration; }
     @synchronized (self) {
         _keyboard.cancel(); _mouse.cancel();
         ++_keyboardGeneration; ++_mouseGeneration;
@@ -460,6 +468,45 @@ static NSURL *ESP32Endpoint(NSDictionary *settings) {
             @"interval_ms": _settings[@"macro_interval_ms"] ?: @2
         } keyboard:YES];
     }
+}
+- (void)observeVideoFrame:(CVPixelBufferRef)frame active:(BOOL)active {
+    if (![_settings[@"vision_enabled"] boolValue] || !_exclusive) return;
+    NSTimeInterval now = NSProcessInfo.processInfo.systemUptime;
+    uint64_t generation,epoch;
+    @synchronized(self) {
+        if (!active || _paused || !_epoch || _stopped) {
+            if (_visionWasActive) ++_visionGeneration;
+            _visionWasActive=NO; return;
+        }
+        _visionWasActive=YES;
+        if (_visionBusy || now-_visionSampled<0.025) return;
+        _visionBusy=YES;_visionSampled=now;generation=_visionGeneration;epoch=_epoch;
+    }
+    CVPixelBufferRetain(frame);
+    dispatch_async(_visionQueue, ^{
+        FiveVision::Patch patch;bool valid=false;
+        OSType format=CVPixelBufferGetPixelFormatType(frame);
+        bool ten = format==kCVPixelFormatType_420YpCbCr10BiPlanarVideoRange || format==kCVPixelFormatType_420YpCbCr10BiPlanarFullRange;
+        bool eight = format==kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange || format==kCVPixelFormatType_420YpCbCr8BiPlanarFullRange;
+        if ((eight || ten) && CVPixelBufferLockBaseAddress(frame,kCVPixelBufferLock_ReadOnly)==kCVReturnSuccess) {
+            const uint8_t *base=(const uint8_t*)CVPixelBufferGetBaseAddressOfPlane(frame,0);
+            size_t stride=CVPixelBufferGetBytesPerRowOfPlane(frame,0);
+            if(base)valid=FiveVision::extract((int)CVPixelBufferGetWidth(frame),(int)CVPixelBufferGetHeight(frame),[&](int x,int y){
+                const uint8_t *p=base+y*stride+x*(ten?2:1);
+                return ten ? int((p[0]|(p[1]<<8))>>8) : int(*p);
+            },patch);
+            CVPixelBufferUnlockBaseAddress(frame,kCVPixelBufferLock_ReadOnly);
+        }
+        CVPixelBufferRelease(frame);
+        auto result=valid ? FiveVision::detect(patch) : FiveVision::Result{};
+        @synchronized(self) {
+            NSTimeInterval finished=NSProcessInfo.processInfo.systemUptime;
+            if (generation==self->_visionGeneration && epoch==self->_epoch && !self->_stopped && !self->_paused && finished-now<0.1) {
+                if (valid && self->_visionEdge.update(result.digit,(uint64_t)(finished*1000))) [self triggerExclusiveMacro];
+            } else self->_visionEdge.reset();
+            self->_visionBusy=NO;
+        }
+    });
 }
 - (void)togglePaused {
     @synchronized (self) { _paused = !_paused; [self releaseAll]; }

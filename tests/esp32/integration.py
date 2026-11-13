@@ -214,7 +214,7 @@ def main():
         output = Path(directory)
         for name in ('native', 'transport'):
             binary = output/name
-            subprocess.run(['xcrun', 'clang++', '-std=c++14', '-fobjc-arc', '-fblocks', '-framework', 'Foundation',
+            subprocess.run(['xcrun', 'clang++', '-std=c++14', '-fobjc-arc', '-fblocks', '-framework', 'Foundation', '-framework', 'CoreVideo',
                             '-I', str(ROOT/'Limelight/Input/ESP32'), str(ROOT/f'tests/esp32/{name}.mm'),
                             str(ROOT/'Limelight/Input/ESP32/ESP32InputBridge.mm'), '-o', str(binary)], check=True)
             if name == 'native':

@@ -17,6 +17,7 @@ struct ESP32SettingsSection: View {
   @SwiftUI.State private var excluded = ""
   @SwiftUI.State private var message = ""
   @SwiftUI.State private var macroShortcut = 0
+  @SwiftUI.State private var visionEnabled = false
   @SwiftUI.State private var macroKey = "E"
   @SwiftUI.State private var macroRepeats = 3
   @SwiftUI.State private var macroHold = 2
@@ -30,7 +31,7 @@ struct ESP32SettingsSection: View {
     ["enabled": enabled, "keyboard_enabled": keyboard, "mouse_enabled": mouse,
      "mouse_buttons": buttons, "address": address, "port": Int(port) ?? 0,
      "access_key": accessKey, "excluded_keys": excluded,
-     "shortcut_macro": macroShortcut, "macro_key": macroKey, "macro_repeats": macroRepeats,
+     "vision_enabled": visionEnabled, "shortcut_macro": macroShortcut, "macro_key": macroKey, "macro_repeats": macroRepeats,
      "macro_hold_ms": macroHold, "macro_interval_ms": macroInterval]
   }
 
@@ -62,6 +63,8 @@ struct ESP32SettingsSection: View {
             }
           }
           Group {
+            ToggleCell(title: "ESP32 Auto Five", boolBinding: $visionEnabled)
+            Text(tr("ESP32 Auto Five Detail")).font(.caption).foregroundStyle(.secondary)
             SettingsRow(title: "ESP32 Macro Shortcut") {
               Picker("", selection: $macroShortcut) {
                 Text(tr("ESP32 Macro Off")).tag(0)
@@ -119,6 +122,7 @@ struct ESP32SettingsSection: View {
     accessKey = saved["access_key"] as? String ?? ""
     excluded = saved["excluded_keys"] as? String ?? ""
     macroShortcut = saved["shortcut_macro"] as? Int ?? 0
+    visionEnabled = saved["vision_enabled"] as? Bool ?? false
     macroKey = saved["macro_key"] as? String ?? "E"
     macroRepeats = saved["macro_repeats"] as? Int ?? 3
     macroHold = saved["macro_hold_ms"] as? Int ?? 2

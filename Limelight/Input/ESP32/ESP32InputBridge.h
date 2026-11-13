@@ -1,4 +1,5 @@
 #import <Foundation/Foundation.h>
+#import <CoreVideo/CoreVideo.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -25,6 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)releaseAll;
 - (BOOL)isExclusiveMacroKeyCode:(unsigned short)keyCode;
 - (void)triggerExclusiveMacro;
+- (void)observeVideoFrame:(CVPixelBufferRef)frame active:(BOOL)active;
 - (void)togglePaused;
 - (void)reconnect;
 // Coherent, thread-safe snapshot of basic input connection state.
