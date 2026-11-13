@@ -77,6 +77,24 @@ static void testThreeSlots(ESP32InputBridge *bridge){
         for(int i=0;i<3;++i){[bridge observeVideoFrame:frame active:YES];usleep(80000);}
         CVPixelBufferRelease(frame);
     }
+    // Deterministically leave an old sample in flight across pause/resume.
+    // KVC accesses the existing serial queue only in this native regression.
+    dispatch_queue_t visionQueue=(dispatch_queue_t)[bridge valueForKey:@"visionQueue"];
+    assert(visionQueue);
+    dispatch_semaphore_t entered=dispatch_semaphore_create(0),resume=dispatch_semaphore_create(0);
+    dispatch_async(visionQueue,^{dispatch_semaphore_signal(entered);dispatch_semaphore_wait(resume,DISPATCH_TIME_FOREVER);});
+    assert(dispatch_semaphore_wait(entered,dispatch_time(DISPATCH_TIME_NOW,2*NSEC_PER_SEC))==0);
+    CVPixelBufferRef heldFive=quantityFixture(5,0);
+    [bridge observeVideoFrame:heldFive active:YES];
+    [bridge togglePaused];[bridge togglePaused];
+    dispatch_semaphore_signal(resume);
+    usleep(150000);
+    for(int i=0;i<3;++i){[bridge observeVideoFrame:heldFive active:YES];usleep(80000);}
+    // With no in-flight work, the exact same transition must behave identically.
+    [bridge togglePaused];[bridge togglePaused];
+    for(int i=0;i<3;++i){[bridge observeVideoFrame:heldFive active:YES];usleep(80000);}
+    CVPixelBufferRelease(heldFive);
+    NSLog(@"VISION_PAUSE_LIFECYCLE_PASSED unchanged_five_macros=1 stale_worker_cannot_reset_latch");
     NSLog(@"THREE_SLOT_FIXTURE_PASSED states=18 moving_five_macros=1");
 }
 static void testPixelReader(ESP32InputBridge *bridge) {

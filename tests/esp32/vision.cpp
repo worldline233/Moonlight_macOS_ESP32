@@ -5,6 +5,11 @@ int main(){
     for(int i=0;i<3;++i)assert(!single.update(0,23+i*11));
     assert(single.update(5,56));
     FiveVision::Edge slow(2,1000);assert(!slow.update(5,1));assert(slow.update(5,1001));
+    FiveVision::Edge resumed;
+    assert(!resumed.update(5,1));resumed.interrupt();
+    assert(!resumed.update(5,12));assert(resumed.update(5,23));
+    resumed.interrupt();resumed.interrupt();
+    assert(!resumed.update(5,34));assert(!resumed.update(5,45));
     uint64_t t=1;FiveVision::Edge edge;
     assert(!edge.update(5,t+=30));assert(edge.update(5,t+=30));
     for(int i=0;i<200;++i)assert(!edge.update(5,t+=30));

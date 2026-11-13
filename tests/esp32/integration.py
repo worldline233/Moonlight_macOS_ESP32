@@ -154,10 +154,11 @@ def check(binary, bad=False, lifecycle=False, macro=False, legacy=False, vision=
         assert len(commands)==1, connections
         assert all(m['key']=='KeyG' for m in commands), commands
         assert 'COMPRESSED_FIXTURE_' in log and 'LINEAR_DECODE_FIXTURE_PASSED' in log and 'THREE_SLOT_FIXTURE_PASSED' in log, log
+        assert 'VISION_PAUSE_LIFECYCLE_PASSED' in log, log
         result=next(line for line in log.splitlines() if 'COMPRESSED_FIXTURE_' in line)
         print(result)
         output=ROOT/'build';output.mkdir(exist_ok=True)
-        (output/'esp32-pixel-format-validation.json').write_text(json.dumps({'compressed_fixture_exercised':'COMPRESSED_FIXTURE_PASSED' in result,'result':result,'macro_commands':len(commands),'native_conversion_and_recognition_passed':True,'real_linear_video_decode_recognition_and_macro_passed':True,'three_slot_state_sequences_passed':True},indent=2)+'\n')
+        (output/'esp32-pixel-format-validation.json').write_text(json.dumps({'compressed_fixture_exercised':'COMPRESSED_FIXTURE_PASSED' in result,'result':result,'macro_commands':len(commands),'native_conversion_and_recognition_passed':True,'real_linear_video_decode_recognition_and_macro_passed':True,'three_slot_state_sequences_passed':True,'pause_lifecycle_passed':True},indent=2)+'\n')
         print('Native vision diagnostics: passed (frames, scores, unsupported formats, dimensions, pause, focus, no false macro)')
         return
     if macro:

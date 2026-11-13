@@ -84,6 +84,8 @@ class Edge {
 public:
     explicit Edge(int confirmations=2,int intervalMs=10):requiredPositive(std::max(1,std::min(2,confirmations))),maxGap(uint64_t(std::max(150,std::max(1,std::min(1000,intervalMs))*3))){}
     void reset(){latched=false;positive=negative=0;last=0;}
+    // Losing capture or pausing breaks confirmations, not an already sent five.
+    void interrupt(){positive=negative=0;last=0;}
     bool isLatched() const{return latched;}
     int positiveCount() const{return positive;}
     bool update(int digit,uint64_t ms) {
