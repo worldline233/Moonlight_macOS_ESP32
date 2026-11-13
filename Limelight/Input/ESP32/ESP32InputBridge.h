@@ -29,6 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)triggerExclusiveMacro;
 - (void)logDiagnostics;
 - (void)noteVideoPath:(NSString *)path captureActive:(BOOL)active;
+// active is input capture; automatic vision has no additional window-focus gate.
 - (void)observeVideoFrame:(CVPixelBufferRef)frame active:(BOOL)active;
 - (void)togglePaused;
 - (void)reconnect;
