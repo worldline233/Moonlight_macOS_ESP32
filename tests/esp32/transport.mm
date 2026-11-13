@@ -1,7 +1,6 @@
 #import "ESP32InputBridge.h"
 #include <cassert>
 #include <cstring>
-#include <cstring>
 #include <unistd.h>
 
 static void settle(void) { usleep(150000); }

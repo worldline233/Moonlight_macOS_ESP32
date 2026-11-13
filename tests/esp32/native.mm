@@ -6,6 +6,10 @@ int main() {
         NSString *host = [@"esp32-test-" stringByAppendingString:NSUUID.UUID.UUIDString];
         NSMutableDictionary *settings = [[ESP32InputBridge settingsForHost:host] mutableCopy];
         assert(![settings[@"enabled"] boolValue]);
+        NSString *legacyStore=[@"esp32.input.host." stringByAppendingString:host];
+        [NSUserDefaults.standardUserDefaults setObject:@{@"macro_key":@"KeyE"} forKey:legacyStore];
+        assert([[[ESP32InputBridge settingsForHost:host] objectForKey:@"macro_key"] isEqual:@"E"]);
+        [NSUserDefaults.standardUserDefaults removeObjectForKey:legacyStore];
         settings[@"enabled"] = @YES;
         assert([settings[@"macro_repeats"] isEqual:@3]);
         assert([settings[@"macro_hold_ms"] isEqual:@2] && [settings[@"macro_interval_ms"] isEqual:@2]);

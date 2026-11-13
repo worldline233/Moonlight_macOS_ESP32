@@ -278,7 +278,7 @@ static NSURL *ESP32Endpoint(NSDictionary *settings) {
                 [bridge setStatusOnQueue:@"ESP32 connected"];
             }
             if ([decoded[@"type"] isEqual:@"macro_status"]) {
-                ESP32Log(@"[device-status] running=%d phase=%@ completed_steps=%@ remaining_ms=%@ (status snapshot, not USB completion acknowledgement)", [decoded[@"running"] boolValue], [@[@"idle",@"active",@"resting",@"stopping"] containsObject:decoded[@"phase"] ?: @""] ? decoded[@"phase"] : @"unknown", [decoded[@"completed_steps"] isKindOfClass:NSNumber.class] ? decoded[@"completed_steps"] : @0, [decoded[@"total_remaining_ms"] isKindOfClass:NSNumber.class] ? decoded[@"total_remaining_ms"] : @0);
+                ESP32Log(@"[device-status] running=%d phase=%@ completed_steps=%@ remaining_ms=%@ (status snapshot, not USB completion acknowledgement)", [decoded[@"running"] boolValue], [@[@"idle",@"active",@"resting",@"stopping",@"stopped"] containsObject:decoded[@"phase"] ?: @""] ? decoded[@"phase"] : @"unknown", [decoded[@"completed_steps"] isKindOfClass:NSNumber.class] ? decoded[@"completed_steps"] : @0, [decoded[@"total_remaining_ms"] isKindOfClass:NSNumber.class] ? decoded[@"total_remaining_ms"] : @0);
             }
             [bridge receiveOnQueue:task];
         });
@@ -356,7 +356,10 @@ static NSURL *ESP32Endpoint(NSDictionary *settings) {
         @synchronized (self) {
             if (kind == 3 && _paused) { ESP32Log(@"[macro] dropped reason=paused request=%@", entry[@"payload"][@"request_id"]); continue; }
             if (kind && (_stopped || !_epoch || [entry[@"epoch"] unsignedLongLongValue] != _epoch ||
-                [entry[@"generation"] unsignedLongLongValue] != (kind == 2 ? _mouseGeneration : _keyboardGeneration))) continue;
+                [entry[@"generation"] unsignedLongLongValue] != (kind == 2 ? _mouseGeneration : _keyboardGeneration))) {
+                if(kind==3) ESP32Log(@"[macro] dropped reason=stale_queue_entry request=%@",entry[@"payload"][@"request_id"]);
+                continue;
+            }
         }
         fields = entry[@"payload"];
         break;
@@ -507,6 +510,12 @@ static NSURL *ESP32Endpoint(NSDictionary *settings) {
 }
 - (void)logDiagnostics {
     @synchronized(self) {
+        uint64_t epoch=_epoch;
+        if(epoch && !_stopped) dispatch_async(_queue, ^{
+            @synchronized(self) { if(epoch==self->_epoch && !self->_stopped) {
+                ESP32Log(@"[device-status] querying current macro state");[self appendOnQueue:@"macro_status" fields:@{}];
+            } }
+        });
         NSTimeInterval now=NSProcessInfo.processInfo.systemUptime;
         ESP32Log(@"[snapshot] keyboard=%d vision=%d ready=%d paused=%d stopped=%d path=%@ frames=%llu samples=%llu skipped=%llu frame_age_ms=%.1f format=0x%08x size=%zux%zu reason=%@", _exclusive, [_settings[@"vision_enabled"] boolValue], _epoch!=0, _paused, _stopped, _videoPath ?: @"observer_not_attached", _visionFrames, _visionSamples, _visionSkipped, _visionLastFrame ? (now-_visionLastFrame)*1000 : -1, (unsigned)_visionFormat, _visionWidth, _visionHeight, _visionReason ?: @"waiting_for_frame");
     }
