@@ -541,7 +541,7 @@ static NSURL *ESP32Endpoint(NSDictionary *settings) {
         ++_visionFrames;_visionLastFrame=now;
         if (_visionFormat!=format || _visionWidth!=width || _visionHeight!=height) {
             _visionFormat=format;_visionWidth=width;_visionHeight=height;
-            ESP32Log(@"[frame] size=%zux%zu format=0x%08x planes=%zu reference=2560x1440 search_roi=(800,1210,84,84) scaled_roi=(%.1f,%.1f,%.1f,%.1f)",width,height,(unsigned)format,CVPixelBufferGetPlaneCount(frame),800.0*width/2560,1210.0*height/1440,84.0*width/2560,84.0*height/1440);
+            ESP32Log(@"[frame] size=%zux%zu format=0x%08x planes=%zu reference=2560x1440 slots=3 search_roi=(800,1210,200,84) scaled_roi=(%.1f,%.1f,%.1f,%.1f)",width,height,(unsigned)format,CVPixelBufferGetPlaneCount(frame),800.0*width/2560,1210.0*height/1440,200.0*width/2560,84.0*height/1440);
         }
         NSString *reason=![_settings[@"vision_enabled"] boolValue] ? @"auto_disabled" : !_exclusive ? @"keyboard_not_owned" : !active ? @"input_not_captured" : _paused ? @"paused" : !_epoch ? @"esp_offline" : _stopped ? @"stopped" : @"sampling";
         summary=now-_visionLastSummary>=1;
@@ -588,10 +588,11 @@ static NSURL *ESP32Endpoint(NSDictionary *settings) {
             BOOL fresh=finished-now<0.1;
             BOOL fire=NO;
             if(current && fresh && valid) fire=self->_visionEdge.update(result.digit,(uint64_t)(finished*1000));
-            else self->_visionEdge.reset();
-            NSString *outcome=valid ? (result.digit==5 ? @"five" : result.digit==3 ? @"three" : result.digit==-1 ? @"icon_absent" : @"below_threshold_or_unknown_digit") : failure;
+            else if(!current) self->_visionEdge.reset();
+            else self->_visionEdge.update(-1,(uint64_t)(finished*1000));
+            NSString *outcome=valid ? (result.digit==0 ? @"icon_absent" : result.digit==1 ? @"one_without_count" : result.digit==2 ? @"two" : result.digit==3 ? @"three" : result.digit==4 ? @"four" : result.digit==5 ? @"five" : @"below_threshold_or_unknown_digit") : failure;
             if(summary || result.digit!=self->_visionLastDigit || fire || ![self->_visionFailure isEqual:outcome]) {
-                ESP32Log(@"[recognition] valid=%d reason=%@ digit=%d icon=%.4f five=%.4f three=%.4f margin=%.4f thresholds=(icon>=0.80 digit>=0.78 margin>=0.065) age_ms=%.2f current=%d fresh=%d trigger=%d confirmations=%d latched=%d",valid,outcome,result.digit,result.icon,result.five,result.three,result.five-result.three,(finished-now)*1000,current,fresh,fire,self->_visionEdge.positiveCount(),self->_visionEdge.isLatched());
+                ESP32Log(@"[recognition] valid=%d reason=%@ digit=%d slot=%d icon=%.4f one=%.4f two=%.4f three=%.4f four=%.4f five=%.4f margin=%.4f thresholds=(icon>=0.80 digit>=0.78 margin>=0.065) age_ms=%.2f current=%d fresh=%d trigger=%d confirmations=%d latched=%d",valid,outcome,result.digit,result.slot+1,result.icon,result.scores[1],result.scores[2],result.three,result.scores[4],result.five,result.margin,(finished-now)*1000,current,fresh,fire,self->_visionEdge.positiveCount(),self->_visionEdge.isLatched());
                 self->_visionLastDigit=result.digit;self->_visionFailure=outcome;
             }
             if(fire) {ESP32Log(@"[vision-trigger] confirmed_five output=%@",self->_settings[@"macro_key"]);[self triggerExclusiveMacro];}

@@ -49,6 +49,36 @@ static CVPixelBufferRef decodeCompressedFixture(CVPixelBufferRef source,OSStatus
     if(fixture.frame)status=noErr;
     return fixture.frame;
 }
+static CVPixelBufferRef quantityFixture(int digit,int slot) {
+    CVPixelBufferRef frame=nullptr;
+    assert(CVPixelBufferCreate(kCFAllocatorDefault,2560,1440,kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange,nullptr,&frame)==kCVReturnSuccess);
+    assert(CVPixelBufferLockBaseAddress(frame,0)==kCVReturnSuccess);
+    auto *base=(uint8_t*)CVPixelBufferGetBaseAddressOfPlane(frame,0);size_t pitch=CVPixelBufferGetBytesPerRowOfPlane(frame,0);
+    memset(base,43,pitch*1440);memset(CVPixelBufferGetBaseAddressOfPlane(frame,1),128,CVPixelBufferGetBytesPerRowOfPlane(frame,1)*720);
+    if(digit){
+        for(int y=0;y<43;++y)memcpy(base+(1226+y)*pitch+818+58*slot,FiveVision::Icon+48*y,48);
+        const uint8_t (*templates[])[88]={FiveVision::Digits1,FiveVision::Digits2,FiveVision::Digits3,FiveVision::Digits4,FiveVision::Digits5};
+        for(int y=0;y<11;++y)memcpy(base+(1270+y)*pitch+842+58*slot,templates[digit-1][3]+8*y,8);
+    }
+    FiveVision::Patch patch;assert(FiveVision::extract(2560,1440,[&](int x,int y){return int(base[y*pitch+x]);},patch));
+    auto result=FiveVision::detect(patch);assert(result.digit==digit);if(digit)assert(result.slot==slot);
+    CVPixelBufferUnlockBaseAddress(frame,0);return frame;
+}
+static void testThreeSlots(ESP32InputBridge *bridge){
+    for(int slot=0;slot<3;++slot)for(int digit=0;digit<=5;++digit){
+        CVPixelBufferRef frame=quantityFixture(digit,slot);CVPixelBufferRelease(frame);
+    }
+    // Preserve the active five latch across unknown pixels and slot changes.
+    CVPixelBufferRef unknown=nullptr;
+    assert(CVPixelBufferCreate(kCFAllocatorDefault,2560,1440,kCVPixelFormatType_32BGRA,nullptr,&unknown)==kCVReturnSuccess);
+    [bridge observeVideoFrame:unknown active:YES];CVPixelBufferRelease(unknown);usleep(80000);
+    for(int slot=0;slot<3;++slot){
+        CVPixelBufferRef frame=quantityFixture(5,slot);
+        for(int i=0;i<3;++i){[bridge observeVideoFrame:frame active:YES];usleep(80000);}
+        CVPixelBufferRelease(frame);
+    }
+    NSLog(@"THREE_SLOT_FIXTURE_PASSED states=18 moving_five_macros=1");
+}
 static void testPixelReader(ESP32InputBridge *bridge) {
     assert(ESP32PixelBufferReader::compressed420(0x26387630));
     assert(ESP32PixelBufferReader::compressed420(0x26386630));
@@ -100,6 +130,7 @@ static void testPixelReader(ESP32InputBridge *bridge) {
     for(int i=0;i<6;++i){[bridge observeVideoFrame:decodedLinear active:YES];usleep(60000);}
     CVPixelBufferRelease(decodedLinear);
     NSLog(@"LINEAR_DECODE_FIXTURE_PASSED output=420v digit=5");
+    testThreeSlots(bridge);
     if(encoder){VTPixelTransferSessionInvalidate(encoder);CFRelease(encoder);}
     if(compressed)CVPixelBufferRelease(compressed);CVPixelBufferRelease(linear);
 }
